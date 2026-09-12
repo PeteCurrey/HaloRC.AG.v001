@@ -1,0 +1,5 @@
+// @halo-rc/db — main entry point
+
+export { db } from './client'
+export type { Database } from './client'
+export * from './schema'
