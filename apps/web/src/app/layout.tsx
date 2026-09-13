@@ -1,0 +1,75 @@
+import type { Metadata, Viewport } from 'next'
+import { Work_Sans, JetBrains_Mono, Barlow_Condensed } from 'next/font/google'
+import '../styles/tokens.css'
+import '../styles/base.css'
+import '../styles/typography.css'
+import { GlobalNav } from '@/components/navigation/GlobalNav'
+import { SiteFooter } from '@/components/navigation/SiteFooter'
+
+const workSans = Work_Sans({
+  subsets: ['latin'],
+  variable: '--font-work-sans',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+  weight: ['400', '500'],
+})
+
+// Condensed: used selectively for discipline labels only
+const barlowCondensed = Barlow_Condensed({
+  subsets: ['latin'],
+  variable: '--font-barlow-condensed',
+  display: 'swap',
+  weight: ['500', '600'],
+})
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s — Halo RC',
+    default: 'Halo RC — Remote Control. Without Compromise.',
+  },
+  description:
+    'A premium RC destination for people who take RC seriously. Competition hardware, specialist brands, and the knowledge to match.',
+  keywords: ['RC cars', 'radio controlled', 'competition RC', 'XRAY', 'Traxxas', '1/5 scale', 'RC racing'],
+  openGraph: {
+    type: 'website',
+    siteName: 'Halo RC',
+    locale: 'en_GB',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#080808',
+}
+
+interface RootLayoutProps {
+  children: React.ReactNode
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  return (
+    <html
+      lang="en"
+      className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable}`}
+    >
+      <body>
+        <GlobalNav />
+        <main id="main-content">
+          {children}
+        </main>
+        <SiteFooter />
+      </body>
+    </html>
+  )
+}

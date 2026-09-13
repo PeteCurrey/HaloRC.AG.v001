@@ -1,0 +1,165 @@
+/**
+ * Halo RC — Design Token System
+ * CSS Custom Properties
+ *
+ * Import order matters: tokens → base → components → pages
+ * Never use raw values in components — always reference tokens.
+ */
+
+/* ─── Colour: Dark Surfaces ──────────────────────────────────────────────── */
+:root {
+  /* Foundation — dark */
+  --colour-void:      #080808;
+  --colour-carbon:    #0F0F0F;
+  --colour-graphite:  #181818;
+  --colour-steel:     #222222;
+  --colour-mist:      #383838;
+  --colour-smoke:     #606060;
+  --colour-ash:       #909090;
+  --colour-chalk:     #C0C0C0;
+  --colour-off-white: #E8E8E8;
+  --colour-white:     #F8F8F8;
+
+  /* Foundation — light editorial */
+  --colour-paper:     #F5F3EF;
+  --colour-linen:     #EDEAE4;
+  --colour-rule:      #D8D4CC;
+  --colour-body-dark: #1A1A1A;
+
+  /* Signal — used sparingly, intentionally */
+  --colour-halo:      #B8935A;   /* Classification signal only */
+  --colour-race:      #C8001A;   /* Competition / Race Dept marker */
+  --colour-verified:  #1A6E34;   /* Verified data indicator */
+  --colour-caution:   #B86818;   /* Inferred data indicator */
+  --colour-error:     #C82020;   /* Error state */
+
+  /* Transparent variants */
+  --colour-halo-10:   rgba(184, 147, 90, 0.10);
+  --colour-halo-20:   rgba(184, 147, 90, 0.20);
+  --colour-race-10:   rgba(200, 0, 26, 0.10);
+  --colour-white-05:  rgba(248, 248, 248, 0.05);
+  --colour-white-08:  rgba(248, 248, 248, 0.08);
+  --colour-white-12:  rgba(248, 248, 248, 0.12);
+}
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+:root {
+  /* Font families — loaded via next/font, referenced here */
+  --font-primary:     var(--font-work-sans), 'Work Sans', system-ui, sans-serif;
+  --font-mono:        var(--font-jetbrains-mono), 'JetBrains Mono', 'Courier New', monospace;
+  --font-condensed:   var(--font-barlow-condensed), 'Barlow Condensed', system-ui, sans-serif;
+
+  /* Scale */
+  --text-xs:    0.6875rem;   /* 11px */
+  --text-sm:    0.8125rem;   /* 13px */
+  --text-base:  0.9375rem;   /* 15px */
+  --text-md:    1.0625rem;   /* 17px */
+  --text-lg:    1.25rem;     /* 20px */
+  --text-xl:    1.5rem;      /* 24px */
+  --text-2xl:   2rem;        /* 32px */
+  --text-3xl:   2.5rem;      /* 40px */
+  --text-4xl:   3.5rem;      /* 56px */
+  --text-5xl:   5rem;        /* 80px */
+  --text-6xl:   7rem;        /* 112px */
+
+  /* Weight */
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Line height */
+  --leading-none:    1;
+  --leading-tight:   1.1;
+  --leading-snug:    1.25;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --tracking-tight:   -0.03em;
+  --tracking-snug:    -0.01em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.04em;
+  --tracking-wider:   0.08em;
+  --tracking-widest:  0.16em;
+}
+
+/* ─── Spacing (8-point grid) ─────────────────────────────────────────────── */
+:root {
+  --space-0:  0;
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.5rem;    /* 24px */
+  --space-6:  2rem;      /* 32px */
+  --space-7:  3rem;      /* 48px */
+  --space-8:  4rem;      /* 64px */
+  --space-9:  6rem;      /* 96px */
+  --space-10: 8rem;      /* 128px */
+  --space-11: 12rem;     /* 192px */
+  --space-12: 16rem;     /* 256px */
+}
+
+/* ─── Border Radius ──────────────────────────────────────────────────────── */
+:root {
+  --radius-none: 0;
+  --radius-sm:   0.1875rem;  /* 3px  — inputs, chips */
+  --radius-md:   0.375rem;   /* 6px  — cards, panels */
+  --radius-lg:   0.625rem;   /* 10px — large cards, modals */
+  --radius-full: 9999px;     /* pills — used sparingly */
+}
+
+/* ─── Shadows ────────────────────────────────────────────────────────────── */
+:root {
+  --shadow-subtle:  0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-card:    0 4px 16px rgba(0, 0, 0, 0.55);
+  --shadow-raised:  0 8px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-halo:    0 0 48px rgba(184, 147, 90, 0.12), 0 0 8px rgba(184, 147, 90, 0.06);
+  --shadow-image:   0 16px 64px rgba(0, 0, 0, 0.7);
+}
+
+/* ─── Motion ─────────────────────────────────────────────────────────────── */
+:root {
+  --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-enter:     cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit:      cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-instant:   80ms;
+  --duration-fast:      150ms;
+  --duration-standard:  250ms;
+  --duration-slow:      400ms;
+  --duration-cinematic: 800ms;
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+:root {
+  --nav-height:       64px;
+  --nav-height-md:    72px;
+
+  --container-sm:     640px;
+  --container-md:     768px;
+  --container-lg:     1024px;
+  --container-xl:     1280px;
+  --container-2xl:    1440px;
+  --container-3xl:    1680px;
+
+  --gutter-sm:   var(--space-4);
+  --gutter-md:   var(--space-6);
+  --gutter-lg:   var(--space-8);
+  --gutter-xl:   var(--space-9);
+}
+
+/* ─── Z-index ────────────────────────────────────────────────────────────── */
+:root {
+  --z-below:    -1;
+  --z-base:      0;
+  --z-raised:   10;
+  --z-overlay:  20;
+  --z-sticky:   30;
+  --z-nav:      40;
+  --z-modal:    50;
+  --z-toast:    60;
+}

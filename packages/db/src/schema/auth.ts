@@ -6,15 +6,16 @@ import {
   integer,
   timestamp,
   index,
+  jsonb,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { marketCodeEnum, currencyEnum, userRoleEnum } from './enums'
+import { marketCodeEnum, currencyEnum, userRoleEnum, taxModeEnum } from './enums'
 import {
   orderPaymentStatusEnum,
   orderFulfilmentStatusEnum,
 } from './enums'
-import { marketOffers } from './products'
-import { productVariants } from './products'
+import { marketOffers, productVariants, products } from './products'
+import { garageVehicles } from './garage'
 
 // ─── Profiles ─────────────────────────────────────────────────────────────────
 // Created automatically via DB trigger when auth.users row is created.
@@ -28,6 +29,7 @@ export const profiles = pgTable('profiles', {
   currencyPreference: currencyEnum('currency_preference').notNull().default('GBP'),
   role: userRoleEnum('role').notNull().default('CUSTOMER'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -35,12 +37,16 @@ export const profiles = pgTable('profiles', {
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id'), // nullable: future guest checkout
+  orderReference: text('order_reference').unique(),
+  userId: text('user_id'), // nullable: guest checkout or authenticated customer
   marketCode: marketCodeEnum('market_code').notNull(),
   stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
   stripeCheckoutSessionId: text('stripe_checkout_session_id').unique(),
-  paymentStatus: orderPaymentStatusEnum('payment_status').notNull().default('PENDING'),
+  paymentStatus: orderPaymentStatusEnum('payment_status').notNull().default('PENDING_PAYMENT'),
   fulfilmentStatus: orderFulfilmentStatusEnum('fulfilment_status').notNull().default('PENDING'),
+  subtotalMinorUnits: integer('subtotal_minor_units'),
+  taxMinorUnits: integer('tax_minor_units').notNull().default(0),
+  taxMode: taxModeEnum('tax_mode').notNull().default('INCLUSIVE'),
   totalMinorUnits: integer('total_minor_units').notNull(),
   currency: currencyEnum('currency').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -48,6 +54,7 @@ export const orders = pgTable('orders', {
 }, (t) => [
   index('orders_user_idx').on(t.userId),
   index('orders_payment_status_idx').on(t.paymentStatus),
+  index('orders_order_reference_idx').on(t.orderReference),
 ])
 
 // ─── Order Items ──────────────────────────────────────────────────────────────
@@ -55,13 +62,22 @@ export const orders = pgTable('orders', {
 export const orderItems = pgTable('order_items', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   orderId: text('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
-  marketOfferId: text('market_offer_id').references(() => marketOffers.id),
+  productId: text('product_id').references(() => products.id),
   productVariantId: text('product_variant_id').references(() => productVariants.id),
-  quantity: integer('quantity').notNull(),
+  marketOfferId: text('market_offer_id').references(() => marketOffers.id),
+  sku: text('sku'),
+  productName: text('product_name'),
+  quantity: integer('quantity').notNull().default(1),
   unitPriceMinorUnits: integer('unit_price_minor_units').notNull(),
   taxMinorUnits: integer('tax_minor_units').notNull().default(0),
+  lineTotalMinorUnits: integer('line_total_minor_units'),
+  currency: currencyEnum('currency'),
+  taxMode: taxModeEnum('tax_mode'),
+  snapshot: jsonb('snapshot'),
+  garageVehicleId: text('garage_vehicle_id').references(() => garageVehicles.id, { onDelete: 'set null' }),
 }, (t) => [
   index('order_items_order_idx').on(t.orderId),
+  index('order_items_garage_vehicle_idx').on(t.garageVehicleId),
 ])
 
 // ─── Relations ────────────────────────────────────────────────────────────────

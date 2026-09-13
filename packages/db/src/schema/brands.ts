@@ -15,6 +15,9 @@ import {
   marketCodeEnum,
   currencyEnum,
   taxModeEnum,
+  taxDisplayModeEnum,
+  measurementSystemEnum,
+  shippingRegionEnum,
 } from './enums'
 
 // ─── Markets ──────────────────────────────────────────────────────────────────
@@ -22,9 +25,17 @@ import {
 export const markets = pgTable('markets', {
   code: marketCodeEnum('code').primaryKey(),
   name: text('name').notNull(),
+  countryCode: text('country_code').notNull().default('GB'),
   currency: currencyEnum('currency').notNull(),
+  locale: text('locale').notNull().default('en-GB'),
   taxMode: taxModeEnum('tax_mode').notNull(),
+  taxDisplayMode: taxDisplayModeEnum('tax_display_mode').notNull().default('TAX_INCLUDED'),
+  defaultLanguage: text('default_language').notNull().default('en'),
+  measurementSystem: measurementSystemEnum('measurement_system').notNull().default('METRIC'),
+  shippingRegion: shippingRegionEnum('shipping_region').notNull().default('UK_DOMESTIC'),
   active: boolean('active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const marketTaxRules = pgTable('market_tax_rules', {
@@ -46,6 +57,23 @@ export const marketShippingRules = pgTable('market_shipping_rules', {
   pricePence: integer('price_pence').notNull(),
   leadTimeDays: integer('lead_time_days'),
   active: boolean('active').notNull().default(true),
+})
+
+export const marketShippingMethods = pgTable('market_shipping_methods', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  marketCode: marketCodeEnum('market_code').notNull().references(() => markets.code),
+  name: text('name').notNull(),
+  carrier: text('carrier').notNull(),
+  serviceLevel: text('service_level').notNull(),
+  costMinorUnits: integer('cost_minor_units').notNull().default(0),
+  currency: currencyEnum('currency').notNull().default('GBP'),
+  estimatedDaysMin: integer('estimated_days_min').notNull().default(1),
+  estimatedDaysMax: integer('estimated_days_max').notNull().default(3),
+  cutoffTimeUtc: text('cutoff_time_utc'),
+  freeThresholdMinorUnits: integer('free_threshold_minor_units'),
+  active: boolean('active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ─── Brands ───────────────────────────────────────────────────────────────────

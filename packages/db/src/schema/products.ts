@@ -13,6 +13,7 @@ import {
 import { relations, sql } from 'drizzle-orm'
 import { brands } from './brands'
 import { markets } from './brands'
+import { suppliers } from './suppliers'
 import {
   productTierEnum,
   recordStatusEnum,
@@ -127,7 +128,7 @@ export const marketOffers = pgTable('market_offers', {
   currency: currencyEnum('currency').notNull(),
   taxMode: taxModeEnum('tax_mode').notNull(),
   availability: availabilityStatusEnum('availability').notNull().default('NOT_AVAILABLE'),
-  supplierId: text('supplier_id'), // FK added in suppliers.ts migration
+  supplierId: text('supplier_id').references(() => suppliers.id),
   supplyRoute: supplyRouteEnum('supply_route'),
   leadTimeDays: integer('lead_time_days'),
   preorderDate: date('preorder_date'),
@@ -150,6 +151,23 @@ export const inventorySources = pgTable('inventory_sources', {
   reservedQty: integer('reserved_qty').notNull().default(0),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
+
+// ─── Product Shipping Constraints ─────────────────────────────────────────────
+
+export const productShippingConstraints = pgTable('product_shipping_constraints', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  isOversize: boolean('is_oversize').notNull().default(false),
+  isHazardous: boolean('is_hazardous').notNull().default(false),
+  maxQuantityPerConsignment: integer('max_quantity_per_consignment'),
+  requiresSpecialHandling: boolean('requires_special_handling').notNull().default(false),
+  prohibitedMarkets: text('prohibited_markets').array(),
+  restrictionNote: text('restriction_note'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('product_shipping_constraints_product_idx').on(t.productId),
+])
 
 // ─── Relations ────────────────────────────────────────────────────────────────
 
@@ -194,6 +212,10 @@ export const marketOffersRelations = relations(marketOffers, ({ one, many }) => 
   variant: one(productVariants, {
     fields: [marketOffers.productVariantId],
     references: [productVariants.id],
+  }),
+  supplier: one(suppliers, {
+    fields: [marketOffers.supplierId],
+    references: [suppliers.id],
   }),
   inventorySources: many(inventorySources),
 }))

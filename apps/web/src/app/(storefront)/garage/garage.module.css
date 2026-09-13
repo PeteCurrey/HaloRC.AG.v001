@@ -1,0 +1,205 @@
+.page {
+  min-height: 100vh;
+  background: var(--colour-void);
+  padding: var(--space-9) var(--gutter-md);
+}
+
+.container {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-9);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-halo);
+  margin-bottom: var(--space-2);
+}
+
+.heading {
+  font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
+  font-weight: 600;
+  color: var(--colour-white);
+  margin-bottom: var(--space-1);
+}
+
+.sub {
+  font-size: var(--text-sm);
+  color: var(--colour-ash);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: var(--space-2);
+}
+
+.btnPrimary {
+  background: var(--colour-halo);
+  color: var(--colour-void);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  display: inline-block;
+}
+
+.btnPrimary:hover {
+  opacity: 0.85;
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--colour-ash);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btnGhost:hover {
+  border-color: var(--colour-ash);
+  color: var(--colour-off-white);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-14) var(--space-8);
+  border: 1px dashed var(--colour-steel);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--colour-off-white);
+}
+
+.emptySub {
+  font-size: var(--text-sm);
+  color: var(--colour-ash);
+  max-width: 48ch;
+  line-height: var(--leading-relaxed);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.vehicleCard {
+  display: block;
+  background: var(--colour-carbon);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.vehicleCard:hover {
+  border-color: var(--colour-halo);
+}
+
+.vehicleCardTop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.vehicleStatus {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px var(--space-2);
+  border-radius: 2px;
+}
+
+.vehicleStatus[data-status="ACTIVE"] {
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+  color: #86efac;
+  border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
+}
+
+.vehicleStatus[data-status="STORED"] {
+  background: color-mix(in srgb, #f59e0b 10%, transparent);
+  color: #fcd34d;
+  border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
+}
+
+.vehicleStatus[data-status="SOLD"] {
+  background: color-mix(in srgb, var(--colour-ash) 10%, transparent);
+  color: var(--colour-smoke);
+  border: 1px solid var(--colour-steel);
+}
+
+.vehicleStatus[data-status="ARCHIVED"] {
+  background: color-mix(in srgb, var(--colour-ash) 8%, transparent);
+  color: var(--colour-smoke);
+  border: 1px solid var(--colour-steel);
+}
+
+.publicBadge {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px var(--space-2);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--colour-halo) 10%, transparent);
+  color: var(--colour-halo);
+  border: 1px solid color-mix(in srgb, var(--colour-halo) 25%, transparent);
+}
+
+.vehicleName {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--colour-white);
+  margin-bottom: var(--space-1);
+}
+
+.vehicleMachine {
+  font-size: var(--text-sm);
+  color: var(--colour-off-white);
+  margin-bottom: var(--space-1);
+}
+
+.vehiclePlatform {
+  font-size: var(--text-xs);
+  color: var(--colour-ash);
+  margin-bottom: var(--space-4);
+}
+
+.vehicleArrow {
+  font-size: var(--text-xs);
+  color: var(--colour-halo);
+  font-weight: 500;
+}

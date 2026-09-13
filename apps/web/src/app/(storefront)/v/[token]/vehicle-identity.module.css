@@ -1,0 +1,158 @@
+.page {
+  min-height: 100vh;
+  background: var(--colour-void);
+  padding: var(--space-9) var(--gutter-md);
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.qrHeader {
+  margin-bottom: var(--space-10);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--colour-steel);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-halo);
+  margin-bottom: var(--space-4);
+}
+
+.vehicleName {
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  font-weight: 600;
+  color: var(--colour-white);
+  margin-bottom: var(--space-2);
+}
+
+.machineName {
+  font-size: var(--text-lg);
+  color: var(--colour-off-white);
+  margin-bottom: var(--space-1);
+}
+
+.brandName {
+  font-size: var(--text-sm);
+  color: var(--colour-ash);
+  margin-bottom: var(--space-4);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px var(--space-3);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--colour-halo) 8%, transparent);
+  color: var(--colour-halo);
+  border: 1px solid color-mix(in srgb, var(--colour-halo) 20%, transparent);
+}
+
+.section {
+  margin-bottom: var(--space-10);
+}
+
+.sectionHeading {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--colour-off-white);
+  margin-bottom: var(--space-5);
+}
+
+.buildGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.buildItem {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--colour-carbon);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-sm);
+}
+
+.buildLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--colour-smoke);
+}
+
+.buildValue {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--colour-white);
+  text-align: right;
+}
+
+.specGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.specItem {
+  background: var(--colour-carbon);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+}
+
+.specKey {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-smoke);
+  margin-bottom: var(--space-1);
+}
+
+.specValue {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--colour-white);
+}
+
+.specNote {
+  font-size: var(--text-xs);
+  color: var(--colour-smoke);
+  line-height: var(--leading-relaxed);
+}
+
+.footer {
+  padding-top: var(--space-10);
+  border-top: 1px solid var(--colour-steel);
+  font-size: var(--text-sm);
+  color: var(--colour-smoke);
+  text-align: center;
+}
+
+.footerLink {
+  color: var(--colour-halo);
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}

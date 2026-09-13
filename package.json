@@ -2,24 +2,26 @@
   "name": "halo-rc",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@12.4.1",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "test": "turbo test",
+    "test": "vitest run",
     "clean": "turbo clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
     "db:seed": "turbo db:seed"
   },
   "devDependencies": {
+    "@types/node": "^22.10.7",
     "turbo": "latest",
     "typescript": "^5.7.3",
-    "@types/node": "^22.10.7"
+    "vitest": "^5.0.0"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": "20.x",
     "pnpm": ">=9.0.0"
   }
 }

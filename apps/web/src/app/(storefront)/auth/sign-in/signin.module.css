@@ -1,0 +1,119 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--colour-void);
+  padding: var(--space-6) var(--gutter-md);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--colour-carbon);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-md);
+  padding: var(--space-9) var(--space-8);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-halo);
+  margin-bottom: var(--space-2);
+}
+
+.heading {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--colour-white);
+  margin-bottom: var(--space-1);
+}
+
+.sub {
+  font-size: var(--text-sm);
+  color: var(--colour-ash);
+  margin-bottom: var(--space-7);
+}
+
+.errorBanner {
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+  border: 1px solid #ef4444;
+  border-radius: var(--radius-sm);
+  color: #fca5a5;
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--colour-off-white);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.input {
+  width: 100%;
+  background: var(--colour-void);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-sm);
+  color: var(--colour-white);
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--colour-halo);
+}
+
+.input::placeholder {
+  color: var(--colour-smoke);
+}
+
+.btn {
+  margin-top: var(--space-2);
+  width: 100%;
+  background: var(--colour-halo);
+  color: var(--colour-void);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+
+.footer {
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--colour-ash);
+  text-align: center;
+}
+
+.link {
+  color: var(--colour-halo);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
