@@ -169,6 +169,9 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.20.2
+      next:
+        specifier: 15.3.4
+        version: 15.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       turbo:
         specifier: latest
         version: 2.10.12
