@@ -13,10 +13,16 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
-  const supabase = createServerClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
-    {
+  const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']
+  const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']
+
+  // If Supabase environment variables are missing or invalid, bypass gracefully
+  if (!supabaseUrl || !supabaseAnonKey || !supabaseUrl.startsWith('http')) {
+    return supabaseResponse
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -29,12 +35,15 @@ export async function middleware(request: NextRequest) {
           )
         },
       },
-    }
-  )
+    })
 
-  // Refresh session — must call getUser() to keep token alive
-  // Do NOT use getSession(); it does not validate the token server-side
-  await supabase.auth.getUser()
+    // Refresh session — must call getUser() to keep token alive
+    // Do NOT use getSession(); it does not validate the token server-side
+    await supabase.auth.getUser()
+  } catch (error) {
+    // If Supabase session refresh fails (network, token expired, etc.), do not crash middleware
+    console.error('Middleware Supabase session refresh error:', error)
+  }
 
   return supabaseResponse
 }
