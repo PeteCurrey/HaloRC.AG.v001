@@ -248,11 +248,14 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--duration-cinematic) var(--ease-standard);
+  transition:
+    transform var(--duration-standard) var(--ease-standard),
+    filter var(--duration-standard) var(--ease-standard);
 }
 
 .featuredImageWrap:hover img {
   transform: scale(1.03);
+  filter: brightness(1.06) contrast(1.04);
 }
 
 .featuredInfo {
@@ -330,12 +333,16 @@
   gap: var(--space-2);
   transition:
     border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .raceDiscipline:hover {
-  border-color: var(--colour-mist);
+  border-color: var(--colour-ignition-20);
   background-color: var(--colour-steel);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--colour-ignition-10);
 }
 
 .raceDisciplineLabel {
@@ -371,6 +378,7 @@
 
 .raceCtaAccent {
   color: var(--colour-race);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 /* ─── Section: Halo Machine ───────────────────────────────────────────── */
@@ -447,11 +455,22 @@
 }
 
 .haloMark {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background-color: var(--colour-halo);
   flex-shrink: 0;
+  box-shadow: 0 0 12px 4px var(--colour-ignition-10);
+}
+
+.haloMark::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--colour-ignition-20) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .haloClassificationText {
@@ -523,6 +542,10 @@
   gap: var(--space-8);
   width: max-content;
   animation: marquee 40s linear infinite;
+}
+
+.brandMarquee:hover {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -667,6 +690,13 @@
 .btnHalo:hover {
   border-color: var(--colour-halo);
   background-color: var(--colour-halo-10);
+}
+
+.btnPrimary:focus-visible,
+.btnGhost:focus-visible,
+.btnHalo:focus-visible {
+  outline: 2px solid var(--colour-halo);
+  outline-offset: 2px;
 }
 
 /* ─── Shared: Chip / badge ────────────────────────────────────────────── */

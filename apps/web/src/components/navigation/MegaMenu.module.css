@@ -1,0 +1,272 @@
+/* apps/web/src/components/navigation/MegaMenu.module.css */
+
+.megaPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: rgba(8, 8, 8, 0.98);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--colour-steel);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  z-index: calc(var(--z-nav) - 1);
+  overflow: hidden;
+
+  /* Enter & exit transitions */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    visibility var(--duration-fast) var(--ease-standard);
+}
+
+.megaPanel[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 1023px) {
+  .megaPanel {
+    display: none !important;
+  }
+}
+
+.inner {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  padding: var(--space-8) var(--gutter-md) var(--space-9);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 340px;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+/* Variant when there is no spotlight */
+.innerNoSpotlight {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* ─── Columns ─────────────────────────────────────────────────────────────── */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.columnTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--colour-smoke);
+  margin: 0 0 var(--space-2) 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--colour-steel);
+}
+
+.linksList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.linkItem {
+  margin: 0;
+  padding: 0;
+}
+
+.linkAnchor {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.linkAnchor:hover,
+.linkAnchor:focus-visible {
+  background-color: var(--colour-carbon);
+  border-left-color: var(--colour-ignition);
+  outline: none;
+}
+
+.linkHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.linkLabel {
+  font-family: var(--font-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--colour-off-white);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.linkAnchor:hover .linkLabel,
+.linkAnchor:focus-visible .linkLabel {
+  color: var(--colour-white);
+}
+
+.linkSub {
+  font-size: var(--text-xs);
+  color: var(--colour-ash);
+  line-height: var(--leading-snug);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.linkAnchor:hover .linkSub,
+.linkAnchor:focus-visible .linkSub {
+  color: var(--colour-chalk);
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--colour-ignition-10);
+  color: var(--colour-ignition);
+  border: 1px solid var(--colour-ignition-20);
+  white-space: nowrap;
+}
+
+.badgeHalo {
+  background-color: rgba(184, 147, 90, 0.12);
+  color: var(--colour-halo);
+  border-color: rgba(184, 147, 90, 0.25);
+}
+
+.badgeVerified {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: var(--colour-verified);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ─── Spotlight Card ─────────────────────────────────────────────────────── */
+
+.spotlightCard {
+  background-color: var(--colour-carbon);
+  border: 1px solid var(--colour-steel);
+  border-radius: var(--radius-sm);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.spotlightCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--colour-ignition), var(--colour-halo));
+  opacity: 0.75;
+}
+
+.spotlightCard:hover {
+  border-color: var(--colour-mist);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.spotlightTagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.spotlightTag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--colour-smoke);
+}
+
+.spotlightImageWrap {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--colour-void);
+  border: 1px solid var(--colour-steel);
+  margin-block: var(--space-1);
+}
+
+.spotlightTitle {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--colour-white);
+  margin: 0;
+  letter-spacing: var(--tracking-tight);
+}
+
+.spotlightDescription {
+  font-size: var(--text-xs);
+  color: var(--colour-ash);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.spotlightLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--colour-ignition);
+  text-decoration: none;
+  margin-top: var(--space-2);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.spotlightLink:hover,
+.spotlightLink:focus-visible {
+  color: var(--colour-ignition-bright);
+}
+
+.spotlightLink svg {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.spotlightLink:hover svg,
+.spotlightLink:focus-visible svg {
+  transform: translateX(3px);
+}
