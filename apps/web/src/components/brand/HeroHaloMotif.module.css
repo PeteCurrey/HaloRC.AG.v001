@@ -1,0 +1,148 @@
+.container {
+  position: absolute;
+  top: 50%;
+  right: max(1.5rem, calc((100vw - var(--container-2xl)) / 2 + 2rem));
+  transform: translateY(-50%);
+  width: min(52vw, 620px);
+  height: min(52vw, 620px);
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Ambient glow breathing in sync */
+.ambientGlow {
+  transform-origin: 250px 250px;
+  animation: pulseGlow 7s var(--ease-standard) infinite;
+  will-change: transform, opacity;
+}
+
+/* Outer ring breathing pulse */
+.outerRingGroup {
+  transform-origin: 250px 250px;
+  animation: pulseOuter 7s var(--ease-standard) infinite;
+  will-change: transform;
+}
+
+/* Inner counter-rotating ring */
+.innerRingGroup {
+  transform-origin: 250px 250px;
+  animation: counterRotateInner 48s linear infinite;
+  will-change: transform;
+}
+
+/* Crosshairs subtle pulse */
+.crosshairs {
+  transform-origin: 250px 250px;
+  animation: pulseCrosshair 7s var(--ease-standard) infinite;
+}
+
+/* Centre beacon point */
+.centerPoint {
+  transform-origin: 250px 250px;
+  animation: pulseCenter 7s var(--ease-standard) infinite;
+}
+
+/* ─── Keyframe Animations ─────────────────────────────────────────────── */
+
+@keyframes pulseOuter {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.95;
+  }
+}
+
+@keyframes counterRotateInner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes pulseCrosshair {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes pulseCenter {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ─── Responsive Degradation ──────────────────────────────────────────── */
+
+/* 1024px tablet / laptop */
+@media (max-width: 1200px) {
+  .container {
+    right: 1rem;
+    width: min(48vw, 480px);
+    height: min(48vw, 480px);
+    opacity: 0.75;
+  }
+}
+
+/* 768px tablet */
+@media (max-width: 900px) {
+  .container {
+    top: 42%;
+    right: -20px;
+    width: 380px;
+    height: 380px;
+    opacity: 0.4;
+  }
+}
+
+/* 390px mobile */
+@media (max-width: 600px) {
+  .container {
+    top: 26%;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20%);
+    width: 290px;
+    height: 290px;
+    opacity: 0.22;
+  }
+
+  .mobileHide {
+    display: none;
+  }
+}

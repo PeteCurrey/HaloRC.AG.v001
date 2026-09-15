@@ -32,16 +32,24 @@
   to   { transform: translateY(8%) scale(1.05); }
 }
 
-/* Gradient scrim — protects text legibility */
+/* Gradient scrim — protects text legibility with subtle ignition warm vignette */
 .heroScrim {
   position: absolute;
   inset: 0;
+  z-index: 2;
+  pointer-events: none;
   background:
+    radial-gradient(
+      ellipse 65% 55% at 72% 45%,
+      var(--colour-ignition-10) 0%,
+      rgba(242, 84, 11, 0.03) 45%,
+      transparent 70%
+    ),
     linear-gradient(
       to top,
-      rgba(8,8,8,0.95) 0%,
-      rgba(8,8,8,0.6) 35%,
-      rgba(8,8,8,0.1) 70%,
+      rgba(8, 8, 8, 0.96) 0%,
+      rgba(8, 8, 8, 0.68) 35%,
+      rgba(8, 8, 8, 0.2) 70%,
       transparent 100%
     );
 }
@@ -50,10 +58,12 @@
 .heroScrimTop {
   position: absolute;
   inset: 0;
+  z-index: 2;
+  pointer-events: none;
   background:
     linear-gradient(
       to bottom,
-      rgba(8,8,8,0.4) 0%,
+      rgba(8, 8, 8, 0.45) 0%,
       transparent 30%
     );
 }
@@ -62,7 +72,7 @@
 
 .heroContent {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   width: 100%;
   max-width: var(--container-2xl);
   margin-inline: auto;

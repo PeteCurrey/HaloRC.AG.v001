@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import s from './page.module.css'
+import { HeroHaloMotif } from '@/components/brand/HeroHaloMotif'
 
 // ─── Seed data — Phase 1 placeholders ────────────────────────────────────────
 // In Phase 2 these come from the database.
@@ -80,6 +81,8 @@ export default function HomePage() {
 
         <div className={s.heroScrim} aria-hidden="true" />
         <div className={s.heroScrimTop} aria-hidden="true" />
+
+        <HeroHaloMotif />
 
         <div className={s.heroContent}>
           <div className={s.heroEyebrow}>
