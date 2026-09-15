@@ -67,18 +67,14 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section className={s.hero} aria-label="Halo RC — Hero">
         <div className={s.heroBg} aria-hidden="true">
-          {/*
-            Phase 1: Placeholder — dark surface with brand identity.
-            Phase 2: Real manufacturer-approved hero imagery goes here.
-            Image must have approved_for_commercial_use = true in media_assets.
-          */}
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              background:
-                'radial-gradient(ellipse at 60% 40%, #1a1a1a 0%, #080808 70%)',
-            }}
+          <Image
+            src="/images/hero/hero-1-5-scale-rc.jpg"
+            alt="Premium 1/5th scale competition racing RC car on circuit"
+            fill
+            priority
+            quality={90}
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
         </div>
 
