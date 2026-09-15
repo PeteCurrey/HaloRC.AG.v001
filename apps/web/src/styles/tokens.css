@@ -32,11 +32,17 @@
   --colour-verified:  #1A6E34;   /* Verified data indicator */
   --colour-caution:   #B86818;   /* Inferred data indicator */
   --colour-error:     #C82020;   /* Error state */
+  --colour-ignition:        #F2540B;   /* Primary interactive accent */
+  --colour-ignition-bright: #FF6A1A; /* Hover/active state */
+  --colour-ignition-dim:    #7A2A0A;   /* Low-emphasis / border use */
 
   /* Transparent variants */
   --colour-halo-10:   rgba(184, 147, 90, 0.10);
   --colour-halo-20:   rgba(184, 147, 90, 0.20);
   --colour-race-10:   rgba(200, 0, 26, 0.10);
+  --colour-ignition-10: rgba(242, 84, 11, 0.10);
+  --colour-ignition-20: rgba(242, 84, 11, 0.20);
+  --colour-ignition-40: rgba(242, 84, 11, 0.40);
   --colour-white-05:  rgba(248, 248, 248, 0.05);
   --colour-white-08:  rgba(248, 248, 248, 0.08);
   --colour-white-12:  rgba(248, 248, 248, 0.12);

@@ -592,8 +592,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-6);
-  background-color: var(--colour-off-white);
-  color: var(--colour-void);
+  background-color: var(--colour-ignition);
+  color: var(--colour-white);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
@@ -603,11 +603,13 @@
   cursor: pointer;
   transition:
     background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
 }
 
 .btnPrimary:hover {
-  background-color: var(--colour-white);
+  background-color: var(--colour-ignition-bright);
+  box-shadow: 0 4px 16px var(--colour-ignition-40);
   transform: translateY(-1px);
 }
 
