@@ -5,8 +5,6 @@ import { HeroHaloMotif } from '@/components/brand/HeroHaloMotif'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 import {
-  FEATURED_MACHINE,
-  HALO_MACHINE,
   RACE_DISCIPLINES,
   BRANDS_MARQUEE,
   SHOP_DISCIPLINES,
@@ -124,7 +122,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── The Machines — Featured product ── */}
+      {/* ── The Machines ── */}
       <section className={s.sectionMachines} aria-labelledby="machines-heading">
         <div className={s.sectionInner}>
 
@@ -138,44 +136,43 @@ export default function HomePage() {
               Precision engineering, at every scale.
             </h2>
             <p className={s.sectionSubtext}>
-              From competition chassis to bash trucks. Every machine we carry
-              is chosen for a reason.
+              Bash, race, drift, crawl, and large scale. Every platform in the
+              Avorria catalogue is selected for documented engineering merit.
             </p>
           </ScrollReveal>
 
-          {/* Featured product — editorial, not a card */}
           <ScrollReveal staggerMs={80}>
             <article className={s.featuredProduct}>
               <div className={s.featuredImageWrap}>
-                {/*
-                  Phase 1: Placeholder.
-                  Real image once approved_for_commercial_use is confirmed.
-                */}
-                <div className={s.imagePlaceholder}>
-                  Traxxas X-Maxx 8S
+                <div className={s.imagePlaceholder} aria-hidden="true">
+                  The Machines
                 </div>
               </div>
 
               <div className={s.featuredInfo}>
-                <p className={s.featuredBrand}>{FEATURED_MACHINE.brand}</p>
-                <h3 className={s.featuredName}>{FEATURED_MACHINE.fullName}</h3>
+                <p className={s.featuredBrand}>Avorria RC — Machine Showroom</p>
+                <h3 className={s.featuredName}>Five disciplines. Every scale.</h3>
 
                 <div className={s.featuredMeta}>
-                  <span className={s.chip}>{FEATURED_MACHINE.scale}</span>
-                  <span className={s.chip}>{FEATURED_MACHINE.power}</span>
+                  <span className={s.chip}>Bash</span>
+                  <span className={s.chip}>Race</span>
+                  <span className={s.chip}>Drift</span>
+                  <span className={s.chip}>Crawl</span>
+                  <span className={s.chip}>Large Scale</span>
                 </div>
 
-                <p className={s.featuredEditorial}>{FEATURED_MACHINE.editorial}</p>
+                <p className={s.featuredEditorial}>
+                  The Avorria machine catalogue is curated for engineering merit — verified platforms
+                  with documented construction specifications, confirmed competition lineage, or
+                  a demonstrated record of real-world performance.
+                </p>
 
                 <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
-                  <Link
-                    href={`/machines/${FEATURED_MACHINE.slug}`}
-                    className={s.btnPrimary}
-                  >
-                    View Machine
+                  <Link href="/machines" className={s.btnPrimary}>
+                    Explore The Machines
                   </Link>
-                  <Link href="/machines" className={s.btnGhost}>
-                    All Machines
+                  <Link href="/machines?view=catalogue" className={s.btnGhost}>
+                    Browse Catalogue
                   </Link>
                 </div>
               </div>
@@ -225,11 +222,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Halo Machine ── */}
+      {/* ── Halo Engineering ── */}
       <section className={s.sectionHalo} aria-labelledby="halo-heading">
         <div className={s.sectionInner}>
           <div className={s.sectionLabel} aria-hidden="true">
-            <span>Halo Machine</span>
+            <span>Halo Engineering</span>
             <div className={s.sectionLabelLine} />
           </div>
         </div>
@@ -237,12 +234,8 @@ export default function HomePage() {
         <ScrollReveal>
           <article className={s.haloFeature}>
             <div className={s.haloImagePanel}>
-              {/*
-                Phase 1: Placeholder.
-                XRAY press imagery once approved_for_commercial_use confirmed.
-              */}
-              <div className={s.imagePlaceholder}>
-                XRAY X4 '26
+              <div className={s.imagePlaceholder} aria-hidden="true">
+                Halo Tier
               </div>
             </div>
 
@@ -250,33 +243,44 @@ export default function HomePage() {
               <div className={s.haloClassification}>
                 <div className={s.haloMark} aria-hidden="true" />
                 <span className={s.haloClassificationText}>
-                  Halo / {HALO_MACHINE.haloClassification}
+                  Halo / Competition Engineering
                 </span>
               </div>
 
               <div>
                 <p style={{ fontSize: 'var(--text-xs)', letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase', color: 'var(--colour-smoke)', marginBottom: 'var(--space-2)', fontWeight: 600 }}>
-                  {HALO_MACHINE.brand}
+                  Avorria Race Department
                 </p>
                 <h2 id="halo-heading" className={s.haloName}>
-                  {HALO_MACHINE.fullName}
+                  Built without compromise.
                 </h2>
               </div>
 
-              <p className={s.haloEditorial}>{HALO_MACHINE.editorial}</p>
+              <p className={s.haloEditorial}>
+                The Halo tier represents the ceiling of what the format allows — platforms
+                where the specification exists not to satisfy a price point, but to meet the
+                demands of international competition. Championship development lineage, zero-tolerance
+                engineering, and a supply chain verified at source.
+              </p>
 
               <div className={s.haloSpecRow}>
-                {HALO_MACHINE.specs.map((spec) => (
-                  <div key={spec.key} className={s.haloSpecItem}>
-                    <span className={s.haloSpecKey}>{spec.key}</span>
-                    <span className={s.haloSpecValue}>{spec.value}</span>
-                  </div>
-                ))}
+                <div className={s.haloSpecItem}>
+                  <span className={s.haloSpecKey}>Tier</span>
+                  <span className={s.haloSpecValue}>Competition</span>
+                </div>
+                <div className={s.haloSpecItem}>
+                  <span className={s.haloSpecKey}>Standard</span>
+                  <span className={s.haloSpecValue}>IFMAR / BRCA</span>
+                </div>
+                <div className={s.haloSpecItem}>
+                  <span className={s.haloSpecKey}>Class</span>
+                  <span className={s.haloSpecValue}>1:10 / 1:8 / 1:5</span>
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                <Link href={`/machines/${HALO_MACHINE.slug}`} className={s.btnHalo}>
-                  View Full Specification
+                <Link href="/race" className={s.btnHalo}>
+                  Enter Race Department
                 </Link>
                 <Link href="/build" className={s.btnGhost}>
                   Build My Rig
@@ -291,7 +295,7 @@ export default function HomePage() {
       <section className={s.sectionEngineeringBrands} aria-labelledby="engineering-brands-heading">
         <div className={s.sectionInner}>
           <div className={s.sectionLabel} aria-hidden="true">
-            <span>Authorised Roster</span>
+            <span>Engineering Marques</span>
             <div className={s.sectionLabelLine} />
           </div>
 
@@ -302,12 +306,13 @@ export default function HomePage() {
                   Specialist engineering marques.
                 </h2>
                 <p className={s.sectionSubtext}>
-                  We deal directly with manufacturers and authorised distributors.
-                  Zero grey-market ambiguity, verified commercial supply lines.
+                  The manufacturers Avorria is building its specialist supplier
+                  network around — from world championship race marques to flagship
+                  bash and electronics specialists.
                 </p>
               </div>
               <Link href="/brands" className={s.sectionHeaderLink}>
-                View All Brands →
+                View Brand Universe →
               </Link>
             </div>
 
@@ -328,7 +333,6 @@ export default function HomePage() {
                   <div className={s.engineeringBrandContent}>
                     <div className={s.engineeringBrandTop}>
                       <span className={s.engineeringBrandOrigin}>{brand.country}</span>
-                      <span className={s.engineeringBrandStatus}>{brand.status}</span>
                     </div>
                     <h3 className={s.engineeringBrandName}>{brand.name}</h3>
                     <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
@@ -344,7 +348,7 @@ export default function HomePage() {
       {/* ── Brand marquee ── */}
       <section
         className={s.sectionBrands}
-        aria-label="Brands we carry"
+        aria-label="Engineering marques"
       >
         <div
           className={s.brandMarquee}
@@ -357,8 +361,8 @@ export default function HomePage() {
           ))}
         </div>
         <p className="sr-only">
-          We carry brands including {BRANDS_MARQUEE.slice(0, BRANDS_MARQUEE.length / 2).join(', ')}.{' '}
-          <Link href="/brands">View all brands</Link>.
+          Engineering marques in the Avorria catalogue focus area include {BRANDS_MARQUEE.slice(0, BRANDS_MARQUEE.length / 2).join(', ')}.{' '}
+          <Link href="/brands">View brand universe</Link>.
         </p>
       </section>
 

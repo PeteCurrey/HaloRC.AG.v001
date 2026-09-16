@@ -323,7 +323,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               real-world performance.
             </p>
             <p className={s.sectionBody}>
-              We stock across five disciplines: bash, race, drift, crawl, and large scale —
+              We build across five disciplines: bash, race, drift, crawl, and large scale —
               from entry-level RTR machines to hand-built bespoke competition chassis.
             </p>
           </div>
@@ -337,87 +337,19 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               <span className={s.statLabel}>Largest scale</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNumber}>3</span>
-              <span className={s.statLabel}>Halo platforms</span>
+              <span className={s.statNumber}>1:12</span>
+              <span className={s.statLabel}>Smallest scale</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNumber}>14+</span>
-              <span className={s.statLabel}>Specialist brands</span>
+              <span className={s.statNumber}>Kit</span>
+              <span className={s.statLabel}>to RTR</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 3. Featured Spotlight ── */}
-      <section className={s.featuredSection} id="disciplines">
-        <div className={s.featuredInner}>
-          <p className={s.sectionEyebrow}>Featured Platform</p>
-          <div className={s.spotlightComposition}>
-            {/* Large spotlight card */}
-            <Link href="/machines/xray-x4-2026-1-10-touring-car-kit" className={s.spotlightLarge}>
-              <div className={s.spotlightLargeImageSlot}>
-                <div className={s.spotlightImagePlaceholder}>XRAY · X4 ʼ26</div>
-              </div>
-              <div className={s.spotlightLargeContent}>
-                <div className={s.spotlightMeta}>
-                  <span className={s.spotlightBrand}>XRAY</span>
-                  <span className={s.spotlightHaloBadge}>★ Halo / 1:10 Competition</span>
-                </div>
-                <h3 className={s.spotlightName}>XRAY X4 ʼ26</h3>
-                <p className={s.spotlightEditorial}>
-                  XRAY's premier touring platform — decades of world championship development
-                  distilled into precision CNC-machined 7075-T6 Swiss aluminium, ultra-low CG
-                  bulkhead design, and redesigned active suspension geometry.
-                </p>
-                <div className={s.spotlightSpecs}>
-                  <span className={s.specChip}>1:10 Scale</span>
-                  <span className={s.specChip}>Electric</span>
-                  <span className={s.specChip}>Race</span>
-                  <span className={s.specChip}>Kit</span>
-                </div>
-                <span className={s.spotlightCta}>View Specs →</span>
-              </div>
-            </Link>
-
-            {/* Supporting pair */}
-            <div className={s.spotlightStack}>
-              <Link href="/machines/traxxas-x-maxx-8s-brushless-monster-truck" className={s.spotlightSmall}>
-                <div className={s.spotlightSmallImageSlot}>
-                  <div className={s.spotlightSmallPlaceholder}>Traxxas · X-Maxx 8S</div>
-                </div>
-                <div className={s.spotlightSmallContent}>
-                  <div className={s.spotlightMeta}>
-                    <span className={s.spotlightBrand}>Traxxas</span>
-                    <span className={s.spotlightScale}>1:6 Large Scale</span>
-                  </div>
-                  <h3 className={s.spotlightSmallName}>X-Maxx 8S</h3>
-                  <p className={s.spotlightSmallEditorial}>
-                    Definitive large-scale basher. Velineon 1200XL motor, steel drivetrain, self-righting.
-                  </p>
-                </div>
-              </Link>
-              <Link href="/machines/yokomo-master-drift-md-2-0-competition-kit" className={s.spotlightSmall}>
-                <div className={s.spotlightSmallImageSlot}>
-                  <div className={s.spotlightSmallPlaceholder}>Yokomo · MD 2.0</div>
-                </div>
-                <div className={s.spotlightSmallContent}>
-                  <div className={s.spotlightMeta}>
-                    <span className={s.spotlightBrand}>Yokomo</span>
-                    <span className={`${s.spotlightScale} ${s.spotlightScaleHalo}`}>★ Halo</span>
-                  </div>
-                  <h3 className={s.spotlightSmallName}>Master Drift MD 2.0</h3>
-                  <p className={s.spotlightSmallEditorial}>
-                    Flagship RWD drift kit. 4-gear rear transmission, double-deck graphite chassis.
-                  </p>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. Discipline Chapters ── */}
-      <section className={s.disciplineChapters}>
+      {/* ── 3. Discipline Chapters ── */}
+      <section className={s.disciplineChapters} id="disciplines">
         <div className={s.disciplineChaptersInner}>
 
           {/* Bash */}
@@ -430,30 +362,13 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               <p className={s.chapterBody}>
                 Bash machines operate at the intersection of engineering resilience and raw
                 performance. Heavy-duty steel drivetrain components, reinforced chassis, and
-                significant power margins define the category — from the Traxxas X-Maxx at
-                large scale down to 1:8 bruisers built for extreme punishment.
+                significant power margins define the category — from large scale down to
+                1:8 bruisers built for extreme punishment.
               </p>
-              <div className={s.chapterCards}>
-                <Link href="/machines/traxxas-x-maxx-8s-brushless-monster-truck" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Traxxas · X-Maxx 8S</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.chapterCardBrand}>Traxxas</span>
-                    <h3 className={s.chapterCardName}>X-Maxx 8S</h3>
-                    <span className={s.chapterCardSpec}>1:6 · Electric · RTR</span>
-                  </div>
-                </Link>
-                <Link href="/machines/arrma-kraton-6s-blx-extreme-bash-speed-monster" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>ARRMA · Kraton 6S</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.chapterCardBrand}>ARRMA</span>
-                    <h3 className={s.chapterCardName}>Kraton 6S EXB</h3>
-                    <span className={s.chapterCardSpec}>1:8 · Electric · EXB</span>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for bash platforms.
+                </p>
               </div>
               <Link href="/machines?view=catalogue&discipline=bash" className={s.chapterCta}>
                 Explore All Bash Machines →
@@ -461,8 +376,32 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
             </div>
           </div>
 
-          {/* Drift */}
+          {/* Race */}
           <div className={`${s.disciplineChapter} ${s.disciplineChapterReverse}`}>
+            <div className={s.chapterLabel}>
+              <p className={s.sectionEyebrow}>Competition Race</p>
+              <h2 className={s.chapterHeadline}>Championship at every scale.</h2>
+            </div>
+            <div className={s.chapterContent}>
+              <p className={s.chapterBody}>
+                Competition machines demand chassis precision, electronics integrity, and
+                geometry verified against championship regulations. From 1:10 touring car
+                to 1:5 large-scale, race platforms are selected for documented competition
+                lineage and proven results at national and international level.
+              </p>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for competition platforms.
+                </p>
+              </div>
+              <Link href="/machines?view=catalogue&discipline=race" className={s.chapterCta}>
+                Explore All Race Platforms →
+              </Link>
+            </div>
+          </div>
+
+          {/* Drift */}
+          <div className={s.disciplineChapter}>
             <div className={s.chapterLabel}>
               <p className={s.sectionEyebrow}>Precision Drift</p>
               <h2 className={s.chapterHeadline}>Control at the limit.</h2>
@@ -474,27 +413,10 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 positioning, and graphite construction deliver the precision required for
                 consistent high-angle technique — from club-level to international competition.
               </p>
-              <div className={s.chapterSplitGrid}>
-                <Link href="/machines/yokomo-master-drift-md-2-0-competition-kit" className={s.splitCard}>
-                  <div className={s.splitCardImage}>
-                    <div className={s.splitCardPlaceholder}>Yokomo · MD 2.0</div>
-                  </div>
-                  <div className={s.splitCardBody}>
-                    <span className={`${s.splitCardTier} ${s.splitCardTierHalo}`}>★ Halo</span>
-                    <h3 className={s.splitCardName}>Yokomo MD 2.0</h3>
-                    <p className={s.splitCardDetail}>4-gear rear transmission · double-deck graphite · variable motor position</p>
-                  </div>
-                </Link>
-                <Link href="/machines/reve-d-rdx-1-10-rwd-drift-chassis-kit" className={s.splitCard}>
-                  <div className={s.splitCardImage}>
-                    <div className={s.splitCardPlaceholder}>Rêve D · RDX</div>
-                  </div>
-                  <div className={s.splitCardBody}>
-                    <span className={s.splitCardTier}>Premium</span>
-                    <h3 className={s.splitCardName}>Rêve D RDX</h3>
-                    <p className={s.splitCardDetail}>Factory champion design · instant high-angle stability · zero setup compromise</p>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for drift platforms.
+                </p>
               </div>
               <Link href="/machines?view=catalogue&discipline=drift" className={s.chapterCta}>
                 Explore All Drift Machines →
@@ -503,7 +425,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
           </div>
 
           {/* Crawl */}
-          <div className={s.disciplineChapter}>
+          <div className={`${s.disciplineChapter} ${s.disciplineChapterReverse}`}>
             <div className={s.chapterLabel}>
               <p className={s.sectionEyebrow}>Scale Trail & Crawl</p>
               <h2 className={s.chapterHeadline}>Engineering for terrain.</h2>
@@ -515,27 +437,10 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 for severe off-camber recovery, and low-speed torque management define
                 what separates a genuine trail rig from a scaled-down drive.
               </p>
-              <div className={s.chapterCards}>
-                <Link href="/machines/traxxas-trx-4-1979-ford-bronco-crawler" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Traxxas · TRX-4</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.chapterCardBrand}>Traxxas</span>
-                    <h3 className={s.chapterCardName}>TRX-4 Bronco</h3>
-                    <span className={s.chapterCardSpec}>1:10 · Portal axles · T-Lock diffs</span>
-                  </div>
-                </Link>
-                <Link href="/machines/axial-scx10-iii-jeep-jlu-wrangler-4wd-rtr" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Axial · SCX10 III</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.chapterCardBrand}>Axial</span>
-                    <h3 className={s.chapterCardName}>SCX10 III Jeep</h3>
-                    <span className={s.chapterCardSpec}>1:10 · Portal axles · DIG transmission</span>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for crawl platforms.
+                </p>
               </div>
               <Link href="/machines?view=catalogue&discipline=crawl" className={s.chapterCta}>
                 Explore All Crawl Machines →
@@ -546,7 +451,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         </div>
       </section>
 
-      {/* ── 5. Dark Halo Chapter ── */}
+      {/* ── 4. Dark Halo Chapter ── */}
       <section className={s.darkHaloChapter}>
         <div className={s.darkHaloInner}>
           <div className={s.darkHaloHeader}>
@@ -558,69 +463,18 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               demands of international competition or the standards of a discerning private owner.
             </p>
           </div>
-          <div className={s.haloCardsGrid}>
-
-            <Link href="/machines/fg-sportsline-4wd-porsche-911-gt3-1-5-rtr" className={s.haloCard}>
-              <div className={s.haloCardImage}>
-                <div className={s.haloCardPlaceholder}>FG · Porsche 911 GT3</div>
-              </div>
-              <div className={s.haloCardContent}>
-                <p className={s.haloCardEyebrow}>1:5 Motorsport · Petrol</p>
-                <h3 className={s.haloCardName}>FG Sportsline<br />Porsche 911 GT3</h3>
-                <p className={s.haloCardDetail}>
-                  26cc 2-stroke petrol, dual disc brakes, tuned exhaust, licensed Porsche aerobody.
-                </p>
-                <div className={s.haloSpecRow}>
-                  <span className={s.haloSpecPill}>1:5 Scale</span>
-                  <span className={s.haloSpecPill}>Petrol</span>
-                  <span className={s.haloSpecPill}>RTR</span>
-                </div>
-              </div>
+          <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <p className={s.emptyGridText}>
+              Halo platform catalogue developing. We are currently establishing the supply relationships required to offer these platforms at the standard Avorria demands.
+            </p>
+            <Link href="/race" className={s.tabLink}>
+              Enter Race Department →
             </Link>
-
-            <Link href="/machines/mecatech-fw01-1-5-competition-supercar-chassis" className={`${s.haloCard} ${s.haloCardSpecial}`}>
-              <div className={s.haloCardImage}>
-                <div className={s.haloCardPlaceholder}>Mecatech · FW01</div>
-              </div>
-              <div className={s.haloCardContent}>
-                <p className={s.haloCardEyebrow}>1:5 Bespoke Motorsport · Special Order</p>
-                <h3 className={s.haloCardName}>Mecatech FW01<br />Rolling Chassis</h3>
-                <p className={s.haloCardDetail}>
-                  Aero-grade billet aluminium, quad hydraulic disc brakes with braided aircraft hoses.
-                  Hand-built in France to customer specification.
-                </p>
-                <div className={s.haloSpecRow}>
-                  <span className={s.haloSpecPill}>1:5 Scale</span>
-                  <span className={s.haloSpecPill}>Chassis</span>
-                  <span className={s.haloSpecPill}>Special Order</span>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/machines/xray-x4-2026-1-10-touring-car-kit" className={s.haloCard}>
-              <div className={s.haloCardImage}>
-                <div className={s.haloCardPlaceholder}>XRAY · X4 ʼ26</div>
-              </div>
-              <div className={s.haloCardContent}>
-                <p className={s.haloCardEyebrow}>1:10 Competition · Electric</p>
-                <h3 className={s.haloCardName}>XRAY X4 ʼ26<br />Touring Car Kit</h3>
-                <p className={s.haloCardDetail}>
-                  CNC 7075-T6 Swiss aluminium, ultra-low CG bulkhead, redesigned active geometry.
-                  World championship development lineage.
-                </p>
-                <div className={s.haloSpecRow}>
-                  <span className={s.haloSpecPill}>1:10 Scale</span>
-                  <span className={s.haloSpecPill}>Electric</span>
-                  <span className={s.haloSpecPill}>Kit</span>
-                </div>
-              </div>
-            </Link>
-
           </div>
         </div>
       </section>
 
-      {/* ── 6. Scale Progression Band ── */}
+      {/* ── 5. Scale Progression Band ── */}
       <section className={s.scaleBand}>
         <div className={s.scaleBandInner}>
           <p className={s.sectionEyebrow}>The Avorria Scale Range</p>
@@ -651,7 +505,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         </div>
       </section>
 
-      {/* ── 7. Race Department Gateway ── */}
+      {/* ── 6. Race Department Gateway ── */}
       <section className={s.raceGateway}>
         <div className={s.raceGatewayInner}>
           <div className={s.raceGatewayContent}>
@@ -668,22 +522,18 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
           </div>
           <div className={s.raceGatewayMeta}>
             <div className={s.raceMeta}>
-              <span className={s.raceMetaLabel}>Current Platform</span>
-              <span className={s.raceMetaValue}>XRAY X4 ʼ26</span>
-            </div>
-            <div className={s.raceMeta}>
-              <span className={s.raceMetaLabel}>Electronics</span>
-              <span className={s.raceMetaValue}>Hobbywing · Sanwa · Savox</span>
+              <span className={s.raceMetaLabel}>Disciplines</span>
+              <span className={s.raceMetaValue}>1:10 Touring · 1:8 Buggy · 1:5</span>
             </div>
             <div className={s.raceMeta}>
               <span className={s.raceMetaLabel}>Category</span>
-              <span className={s.raceMetaValue}>1:10 Touring / 13.5T Spec</span>
+              <span className={s.raceMetaValue}>Kit · Competition · Halo</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 8. Catalogue Transition ── */}
+      {/* ── 7. Catalogue Transition ── */}
       <section className={s.catalogueGateway}>
         <div className={s.catalogueGatewayInner}>
           <p className={s.sectionEyebrow}>Complete Catalogue</p>

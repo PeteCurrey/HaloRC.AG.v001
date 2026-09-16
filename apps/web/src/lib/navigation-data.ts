@@ -1,69 +1,16 @@
 // apps/web/src/lib/navigation-data.ts
-// Shared authoritative navigation and catalogue seed data
-
-export interface NavMachineSpec {
-  key: string
-  value: string
-}
-
-export interface FeaturedMachineData {
-  slug: string
-  brand: string
-  name: string
-  fullName: string
-  scale: string
-  power: string
-  editorial: string
-  tier: 'STANDARD' | 'HALO'
-}
-
-export interface HaloMachineData {
-  slug: string
-  brand: string
-  name: string
-  fullName: string
-  haloClassification: string
-  scale: string
-  power: string
-  drive: string
-  editorial: string
-  specs: NavMachineSpec[]
-}
+// Shared authoritative navigation and catalogue structural data
+//
+// IMPORTANT — Data Integrity Rules:
+//   1. No hard-coded product counts (they go stale and misrepresent the catalogue).
+//   2. No specific product references or product URLs outside of database-driven pages.
+//   3. Brand status labels must only reflect verified, established commercial relationships.
+//   4. Mega-menu spotlights must not link to specific product detail URLs.
 
 export interface RaceDisciplineItem {
   label: string
   sub: string
   href: string
-}
-
-export const FEATURED_MACHINE: FeaturedMachineData = {
-  slug: 'traxxas-x-maxx-8s-brushless-monster-truck',
-  brand: 'Traxxas',
-  name: 'X-Maxx 8S',
-  fullName: 'X-Maxx 8S Brushless Monster Truck',
-  scale: '1:6',
-  power: 'Electric',
-  editorial:
-    "The X-Maxx 8S is Traxxas's largest, most powerful bash monster truck. 8S brushless power, fully waterproof electronics, and a scale that commands attention.",
-  tier: 'STANDARD',
-}
-
-export const HALO_MACHINE: HaloMachineData = {
-  slug: 'xray-x4-2026-1-10-touring-car-kit',
-  brand: 'XRAY',
-  name: "X4 '26",
-  fullName: "XRAY X4 '26 1/10 Electric Touring Car",
-  haloClassification: '1:10 COMPETITION',
-  scale: '1:10',
-  power: 'Electric',
-  drive: '4WD',
-  editorial:
-    "The XRAY X4 has taken more World Championship titles than any other 1/10 touring car platform. The '26 is its most refined expression yet — engineered without compromise for drivers who compete at the highest level.",
-  specs: [
-    { key: 'Chassis', value: '7075 Alu' },
-    { key: 'Drive', value: '4WD' },
-    { key: 'Scale', value: '1:10' },
-  ],
 }
 
 export const RACE_DISCIPLINES: readonly RaceDisciplineItem[] = [
@@ -77,6 +24,12 @@ export const RACE_DISCIPLINES: readonly RaceDisciplineItem[] = [
   { label: 'Electronics', sub: 'Radio, ESC & servo', href: '/race/electronics' },
 ] as const
 
+// ── Brand Data ────────────────────────────────────────────────────────────────
+// Brands listed here represent engineering marques relevant to the RC discipline
+// categories Avorria is establishing. Presence in this list does NOT imply
+// that Avorria currently holds an authorised dealer or supply agreement.
+// Commercial status is managed via the supplier database and displayed only
+// when a verified relationship is confirmed.
 export const BRANDS_LIST: readonly string[] = [
   'XRAY', 'Traxxas', 'Yokomo', 'Tamiya', 'Awesomatix', 'Losi', 'Schumacher',
   'Hobbywing', 'Sanwa', 'Kyosho', 'Ielasi Tuned', 'REDS Racing', 'Pro-Line',
@@ -116,6 +69,7 @@ export interface EngineeringBrandItem {
   image?: string
 }
 
+// Featured engineering brands displayed editorially on the homepage.
 export const FEATURED_ENGINEERING_BRANDS: readonly EngineeringBrandItem[] = [
   { name: 'XRAY', country: 'Slovakia', specialism: 'World Championship Touring & Buggy', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/xray.jpg' },
   { name: 'Awesomatix', country: 'Germany', specialism: 'Rotary Damper Precision Chassis', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/awesomatix.jpg' },
@@ -182,19 +136,18 @@ export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMe
           { label: '1:8 Scale', href: '/machines?scale=1-8', sub: 'Nitro & high-power brushless off-road' },
           { label: '1:10 Scale', href: '/machines?scale=1-10', sub: 'Touring car, buggy & drift standards' },
           { label: '1:12 Scale', href: '/machines?scale=1-12', sub: 'Ultra-light technical pan cars' },
-          { label: 'Browse All Machines', href: '/machines', badge: '12 PLATFORMS' },
+          { label: 'Browse All Machines', href: '/machines' },
         ],
       },
     ],
     spotlight: {
-      tag: 'FEATURED PLATFORM',
-      title: 'Traxxas X-Maxx 8S',
-      description: 'The heavyweight bash benchmark. 8S brushless powertrain, reinforced driveline, and authoritative 1:6 scale stance.',
-      href: '/machines/traxxas-x-maxx-8s-brushless-monster-truck',
-      linkText: 'Inspect Machine',
+      tag: 'MACHINE SHOWROOM',
+      title: 'The Machines',
+      description: 'Precision-engineered platforms across bash, race, drift, crawl, and large scale. Every machine selected for documented engineering merit.',
+      href: '/machines',
+      linkText: 'Enter Showroom',
       imageSrc: '/images/hero/hero-1-5-scale-rc.jpg',
-      imageAlt: 'Traxxas X-Maxx 8S monster truck platform',
-      badge: 'BASH BENCHMARK',
+      imageAlt: 'Competition RC machine on circuit',
     },
   },
 
@@ -221,17 +174,16 @@ export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMe
           { label: 'High-Torque Servos', href: '/parts?type=SERVO', sub: 'Brushless steel-gear steering servos' },
           { label: 'Radio Systems & Telemetry', href: '/parts?type=RADIO_SYSTEM', sub: 'Ultra-low latency transmitters & RX' },
           { label: 'Batteries & Chargers', href: '/parts?type=BATTERY', sub: 'LCG LiPo packs & balance chargers' },
-          { label: 'Browse All 15 Parts', href: '/parts', badge: 'VERIFIED FIT' },
+          { label: 'Browse All Parts', href: '/parts' },
         ],
       },
     ],
     spotlight: {
-      tag: 'OPTION UPGRADE',
-      title: 'XRAY Titanium Pivot Ball Set',
-      description: 'Ultra-lightweight high-precision titanium pivot balls for XRAY X4 touring platform. Reduced unsprung mass and zero slop.',
-      href: '/parts/xray-302040-titanium-pivot-ball-set-x4',
-      linkText: 'Inspect Component',
-      badge: 'HALO OPTION',
+      tag: 'PARTS & UPGRADES',
+      title: 'Verified Component Catalogue',
+      description: 'Competition hardware and factory parts cross-referenced against verified platform geometry. Zero unverified fitment claims.',
+      href: '/parts',
+      linkText: 'Browse Parts Catalogue',
     },
   },
 
@@ -260,11 +212,11 @@ export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMe
       },
     ],
     spotlight: {
-      tag: 'HALO TIER BENCHMARK',
-      title: "XRAY X4 '26",
-      description: "Multiple IFMAR World Championship titles. Ultra-low centre of gravity, 7075 Swiss aluminium chassis, zero-compromise racing engineering.",
-      href: '/machines/xray-x4-2026-1-10-touring-car-kit',
-      linkText: 'View Halo Blueprint',
+      tag: 'RACE DEPARTMENT',
+      title: 'Competition builds start here.',
+      description: 'The Race Department is built for those who compete at national and international level — turnkey chassis, verified electronics, and platform-specific build guidance.',
+      href: '/race',
+      linkText: 'Enter Race Department',
       badge: '1:10 COMPETITION',
     },
   },
@@ -286,18 +238,16 @@ export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMe
       {
         title: 'Flagship & Electronics',
         links: [
-          { label: 'Traxxas', href: '/brands#flagship-scale', sub: 'Authorised dealer network & spare parts' },
+          { label: 'Traxxas', href: '/brands#flagship-scale', sub: 'Large scale bash & trail platforms' },
           { label: 'Hobbywing', href: '/brands#specialist-electronics', sub: 'XeRun competition brushless ESCs' },
           { label: 'Sanwa', href: '/brands#specialist-electronics', sub: 'Ultra-low latency telemetry transmitters' },
           { label: 'REDS Racing', href: '/brands#specialist-electronics', sub: 'Mario Rossi hand-tuned race engines' },
         ],
       },
       {
-        title: 'Discovery & Roster',
+        title: 'Brand Discovery',
         links: [
-          { label: 'Authorised Dealers', href: '/brands', sub: 'Direct manufacturer distribution' },
-          { label: 'Specialist Tuners', href: '/brands', sub: 'Independent racing ateliers' },
-          { label: 'Browse All 21 Brands', href: '/brands', badge: 'VERIFIED' },
+          { label: 'Browse All Brands', href: '/brands' },
         ],
       },
     ],
@@ -307,7 +257,7 @@ export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMe
       description: 'We distinguish clearly between official dealers, distributor-sourced inventory, and bespoke imports. Zero grey-market ambiguity.',
       href: '/brands',
       linkText: 'Explore Brand Universe',
-      badge: 'AUTHORISED',
+      badge: 'VERIFIED',
     },
   },
 }

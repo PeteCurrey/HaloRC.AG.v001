@@ -1,3 +1,15 @@
+/**
+ * Catalogue Store — mutable in-memory store for development and hermetic unit tests.
+ *
+ * PRODUCTION FAILSAFE:
+ * When NODE_ENV === 'production', all stores are initialised as EMPTY ARRAYS.
+ * Seed data must NEVER reach customer-facing UI in production.
+ * Production catalogue data must come exclusively from the Supabase database.
+ *
+ * In development and test environments the stores are pre-populated with
+ * catalogue-data.ts seed data so that queries work offline.
+ */
+
 import {
   SEED_BRANDS,
   SEED_PLATFORMS,
@@ -15,16 +27,31 @@ import {
   type SeedSpecification,
 } from '../seed/catalogue-data'
 
-export let STORE_PRODUCTS: SeedProduct[] = [...SEED_PRODUCTS]
-export let STORE_VARIANTS: SeedVariant[] = [...SEED_VARIANTS]
-export let STORE_OFFERS: SeedOffer[] = [...SEED_OFFERS]
-export let STORE_SPECIFICATIONS: SeedSpecification[] = [...SEED_SPECIFICATIONS]
-export let STORE_PLATFORMS: SeedPlatform[] = [...SEED_PLATFORMS]
-export let STORE_BRANDS: SeedBrand[] = [...SEED_BRANDS]
-export let STORE_COMPATIBILITY_RULES = [...SEED_COMPATIBILITY_RULES]
-export let STORE_DOCUMENTS = [...SEED_DOCUMENTS]
+/**
+ * Determine whether seed data is permitted in this environment.
+ * Seed data is ONLY permitted in development and test environments.
+ * In production the stores are empty — real data comes from the database.
+ */
+const IS_PRODUCTION = process.env['NODE_ENV'] === 'production'
+
+function productionEmpty<T>(data: T[]): T[] {
+  if (IS_PRODUCTION) {
+    return []
+  }
+  return [...data]
+}
+
+export let STORE_PRODUCTS: SeedProduct[] = productionEmpty(SEED_PRODUCTS)
+export let STORE_VARIANTS: SeedVariant[] = productionEmpty(SEED_VARIANTS)
+export let STORE_OFFERS: SeedOffer[] = productionEmpty(SEED_OFFERS)
+export let STORE_SPECIFICATIONS: SeedSpecification[] = productionEmpty(SEED_SPECIFICATIONS)
+export let STORE_PLATFORMS: SeedPlatform[] = productionEmpty(SEED_PLATFORMS)
+export let STORE_BRANDS: SeedBrand[] = productionEmpty(SEED_BRANDS)
+export let STORE_COMPATIBILITY_RULES = productionEmpty(SEED_COMPATIBILITY_RULES)
+export let STORE_DOCUMENTS = productionEmpty(SEED_DOCUMENTS)
 
 export function __resetCatalogueStoreForTesting() {
+  // Always use seed data when resetting for tests (tests never run in production)
   STORE_PRODUCTS = [...SEED_PRODUCTS]
   STORE_VARIANTS = [...SEED_VARIANTS]
   STORE_OFFERS = [...SEED_OFFERS]
