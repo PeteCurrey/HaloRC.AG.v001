@@ -11,6 +11,7 @@ import {
   resolveCurrentBuildPricing,
 } from '@halo-rc/db'
 import { addHaloBuildToCartAction } from '@/actions/commerce'
+import { PageHero } from '@/components/layout/PageHero'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -167,9 +168,26 @@ export default async function HaloBuildDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <PageHero
+        eyebrow="Race Department"
+        headline={build.title}
+        subline={build.engineeringSummary ?? `Engineered competition configuration by Avorria RC.`}
+        imageSrc={({
+          TOURING:    '/images/disciplines/race.jpg',
+          BUGGY:      '/images/brands/schumacher.jpg',
+          GT:         '/images/disciplines/large-scale.jpg',
+          LARGE_SCALE:'/images/disciplines/large-scale.jpg',
+          RALLY:      '/images/disciplines/drift.jpg',
+          CRAWLER:    '/images/disciplines/crawl.jpg',
+          TRUGGY:     '/images/brands/traxxas.jpg',
+          SCT:        '/images/brands/traxxas.jpg',
+        } as Record<string, string>)[build.discipline] ?? '/images/brands/schumacher.jpg'}
+        imagePosition="center 40%"
+        badge="BUILD"
+      />
       <div
         style={{
-          minHeight: '100vh',
+          minHeight: '60vh',
           backgroundColor: 'var(--colour-void)',
           padding: 'var(--space-9) var(--gutter-md)',
         }}

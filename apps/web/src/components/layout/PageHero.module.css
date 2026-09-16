@@ -1,13 +1,15 @@
 /* apps/web/src/components/layout/PageHero.module.css */
-/* Compact inner-page hero — slightly shorter than homepage (65svh), same cinematic treatment */
+/* Full-screen cinematic page hero — 100svh/100dvh with scroll parallax */
 
 .hero {
   position: relative;
-  min-height: 65svh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin-top: calc(-1 * var(--nav-height));
   padding-top: var(--nav-height);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   overflow: hidden;
   background-color: var(--colour-void);
 }
@@ -27,16 +29,16 @@
   /* Subtle parallax via scroll-driven animation */
   animation: heroParallax linear both;
   animation-timeline: scroll(root);
-  animation-range: 0 50vh;
+  animation-range: 0 60vh;
   will-change: transform;
 }
 
 @keyframes heroParallax {
   from { transform: translateY(0) scale(1.05); }
-  to   { transform: translateY(6%) scale(1.05); }
+  to   { transform: translateY(8%) scale(1.05); }
 }
 
-/* Gradient scrim — rich bottom gradient protects text legibility */
+/* Gradient scrim — rich gradient protects text legibility with ignition warmth */
 .heroScrim {
   position: absolute;
   inset: 0;
@@ -51,10 +53,10 @@
     ),
     linear-gradient(
       to top,
-      rgba(8, 8, 8, 1) 0%,
-      rgba(8, 8, 8, 0.8) 30%,
+      rgba(8, 8, 8, 0.98) 0%,
+      rgba(8, 8, 8, 0.75) 30%,
       rgba(8, 8, 8, 0.35) 65%,
-      rgba(8, 8, 8, 0.1) 85%,
+      rgba(8, 8, 8, 0.15) 85%,
       transparent 100%
     );
 }
@@ -68,8 +70,8 @@
   background:
     linear-gradient(
       to bottom,
-      rgba(8, 8, 8, 0.5) 0%,
-      transparent 28%
+      rgba(8, 8, 8, 0.55) 0%,
+      transparent 30%
     );
 }
 
@@ -82,17 +84,17 @@
   max-width: var(--container-wide);
   margin-inline: auto;
   padding-inline: var(--gutter-lg);
-  padding-bottom: var(--space-9);
+  padding-block: var(--space-8);
 
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 @media (min-width: 1024px) {
   .heroContent {
     padding-inline: var(--gutter-xl);
-    padding-bottom: var(--space-11);
+    padding-block: var(--section-space-hero);
   }
 }
 
@@ -134,7 +136,7 @@
 
 .heroHeadline {
   font-family: var(--font-primary);
-  font-size: clamp(var(--text-3xl), 6vw, var(--text-5xl));
+  font-size: clamp(var(--text-3xl), 6.5vw, var(--text-6xl));
   font-weight: var(--weight-extralight);
   line-height: var(--leading-none);
   letter-spacing: var(--tracking-tight);
@@ -144,9 +146,38 @@
 }
 
 .heroSubline {
-  font-size: clamp(var(--text-sm), 1.4vw, var(--text-base));
+  font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
   font-weight: var(--weight-light);
   color: var(--colour-ash);
   max-width: 52ch;
   line-height: var(--leading-relaxed);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.scrollIndicator {
+  position: absolute;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--colour-smoke);
+  opacity: 0.6;
+  pointer-events: none;
+  animation: heroBreathe 3s ease-in-out infinite;
+}
+
+@keyframes heroBreathe {
+  0%, 100% { opacity: 0.35; transform: translate(-50%, 0); }
+  50%      { opacity: 0.85; transform: translate(-50%, 4px); }
 }

@@ -11,6 +11,7 @@ import {
   resolveCurrentBuildPricing,
 } from '@halo-rc/db'
 import type { HaloBuildRecord } from '@halo-rc/types'
+import { PageHero } from '@/components/layout/PageHero'
 
 export const metadata: Metadata = {
   title: 'Compare Halo Builds — Race Department — Halo RC',
@@ -114,9 +115,18 @@ export default async function BuildComparePage({ searchParams }: PageProps) {
   )
 
   return (
-    <div
+    <>
+      <PageHero
+        eyebrow="Race Department"
+        headline="Build Comparison"
+        subline="Side-by-side component and pricing analysis across engineered competition configurations."
+        imageSrc="/images/brands/schumacher.jpg"
+        imagePosition="center 45%"
+        badge="COMPARE"
+      />
+      <div
       style={{
-        minHeight: '100vh',
+        minHeight: '60vh',
         backgroundColor: 'var(--colour-void)',
         padding: 'var(--space-9) var(--gutter-md)',
       }}
@@ -700,7 +710,8 @@ export default async function BuildComparePage({ searchParams }: PageProps) {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

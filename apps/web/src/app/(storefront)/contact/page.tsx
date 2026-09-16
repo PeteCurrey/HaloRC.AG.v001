@@ -29,8 +29,8 @@ export default async function ContactPage({
         eyebrow="Direct Engineering Consultation"
         headline="Race Department Advisory"
         subline="Submit an enquiry regarding bespoke competition builds, chassis geometry setups, commercial partnerships, or specialist parts compatibility."
-        imageSrc="/images/disciplines/race.jpg"
-        imagePosition="center 50%"
+        imageSrc="/images/brands/xray.jpg"
+        imagePosition="center 35%"
         badge="ADVISORY"
       />
       <main

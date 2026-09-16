@@ -346,7 +346,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
       <section className={s.showroomHero}>
         <div
           className={s.showroomHeroBg}
-          style={{ backgroundImage: 'url(/images/hero/hero-1-5-scale-rc.jpg)' }}
+          style={{ backgroundImage: 'url(/images/disciplines/large-scale.jpg)' }}
           aria-hidden="true"
         />
         <div className={s.showroomHeroContent}>

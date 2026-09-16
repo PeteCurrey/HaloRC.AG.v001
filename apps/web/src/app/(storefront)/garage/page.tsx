@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getSessionUser } from '@/lib/auth'
 import { getCustomerGarage, getGarageVehicles } from '@halo-rc/db'
 import { signOutAction } from '@/actions/auth'
+import { PageHero } from '@/components/layout/PageHero'
 import styles from './garage.module.css'
 
 export const metadata: Metadata = {
@@ -27,8 +28,17 @@ export default async function GaragePage() {
   const vehicles = await getGarageVehicles(garage.id, user.id, { includeArchived: false })
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
+    <>
+      <PageHero
+        eyebrow="Vehicle Ownership & Ecosystem"
+        headline="The Garage"
+        subline="Your fleet, builds, maintenance logs, and verified parts compatibility — in one place."
+        imageSrc="/images/brands/traxxas.jpg"
+        imagePosition="center 40%"
+        badge="FLEET"
+      />
+      <div className={styles.page}>
+        <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
           <div>
@@ -86,6 +96,7 @@ export default async function GaragePage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -1,6 +1,6 @@
 // apps/web/src/components/layout/PageHero.tsx
 // Reusable full-screen page hero with parallax background image.
-// Used across /machines, /race, /brands, /find, /build, /search, /contact.
+// Used across /machines, /parts, /race, /brands, /find, /build, /garage, /search, /contact.
 
 import Image from 'next/image'
 import s from './PageHero.module.css'
@@ -20,6 +20,8 @@ export interface PageHeroProps {
   imagePosition?: string
   /** Optional badge text rendered next to the eyebrow */
   badge?: string
+  /** Optional CTA actions or children rendered in hero */
+  children?: React.ReactNode
 }
 
 export function PageHero({
@@ -30,6 +32,7 @@ export function PageHero({
   imageAlt = '',
   imagePosition = 'center',
   badge,
+  children,
 }: PageHeroProps) {
   return (
     <section className={s.hero} aria-label={`${eyebrow} — Hero`}>
@@ -67,6 +70,19 @@ export function PageHero({
         {subline && (
           <p className={s.heroSubline}>{subline}</p>
         )}
+
+        {children && (
+          <div className={s.heroActions}>
+            {children}
+          </div>
+        )}
+      </div>
+
+      {/* Subtle Scroll Indicator */}
+      <div className={s.scrollIndicator} aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
     </section>
   )

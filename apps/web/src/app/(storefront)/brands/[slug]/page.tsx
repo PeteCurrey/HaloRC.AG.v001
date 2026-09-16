@@ -5,6 +5,16 @@ import { getMarketPreference } from '@/actions/market'
 import { getBrandDetail } from '@halo-rc/db'
 import { MarketAwarePrice, StockStatus } from '@halo-rc/ui'
 import type { Currency, CommercialRelationship } from '@halo-rc/types'
+import { PageHero } from '@/components/layout/PageHero'
+
+const BRAND_IMAGES: Record<string, { src: string; position?: string }> = {
+  awesomatix:  { src: '/images/brands/awesomatix.jpg',  position: 'center 30%' },
+  hobbywing:   { src: '/images/brands/hobbywing.jpg',   position: 'center 40%' },
+  sanwa:       { src: '/images/brands/sanwa.jpg',        position: 'center 35%' },
+  schumacher:  { src: '/images/brands/schumacher.jpg',  position: 'center 45%' },
+  traxxas:     { src: '/images/brands/traxxas.jpg',     position: 'center 40%' },
+  xray:        { src: '/images/brands/xray.jpg',        position: 'center 35%' },
+}
 
 interface BrandPageProps {
   params: Promise<{ slug: string }>
@@ -65,8 +75,19 @@ export default async function BrandDetailPage({ params }: BrandPageProps) {
   const { brand, platforms, machines, parts } = data
   const relInfo = commercialRelationshipCopy(brand.commercialRelationship, brand.name)
 
+  const heroImg = BRAND_IMAGES[brand.slug] ?? { src: '/images/brands/schumacher.jpg', position: 'center 45%' }
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
+    <>
+      <PageHero
+        eyebrow={relInfo.badge}
+        headline={brand.name}
+        subline={brand.description ?? `The complete ${brand.name} range — machines, platforms, and specialist parts.`}
+        imageSrc={heroImg.src}
+        imagePosition={heroImg.position ?? 'center 40%'}
+        badge="BRAND"
+      />
+      <div style={{ minHeight: '60vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
       <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto' }}>
         <nav aria-label="Breadcrumbs" style={{ display: 'flex', gap: 'var(--space-2)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', marginBottom: 'var(--space-6)' }}>
           <Link href="/brands">Brands</Link>
@@ -248,7 +269,8 @@ export default async function BrandDetailPage({ params }: BrandPageProps) {
           </section>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 
