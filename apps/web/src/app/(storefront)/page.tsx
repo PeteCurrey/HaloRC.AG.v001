@@ -314,35 +314,38 @@ export default function HomePage() {
                 View Brand Universe →
               </Link>
             </div>
-
-            <div className={s.engineeringBrandsGrid}>
-              {FEATURED_ENGINEERING_BRANDS.map((brand) => (
-                <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
-                  {brand.image && (
-                    <div className={s.engineeringBrandBg} aria-hidden="true">
-                      <Image
-                        src={brand.image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        style={{ objectFit: 'cover', objectPosition: 'center' }}
-                      />
-                    </div>
-                  )}
-                  <div className={s.engineeringBrandContent}>
-                    <div className={s.engineeringBrandTop}>
-                      <span className={s.engineeringBrandOrigin}>{brand.country}</span>
-                    </div>
-                    <h3 className={s.engineeringBrandName}>{brand.name}</h3>
-                    <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
-                    <span className={s.engineeringBrandArrow}>Explore Brand Universe →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </ScrollReveal>
         </div>
+
+        {/* Full-width card grid — mirrors discipline grid layout */}
+        <div className={s.engineeringBrandsGrid}>
+          {FEATURED_ENGINEERING_BRANDS.map((brand) => (
+            <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
+              {brand.image && (
+                <div className={s.engineeringBrandBg} aria-hidden="true">
+                  <Image
+                    src={brand.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  />
+                </div>
+              )}
+              <div className={s.engineeringBrandScrim} aria-hidden="true" />
+              <div className={s.engineeringBrandContent}>
+                <div className={s.engineeringBrandTop}>
+                  <span className={s.engineeringBrandOrigin}>{brand.country}</span>
+                </div>
+                <h3 className={s.engineeringBrandName}>{brand.name}</h3>
+                <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
+                <span className={s.engineeringBrandArrow}>Explore Brand →</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </section>
+
 
       {/* ── Brand marquee ── */}
       <section

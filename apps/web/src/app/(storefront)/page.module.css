@@ -759,9 +759,41 @@
 /* ─── Section: Shop by Discipline ─────────────────────────────────────── */
 
 .sectionDisciplines {
-  background-color: var(--bg-canvas);
-  padding-block: var(--section-space-standard);
-  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--colour-void);
+  padding-top: var(--section-space-standard);
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Dark-context heading / text overrides for void-background sections */
+.sectionDisciplines .sectionHeading,
+.sectionEngineeringBrands .sectionHeading {
+  color: var(--colour-off-white);
+}
+
+.sectionDisciplines .sectionSubtext,
+.sectionEngineeringBrands .sectionSubtext {
+  color: var(--colour-ash);
+}
+
+.sectionDisciplines .sectionLabel span,
+.sectionEngineeringBrands .sectionLabel span {
+  color: var(--colour-smoke);
+}
+
+.sectionDisciplines .sectionLabelLine,
+.sectionEngineeringBrands .sectionLabelLine {
+  background-color: var(--colour-steel);
+}
+
+.sectionDisciplines .sectionHeaderLink,
+.sectionEngineeringBrands .sectionHeaderLink {
+  color: var(--colour-smoke);
+}
+
+.sectionDisciplines .sectionHeaderLink:hover,
+.sectionEngineeringBrands .sectionHeaderLink:hover {
+  color: var(--colour-ignition);
 }
 
 .disciplinesHeader,
@@ -954,14 +986,19 @@
 /* ─── Section: Engineering Brands ─────────────────────────────────────── */
 
 .sectionEngineeringBrands {
-  background-color: var(--bg-canvas);
-  padding-block: var(--section-space-standard);
+  background-color: var(--colour-void);
+  padding-top: var(--section-space-standard);
+  padding-bottom: 0;
 }
 
+/* Match discipline grid exactly — 3px gutters, full-width, dark void background */
 .engineeringBrandsGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
+  gap: 3px;
+  background-color: var(--colour-void);
+  width: 100%;
+  margin-top: var(--space-6);
 }
 
 @media (min-width: 640px) {
@@ -973,32 +1010,36 @@
 @media (min-width: 1024px) {
   .engineeringBrandsGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
+    grid-template-rows: repeat(2, minmax(280px, 38vh));
   }
 }
 
+/* Card — identical pattern to disciplineCard */
 .engineeringBrandCard {
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 0;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-subtle);
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: left;
+  min-height: 260px;
+  background-color: var(--colour-carbon);
   text-decoration: none;
-  min-height: 200px;
-  transition: var(--transition-card);
+  cursor: pointer;
+  /* No border-radius — these abut edge-to-edge like discipline cards */
+  border-radius: 0;
+  border: none;
+  transition: none;
 }
 
-.engineeringBrandCard:hover {
-  transform: translateY(-1px);
-  border-color: var(--border-medium);
-  box-shadow: var(--shadow-card-hover);
+@media (min-width: 1024px) {
+  .engineeringBrandCard {
+    min-height: 300px;
+  }
 }
 
-/* Background image layer — sits behind content */
+/* Background image layer — fills full card */
 .engineeringBrandBg {
   position: absolute;
   inset: 0;
@@ -1006,64 +1047,64 @@
   overflow: hidden;
 }
 
-/* Scrim over the background image — transitions on hover to reveal rich artwork */
-.engineeringBrandBg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    linear-gradient(
-      to top,
-      rgba(249, 248, 246, 0.96) 0%,
-      rgba(249, 248, 246, 0.88) 45%,
-      rgba(249, 248, 246, 0.72) 100%
-    );
-  transition: opacity 320ms var(--ease-standard), background 320ms var(--ease-standard);
-}
-
-/* Image itself — subtle resting state, smoothly emerges on hover */
+/* Image at rest — slightly visible, desaturated */
 .engineeringBrandBg img {
-  opacity: 0.12;
+  opacity: 0.30;
   transform: scale(1.0);
-  transition: opacity 360ms var(--ease-standard), transform 450ms var(--ease-standard);
+  filter: saturate(0.85);
+  transition:
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 600ms cubic-bezier(0.16, 1, 0.3, 1);
   object-fit: cover;
 }
 
-/* Reveal on hover */
+/* Hover — image reveals richly, subtle expand */
 .engineeringBrandCard:hover .engineeringBrandBg img {
-  opacity: 0.42;
-  transform: scale(1.05);
+  opacity: 0.72;
+  transform: scale(1.03);
+  filter: saturate(1.1) brightness(1.04);
 }
 
-.engineeringBrandCard:hover .engineeringBrandBg::after {
-  opacity: 0.75;
+/* Atmospheric scrim identical to discipline cards */
+.engineeringBrandScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at center, rgba(11, 12, 14, 0.35) 0%, rgba(11, 12, 14, 0.75) 100%);
+  transition: background 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Content wrapper sits above the bg */
+.engineeringBrandCard:hover .engineeringBrandScrim {
+  background: radial-gradient(circle at center, rgba(11, 12, 14, 0.2) 0%, rgba(11, 12, 14, 0.65) 100%);
+}
+
+/* Content wrapper sits above the bg — bottom-aligned like discipline cards */
 .engineeringBrandContent {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex: 1;
-  padding: var(--space-6);
+  padding: var(--space-6) var(--space-5);
+  width: 100%;
 }
 
 .engineeringBrandTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .engineeringBrandOrigin {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: var(--tracking-widest);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: var(--colour-chalk);
+  opacity: 0.7;
 }
 
 .engineeringBrandStatus {
@@ -1075,31 +1116,52 @@
 }
 
 .engineeringBrandName {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
-  color: var(--text-primary);
-  margin-bottom: var(--space-2);
+  font-family: var(--font-primary);
+  font-size: clamp(var(--text-xl), 2.2vw, var(--text-2xl));
+  font-weight: var(--weight-bold);
+  color: var(--colour-white);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .engineeringBrandSpecialism {
   font-size: var(--text-xs);
-  color: var(--text-secondary);
+  color: var(--colour-chalk);
   line-height: var(--leading-relaxed);
+  letter-spacing: 0.02em;
   margin-bottom: var(--space-4);
-  flex-grow: 1;
+  opacity: 0.9;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
+/* CTA pill — identical to disciplineCardCta */
 .engineeringBrandArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  letter-spacing: 0.04em;
-  transition: color var(--duration-fast) var(--ease-standard);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-white);
+  padding: 6px 18px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(8px);
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
 .engineeringBrandCard:hover .engineeringBrandArrow {
-  color: var(--colour-ignition);
+  background-color: var(--colour-ignition);
+  border-color: var(--colour-ignition);
+  color: var(--colour-white);
+  box-shadow: 0 4px 16px rgba(242, 84, 11, 0.35);
+  transform: translateY(-1px);
 }
 
 /* ─── Section: Build My Rig Banner ────────────────────────────────────── */
