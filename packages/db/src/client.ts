@@ -16,6 +16,10 @@ const client = postgres(connectionString, {
   idle_timeout: 20,
 })
 
+export const isDbConfigured = Boolean(
+  process.env['DATABASE_URL'] && !process.env['DATABASE_URL'].includes('halo_rc_placeholder')
+)
+
 export const db = drizzle(client, { schema })
 
 export type Database = typeof db

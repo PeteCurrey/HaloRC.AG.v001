@@ -9,6 +9,8 @@ import {
   HALO_MACHINE,
   RACE_DISCIPLINES,
   BRANDS_MARQUEE,
+  SHOP_DISCIPLINES,
+  FEATURED_ENGINEERING_BRANDS,
 } from '@/lib/navigation-data'
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -42,7 +44,7 @@ export default function HomePage() {
           </div>
 
           <h1 className={s.heroHeadline}>
-            The premium RC destination.
+            The Premium RC Destination
           </h1>
 
           <p className={s.heroSubline}>
@@ -62,6 +64,49 @@ export default function HomePage() {
 
         <div className={s.scrollIndicator} aria-hidden="true">
           <div className={s.scrollIndicatorLine} />
+        </div>
+      </section>
+
+      {/* ── Shop by Discipline ── */}
+      <section className={s.sectionDisciplines} aria-labelledby="disciplines-heading">
+        <div className={s.sectionInner}>
+          <div className={s.sectionLabel} aria-hidden="true">
+            <span>Catalogue Discovery</span>
+            <div className={s.sectionLabelLine} />
+          </div>
+
+          <ScrollReveal>
+            <div className={s.disciplinesHeader}>
+              <div>
+                <h2 id="disciplines-heading" className={s.sectionHeading}>
+                  Shop by discipline.
+                </h2>
+                <p className={s.sectionSubtext}>
+                  From competition touring chassis to extreme heavyweight bash trucks.
+                  Every class has its benchmark.
+                </p>
+              </div>
+              <Link href="/machines" className={s.sectionHeaderLink}>
+                All 12 Platforms →
+              </Link>
+            </div>
+
+            <div className={s.disciplineGrid}>
+              {SHOP_DISCIPLINES.map((item, idx) => (
+                <Link key={item.id} href={item.href} className={s.disciplineCard}>
+                  <div className={s.disciplineCardHeader}>
+                    <span className={s.disciplineCardNumber}>0{idx + 1}</span>
+                    {item.badge && (
+                      <span className={s.disciplineCardBadge}>{item.badge}</span>
+                    )}
+                  </div>
+                  <h3 className={s.disciplineCardTitle}>{item.label}</h3>
+                  <p className={s.disciplineCardSub}>{item.sub}</p>
+                  <span className={s.disciplineCardCta}>Explore Platforms →</span>
+                </Link>
+              ))}
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -228,6 +273,47 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
+      {/* ── Engineering Brands ── */}
+      <section className={s.sectionEngineeringBrands} aria-labelledby="engineering-brands-heading">
+        <div className={s.sectionInner}>
+          <div className={s.sectionLabel} aria-hidden="true">
+            <span>Authorised Roster</span>
+            <div className={s.sectionLabelLine} />
+          </div>
+
+          <ScrollReveal>
+            <div className={s.brandsHeader}>
+              <div>
+                <h2 id="engineering-brands-heading" className={s.sectionHeading}>
+                  Specialist engineering marques.
+                </h2>
+                <p className={s.sectionSubtext}>
+                  We deal directly with manufacturers and authorised distributors.
+                  Zero grey-market ambiguity, verified commercial supply lines.
+                </p>
+              </div>
+              <Link href="/brands" className={s.sectionHeaderLink}>
+                View All Brands →
+              </Link>
+            </div>
+
+            <div className={s.engineeringBrandsGrid}>
+              {FEATURED_ENGINEERING_BRANDS.map((brand) => (
+                <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
+                  <div className={s.engineeringBrandTop}>
+                    <span className={s.engineeringBrandOrigin}>{brand.country}</span>
+                    <span className={s.engineeringBrandStatus}>{brand.status}</span>
+                  </div>
+                  <h3 className={s.engineeringBrandName}>{brand.name}</h3>
+                  <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
+                  <span className={s.engineeringBrandArrow}>Explore Brand Universe →</span>
+                </Link>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── Brand marquee ── */}
       <section
         className={s.sectionBrands}
@@ -247,6 +333,37 @@ export default function HomePage() {
           We carry brands including {BRANDS_MARQUEE.slice(0, BRANDS_MARQUEE.length / 2).join(', ')}.{' '}
           <Link href="/brands">View all brands</Link>.
         </p>
+      </section>
+
+      {/* ── Build My Rig Call-out ── */}
+      <section className={s.sectionBuildCta} aria-labelledby="build-cta-heading">
+        <div className={s.sectionInner}>
+          <ScrollReveal>
+            <div className={s.buildCtaBanner}>
+              <div className={s.buildCtaContent}>
+                <div className={s.buildCtaBadge}>
+                  <span className={s.buildCtaDot} aria-hidden="true" />
+                  <span>Deterministic Compatibility Engine</span>
+                </div>
+                <h2 id="build-cta-heading" className={s.buildCtaHeadline}>
+                  Build My Rig.
+                </h2>
+                <p className={s.buildCtaText}>
+                  Configure competition chassis with verified motors, ESCs, servos, and battery sizing.
+                  The platform enforces mechanical and electrical compatibility rules before checkout.
+                </p>
+                <div className={s.buildCtaActions}>
+                  <Link href="/build" className={s.btnPrimary}>
+                    Launch Configurator
+                  </Link>
+                  <Link href="/race/compare" className={s.btnGhost}>
+                    Compare Race Blueprints
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
       </section>
 
       {/* ── Find My Machine ── */}
@@ -275,8 +392,8 @@ export default function HomePage() {
                 <Link href="/find" className={s.btnPrimary} style={{ alignSelf: 'flex-start' }}>
                   Start the consultation
                 </Link>
-                <Link href="/guides" className={s.btnGhost} style={{ alignSelf: 'flex-start' }}>
-                  Browse buying guides
+                <Link href="/find" className={s.btnGhost} style={{ alignSelf: 'flex-start' }}>
+                  Technical Advisor Engine
                 </Link>
               </div>
             </div>

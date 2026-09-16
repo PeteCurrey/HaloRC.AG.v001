@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import s from './page.module.css'
 import { DataConfidenceBadge, MarketAwarePrice, StockStatus } from '@halo-rc/ui'
 import { getMarketPreference } from '@/actions/market'
-import { getMachineDetail } from '@halo-rc/db'
+import { getMachineDetail, getProductSeo } from '@halo-rc/db'
 import type { Currency } from '@halo-rc/types'
 
 interface PageProps {
@@ -15,17 +15,48 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const activeMarket = await getMarketPreference()
   const detail = await getMachineDetail(slug, activeMarket)
-  if (!detail) return { title: 'Product Not Found' }
+
+  if (!detail) {
+    return {
+      title: 'Product Not Found — Halo RC',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  // Authoritative SEO metadata from product_seo table
+  let seoRecord = null
+  try {
+    seoRecord = await getProductSeo(detail.id)
+  } catch {
+    // Non-blocking fallback if database is offline
+  }
+
+  const title = seoRecord?.seoTitle || `${detail.name} | ${detail.brand.name} — Halo RC`
+  const description = seoRecord?.metaDescription || detail.editorialSummary || undefined
+  const canonical = seoRecord?.canonicalUrl || `https://halo-rc.com/machines/${detail.slug}`
+  const shouldIndex = seoRecord?.indexPage ?? true
+
   return {
-    title: `${detail.name} | ${detail.brand.name} — Halo RC`,
-    description: detail.editorialSummary,
+    title,
+    description,
     alternates: {
-      canonical: `https://halo-rc.com/machines/${detail.slug}`,
+      canonical,
       languages: {
-        'en-GB': `https://halo-rc.com/machines/${detail.slug}`,
-        'en-US': `https://halo-rc.com/machines/${detail.slug}`,
-        'x-default': `https://halo-rc.com/machines/${detail.slug}`,
+        'en-GB': canonical,
+        'en-US': canonical,
+        'x-default': canonical,
       },
+    },
+    robots: {
+      index: shouldIndex,
+      follow: shouldIndex,
+    },
+    openGraph: {
+      title,
+      description: description ?? '',
+      url: canonical,
+      siteName: 'Halo RC',
+      type: 'website',
     },
   }
 }
@@ -258,9 +289,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   >
                     Configure Complete Race Build
                   </Link>
-                  <button type="button" className={s.btnEnquire}>
+                  <Link
+                    href={`/contact?productInterestId=${detail.id}&productName=${encodeURIComponent(detail.name)}`}
+                    className={s.btnEnquire}
+                    style={{ textAlign: 'center', textDecoration: 'none' }}
+                  >
                     Request Specialist Race Department Consultation
-                  </button>
+                  </Link>
                 </>
               ) : (
                 <>

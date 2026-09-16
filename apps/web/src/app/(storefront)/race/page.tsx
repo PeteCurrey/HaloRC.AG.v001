@@ -4,6 +4,7 @@
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import s from './race.module.css'
 import { getPublishedHaloBuilds, resolveCurrentBuildPricing } from '@halo-rc/db'
 
 export const metadata: Metadata = {
@@ -31,173 +32,131 @@ export default async function RaceDepartmentPage({ searchParams }: RacePageProps
   const scales = ['ALL', '1:10', '1:8', '1:5']
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
-      <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto' }}>
+    <div className={s.page}>
+      <div className={s.container}>
         {/* Eyebrow & Headline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-          <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-race)', borderRadius: '50%' }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--colour-off-white)' }}>
+        <div className={s.eyebrow}>
+          <span className={s.eyebrowDot} aria-hidden="true" />
+          <span className={s.eyebrowText}>
             Engineering &amp; Competition Division
           </span>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+        <div className={s.headerRow}>
           <div>
-            <h1 style={{ fontSize: 'clamp(var(--text-3xl), 5vw, var(--text-5xl))', fontWeight: 600, letterSpacing: 'var(--tracking-tight)', color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
+            <h1 className={s.headline}>
               Halo Builds
             </h1>
-            <p style={{ fontSize: 'var(--text-base)', color: 'var(--colour-ash)', maxWidth: '56ch', lineHeight: 'var(--leading-relaxed)' }}>
+            <p className={s.subline}>
               Engineered competition vehicle configurations. Each build integrates verified chassis platforms, matched powertrain electronics, and calibrated running gear.
             </p>
           </div>
-          <Link
-            href="/race/compare"
-            style={{
-              padding: 'var(--space-2) var(--space-4)',
-              backgroundColor: 'var(--colour-carbon)',
-              border: '1px solid var(--colour-steel)',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--colour-off-white)',
-              fontSize: 'var(--text-xs)',
-              textDecoration: 'none',
-              fontFamily: 'var(--font-mono)',
-            }}
-          >
+          <Link href="/race/compare" className={s.compareButton}>
             Compare Builds →
           </Link>
         </div>
 
         {/* Filter Controls */}
-        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap', marginBottom: 'var(--space-8)', padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', borderRadius: 'var(--radius-md)', border: '1px solid var(--colour-steel)' }}>
-          <div>
-            <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-1)' }}>
-              Discipline
-            </span>
-            <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
-              {disciplines.map((d) => (
-                <Link
-                  key={d}
-                  href={`/race?discipline=${d}&scale=${selectedScale}&type=${selectedType}`}
-                  style={{
-                    padding: 'var(--space-1) var(--space-3)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: 'var(--text-xs)',
-                    textDecoration: 'none',
-                    backgroundColor: selectedDiscipline === d ? 'var(--colour-race)' : 'var(--colour-graphite)',
-                    color: selectedDiscipline === d ? 'var(--colour-white)' : 'var(--colour-ash)',
-                  }}
-                >
-                  {d}
-                </Link>
-              ))}
+        <div className={s.filterBar}>
+          <div className={s.filterGroup}>
+            <span className={s.filterLabel}>Discipline</span>
+            <div className={s.filterPills}>
+              {disciplines.map((d) => {
+                const isSelected = selectedDiscipline === d
+                return (
+                  <Link
+                    key={d}
+                    href={`/race?discipline=${d}&scale=${selectedScale}&type=${selectedType}`}
+                    className={`${s.filterPill} ${isSelected ? s.filterPillActive : ''}`}
+                    aria-current={isSelected ? 'page' : undefined}
+                  >
+                    {d}
+                  </Link>
+                )
+              })}
             </div>
           </div>
 
-          <div>
-            <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-1)' }}>
-              Scale
-            </span>
-            <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
-              {scales.map((s) => (
-                <Link
-                  key={s}
-                  href={`/race?discipline=${selectedDiscipline}&scale=${s}&type=${selectedType}`}
-                  style={{
-                    padding: 'var(--space-1) var(--space-3)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: 'var(--text-xs)',
-                    textDecoration: 'none',
-                    backgroundColor: selectedScale === s ? 'var(--colour-race)' : 'var(--colour-graphite)',
-                    color: selectedScale === s ? 'var(--colour-white)' : 'var(--colour-ash)',
-                  }}
-                >
-                  {s}
-                </Link>
-              ))}
+          <div className={s.filterGroup}>
+            <span className={s.filterLabel}>Scale</span>
+            <div className={s.filterPills}>
+              {scales.map((sc) => {
+                const isSelected = selectedScale === sc
+                return (
+                  <Link
+                    key={sc}
+                    href={`/race?discipline=${selectedDiscipline}&scale=${sc}&type=${selectedType}`}
+                    className={`${s.filterPill} ${isSelected ? s.filterPillActive : ''}`}
+                    aria-current={isSelected ? 'page' : undefined}
+                  >
+                    {sc}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </div>
 
         {/* Builds Grid */}
         {builds.length === 0 ? (
-          <div style={{ padding: 'var(--space-8)', border: '1px dashed var(--colour-steel)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)' }}>
+          <div className={s.emptyState}>
+            <p className={s.emptyText}>
               No published Halo Builds match the active filter criteria.
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 'var(--space-6)' }}>
+          <div className={s.buildsGrid}>
             {builds.map((build) => {
               const ukPricing = resolveCurrentBuildPricing(build, 'UK')
               const currentVersionRecord = build.versions.find((v) => v.version === build.currentVersion)
 
               return (
-                <div
-                  key={build.id}
-                  style={{
-                    backgroundColor: 'var(--colour-carbon)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div style={{ padding: 'var(--space-6)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-race)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <article key={build.id} className={s.buildCard}>
+                  <div className={s.cardBody}>
+                    <div className={s.cardMeta}>
+                      <span className={s.disciplineBadge}>
                         {build.discipline} • {build.scale}
                       </span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)' }}>
+                      <span className={s.versionTag}>
                         v{build.currentVersion}
                       </span>
                     </div>
 
-                    <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--colour-off-white)', marginBottom: 'var(--space-2)' }}>
+                    <h2 className={s.buildTitle}>
                       {build.title}
                     </h2>
 
-                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-4)' }}>
+                    <p className={s.buildSummary}>
                       {build.engineeringSummary}
                     </p>
 
-                    <div style={{ borderTop: '1px solid var(--colour-steel)', paddingTop: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-                      <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                    <div className={s.platformRow}>
+                      <span className={s.platformLabel}>
                         Platform: {build.platformName}
                       </span>
-                      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', margin: 'var(--space-1) 0 0 0' }}>
+                      <p className={s.componentCount}>
                         {currentVersionRecord?.components.length ?? 0} engineered component lines
                       </p>
                     </div>
                   </div>
 
-                  <div style={{ padding: 'var(--space-4) var(--space-6)', backgroundColor: 'var(--colour-graphite)', borderTop: '1px solid var(--colour-steel)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className={s.cardFooter}>
                     <div>
-                      <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', display: 'block' }}>
+                      <span className={s.priceLabel}>
                         Current UK Build Total
                       </span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)' }}>
+                      <span className={s.priceValue}>
                         {ukPricing.totalMinorUnits ? `£${(ukPricing.totalMinorUnits / 100).toFixed(2)}` : 'Pricing On Request'}
                       </span>
                     </div>
                     <Link
                       href={`/race/${build.slug}`}
-                      style={{
-                        padding: 'var(--space-2) var(--space-4)',
-                        backgroundColor: 'var(--colour-race)',
-                        color: 'var(--colour-white)',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-xs)',
-                        textDecoration: 'none',
-                        borderRadius: 'var(--radius-sm)',
-                        letterSpacing: '0.05em',
-                      }}
+                      className={s.inspectCta}
                     >
                       Inspect Blueprint →
                     </Link>
                   </div>
-                </div>
+                </article>
               )
             })}
           </div>

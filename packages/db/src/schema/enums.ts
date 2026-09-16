@@ -281,6 +281,9 @@ export const orderPaymentStatusEnum = pgEnum('order_payment_status', [
 
 export const orderFulfilmentStatusEnum = pgEnum('order_fulfilment_status', [
   'PENDING',
+  'UNFULFILLED',
+  'PROCESSING',
+  'PACKED',
   'PICKING',
   'SHIPPED',
   'DELIVERED',
@@ -431,6 +434,86 @@ export const shippingRestrictionTypeEnum = pgEnum('shipping_restriction_type', [
   'OVERSIZE_FREIGHT',
   'PROHIBITED_IMPORT',
 ])
+
+// ─── Admin Platform Foundation Enums ─────────────────────────────────────────
+
+export const leadStatusEnum = pgEnum('lead_status', [
+  'NEW',
+  'CONTACTED',
+  'QUALIFIED',
+  'QUOTED',
+  'WON',
+  'LOST',
+  'ARCHIVED',
+])
+
+export const leadSourceEnum = pgEnum('lead_source', [
+  'PRODUCT_ENQUIRY',
+  'CONTACT_FORM',
+  'QUOTE_REQUEST',
+  'COMPATIBILITY_QUESTION',
+  'TRADE_ENQUIRY',
+  'SUPPLIER_ENQUIRY',
+  'NEWSLETTER',
+  'OTHER',
+])
+
+export const leadPriorityEnum = pgEnum('lead_priority', [
+  'LOW',
+  'NORMAL',
+  'HIGH',
+  'URGENT',
+])
+
+export const cmsPageTypeEnum = pgEnum('cms_page_type', [
+  'BRAND',
+  'BUYING_GUIDE',
+  'EDITORIAL',
+  'LANDING',
+  'ABOUT',
+  'SHIPPING',
+  'RETURNS',
+  'CONTACT',
+  'OTHER',
+])
+
+export const auditActionEnum = pgEnum('audit_action', [
+  'CREATE',
+  'UPDATE',
+  'DELETE',
+  'PUBLISH',
+  'UNPUBLISH',
+  'ARCHIVE',
+  'STATUS_CHANGE',
+  'PRICE_CHANGE',
+])
+
+export const aiSuggestionTypeEnum = pgEnum('ai_suggestion_type', [
+  'DESCRIPTION',
+  'SHORT_DESCRIPTION',
+  'SEO_TITLE',
+  'META_DESCRIPTION',
+  'FEATURES',
+  'COLLECTION_DESCRIPTION',
+])
+
+export const aiSuggestionStatusEnum = pgEnum('ai_suggestion_status', [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+])
+
+export const homepageSectionTypeEnum = pgEnum('homepage_section_type', [
+  'HERO',
+  'FEATURED_MACHINES',
+  'FEATURED_BRANDS',
+  'EDITORIAL',
+  'PROMOTIONAL',
+  'COLLECTIONS',
+  'HALO_PRODUCT',
+  'BUYING_GUIDE',
+])
+
 
 
 

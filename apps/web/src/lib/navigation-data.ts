@@ -89,6 +89,40 @@ export const BRANDS_MARQUEE: readonly string[] = [
   ...BRANDS_LIST,
 ] as const
 
+export interface ShopDisciplineItem {
+  id: string
+  label: string
+  sub: string
+  href: string
+  badge?: string
+}
+
+export const SHOP_DISCIPLINES: readonly ShopDisciplineItem[] = [
+  { id: 'bash', label: 'Bash & Stunt', sub: 'High-speed, extreme durability', href: '/machines?discipline=bash', badge: 'HEAVYWEIGHT' },
+  { id: 'race', label: 'Competition Race', sub: 'Championship touring & buggy', href: '/machines?discipline=race', badge: 'HALO TIER' },
+  { id: 'drift', label: 'Precision Drift', sub: 'RWD chassis dynamics & countersteer', href: '/machines?discipline=drift' },
+  { id: 'crawl', label: 'Scale Trail & Crawl', sub: 'Technical portal-axle terrain rigs', href: '/machines?discipline=crawl' },
+  { id: 'scale', label: 'Engineering Realism', sub: 'Authentic mechanical fidelity', href: '/machines?discipline=scale' },
+  { id: 'large_scale', label: 'Large Scale 1:5', sub: 'High-voltage and petrol motorsport', href: '/machines?discipline=large_scale', badge: '1:5 SCALE' },
+] as const
+
+export interface EngineeringBrandItem {
+  name: string
+  country: string
+  specialism: string
+  status: string
+  href: string
+}
+
+export const FEATURED_ENGINEERING_BRANDS: readonly EngineeringBrandItem[] = [
+  { name: 'XRAY', country: 'Slovakia', specialism: 'World Championship Touring & Buggy', status: 'Authorised Dealer', href: '/brands' },
+  { name: 'Awesomatix', country: 'Germany', specialism: 'Rotary Damper Precision Chassis', status: 'Authorised Dealer', href: '/brands' },
+  { name: 'Traxxas', country: 'USA', specialism: 'Heavyweight Bash & Flagship Scale', status: 'Authorised Dealer', href: '/brands' },
+  { name: 'Schumacher', country: 'UK', specialism: 'British Championship Competition', status: 'Authorised Dealer', href: '/brands' },
+  { name: 'Hobbywing', country: 'China', specialism: 'XeRun Brushless ESCs & Motors', status: 'Distributor Sourced', href: '/brands' },
+  { name: 'Sanwa', country: 'Japan', specialism: 'FHSS-5 Ultra-Low Latency Telemetry', status: 'Distributor Sourced', href: '/brands' },
+] as const
+
 // ─── Mega Menu Data Structures ───────────────────────────────────────────────
 
 export interface MegaMenuLink {

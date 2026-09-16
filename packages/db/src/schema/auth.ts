@@ -49,6 +49,11 @@ export const orders = pgTable('orders', {
   taxMode: taxModeEnum('tax_mode').notNull().default('INCLUSIVE'),
   totalMinorUnits: integer('total_minor_units').notNull(),
   currency: currencyEnum('currency').notNull(),
+  billingAddress: jsonb('billing_address'),
+  shippingAddress: jsonb('shipping_address'),
+  customerNotes: text('customer_notes'),
+  internalNotes: text('internal_notes'),
+  shippingMethodId: text('shipping_method_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [

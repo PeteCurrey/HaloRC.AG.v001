@@ -1,3 +1,30 @@
+/* ─── Skip Navigation ─────────────────────────────────────────────────── */
+
+.skipNav {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--gutter-md);
+  z-index: calc(var(--z-toast) + 100);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--colour-carbon);
+  color: var(--colour-white);
+  border: 1px solid var(--colour-ignition);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-200%);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.skipNav:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--colour-halo);
+  outline-offset: 2px;
+}
+
 .nav {
   position: fixed;
   top: 0;
@@ -12,19 +39,23 @@
 
   padding-inline: var(--gutter-md);
 
-  background-color: rgba(8, 8, 8, 0.85);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border-bottom: 1px solid var(--colour-white-05);
+  background-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid transparent;
 
   transition:
     background-color var(--duration-standard) var(--ease-standard),
+    backdrop-filter var(--duration-standard) var(--ease-standard),
+    -webkit-backdrop-filter var(--duration-standard) var(--ease-standard),
     border-color var(--duration-standard) var(--ease-standard);
 }
 
 .nav[data-scrolled="true"] {
-  background-color: rgba(8, 8, 8, 0.97);
-  border-bottom-color: var(--colour-steel);
+  background-color: rgba(8, 8, 8, 0.85);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-bottom-color: var(--colour-white-05);
 }
 
 /* ─── Logo ─────────────────────────────────────────────────────────────── */
@@ -70,6 +101,7 @@
 }
 
 .navLink {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-1);
@@ -91,7 +123,19 @@
 }
 
 .navLink[aria-current="page"] {
-  color: var(--colour-off-white);
+  color: var(--colour-white);
+}
+
+.navLink[aria-current="page"]::before {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--colour-ignition);
 }
 
 /* Race Department — special treatment */
@@ -142,8 +186,11 @@
   color: var(--colour-ignition);
 }
 
-.nav[data-megamenu-open="true"] {
+.nav[data-megamenu-open="true"],
+.nav[data-mobile-open="true"] {
   background-color: rgba(8, 8, 8, 0.98);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
   border-bottom-color: var(--colour-steel);
 }
 
@@ -224,6 +271,29 @@
 .iconButton:hover {
   background-color: var(--colour-white-05);
   color: var(--colour-off-white);
+}
+
+.cartIconButton {
+  position: relative;
+}
+
+.cartBadge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 15px;
+  height: 15px;
+  padding-inline: 3px;
+  border-radius: var(--radius-full);
+  background-color: var(--colour-ignition);
+  color: var(--colour-white);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0 6px var(--colour-ignition-40);
 }
 
 /* Mobile menu button */

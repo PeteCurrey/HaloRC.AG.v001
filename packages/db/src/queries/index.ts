@@ -34,10 +34,37 @@ import {
   type SeedBrand,
   type SeedPlatform,
 } from '../seed/catalogue-data'
+import { db, isDbConfigured } from '../client'
+import {
+  products,
+  brands,
+  vehiclePlatforms,
+  categories,
+  productVariants,
+  marketOffers,
+  specifications,
+  documents,
+  compatibilityRules,
+} from '../schema'
+import { eq, and, or, ilike, desc, asc, inArray, ne, sql } from 'drizzle-orm'
+import {
+  STORE_PRODUCTS,
+  STORE_VARIANTS,
+  STORE_OFFERS,
+  STORE_SPECIFICATIONS,
+  STORE_PLATFORMS,
+  STORE_BRANDS,
+  STORE_COMPATIBILITY_RULES,
+  STORE_DOCUMENTS,
+  __resetCatalogueStoreForTesting,
+} from './catalogue-store'
+
 import { __getRawGarageCounts } from './garage'
 import { __getRawCommerceCounts } from './commerce'
 import { __getRawRaceCounts } from './race'
 import { __getRawProcurementCounts } from './procurement'
+
+export { __resetCatalogueStoreForTesting }
 
 export * from './garage'
 export * from './commerce'
@@ -304,9 +331,9 @@ export function evaluateCompatibility(
  * Helper to resolve the offers for a product's primary variant.
  */
 export function getOffersForProduct(productId: string): ResolvedMarketOffer[] {
-  const variant = SEED_VARIANTS.find((v) => v.productId === productId && v.published)
+  const variant = STORE_VARIANTS.find((v) => v.productId === productId && v.published)
   if (!variant) return []
-  return SEED_OFFERS.filter((o) => o.productVariantId === variant.id).map((o) => ({
+  return STORE_OFFERS.filter((o) => o.productVariantId === variant.id).map((o) => ({
     id: o.id,
     productVariantId: o.productVariantId,
     marketCode: o.marketCode,
@@ -322,17 +349,154 @@ export function getOffersForProduct(productId: string): ResolvedMarketOffer[] {
 
 /**
  * Query machines list with discipline, brand, tier filtering and market offer resolution.
+ * In production (isDbConfigured): executes PostgreSQL queries via Drizzle ORM.
+ * In dev/hermetic tests (!isDbConfigured): queries the mutable catalogue store.
  */
 export async function getMachinesList(params?: {
-  discipline?: string
-  brand?: string
-  tier?: ProductTier
-  scale?: string
-  marketCode?: MarketCode
+  discipline?: string | undefined
+  brand?: string | undefined
+  tier?: ProductTier | undefined
+  scale?: string | undefined
+  sort?: string | undefined
+  marketCode?: MarketCode | undefined
+  limit?: number | undefined
+  offset?: number | undefined
 }): Promise<MachineListItem[]> {
   const market = params?.marketCode ?? 'UK'
 
-  let filtered = SEED_PRODUCTS.filter(
+  if (isDbConfigured) {
+    const conditions = [
+      eq(products.published, true),
+      eq(products.status, 'PUBLISHED'),
+      inArray(products.productType, ['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE']),
+    ]
+
+    if (params?.discipline && params.discipline !== 'all') {
+      const disc = params.discipline.toUpperCase()
+      conditions.push(
+        or(
+          sql`${disc} = ANY(${products.tags})`,
+          ilike(categories.slug, `%${params.discipline}%`),
+          ilike(products.categoryId, `%${params.discipline}%`)
+        )!
+      )
+    }
+
+    if (params?.brand) {
+      const brandSlug = params.brand.toLowerCase()
+      conditions.push(
+        or(
+          eq(brands.slug, brandSlug),
+          eq(brands.id, params.brand)
+        )!
+      )
+    }
+
+    if (params?.tier) {
+      conditions.push(eq(products.tier, params.tier))
+    }
+
+    if (params?.scale && params.scale !== 'all') {
+      const normalised = params.scale.replace('-', ':')
+      conditions.push(
+        or(
+          ilike(products.scale, `%${normalised}%`),
+          ilike(products.scale, `%${params.scale}%`)
+        )!
+      )
+    }
+
+    const whereClause = and(...conditions)
+
+    const rows = await db
+      .select({
+        product: products,
+        brand: brands,
+      })
+      .from(products)
+      .innerJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(whereClause)
+      .limit(params?.limit ?? 100)
+      .offset(params?.offset ?? 0)
+
+    const productIds = rows.map((r) => r.product.id)
+    const offerMap = new Map<string, ResolvedMarketOffer>()
+
+    if (productIds.length > 0) {
+      const offerRows = await db
+        .select({
+          productId: productVariants.productId,
+          offer: marketOffers,
+        })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(
+          and(
+            inArray(productVariants.productId, productIds),
+            eq(productVariants.published, true),
+            eq(marketOffers.marketCode, market)
+          )
+        )
+
+      for (const row of offerRows) {
+        if (!offerMap.has(row.productId)) {
+          offerMap.set(row.productId, {
+            id: row.offer.id,
+            productVariantId: row.offer.productVariantId,
+            marketCode: row.offer.marketCode as MarketCode,
+            retailPriceMinorUnits: row.offer.retailPrice,
+            currency: row.offer.currency as Currency,
+            taxMode: row.offer.taxMode as TaxMode,
+            availability: row.offer.availability as AvailabilityStatus,
+            leadTimeDays: row.offer.leadTimeDays ?? null,
+            supplyRoute: (row.offer.supplyRoute as any) ?? null,
+            notes: row.offer.notes ?? null,
+          })
+        }
+      }
+    }
+
+    const list: MachineListItem[] = rows.map((r) => ({
+      id: r.product.id,
+      slug: r.product.slug,
+      sku: r.product.sku ?? '',
+      name: r.product.name,
+      shortName: r.product.shortName ?? r.product.name,
+      brand: {
+        id: r.brand.id,
+        slug: r.brand.slug,
+        name: r.brand.name,
+      },
+      tier: r.product.tier as ProductTier,
+      haloClassification: r.product.haloClassification ?? null,
+      scale: r.product.scale ?? null,
+      powerType: r.product.powerType ?? null,
+      discipline: ((r.product.tags?.[0] as Discipline) || 'RACE'),
+      editorialSummary: r.product.editorialSummary ?? '',
+      offer: offerMap.get(r.product.id) ?? null,
+    }))
+
+    // Sorting
+    if (params?.sort === 'price_asc') {
+      list.sort((a, b) => (a.offer?.retailPriceMinorUnits ?? 0) - (b.offer?.retailPriceMinorUnits ?? 0))
+    } else if (params?.sort === 'price_desc') {
+      list.sort((a, b) => (b.offer?.retailPriceMinorUnits ?? 0) - (a.offer?.retailPriceMinorUnits ?? 0))
+    } else if (params?.sort === 'brand') {
+      list.sort((a, b) => a.brand.name.localeCompare(b.brand.name))
+    } else {
+      list.sort((a, b) => {
+        if (a.tier === 'HALO' && b.tier !== 'HALO') return -1
+        if (b.tier === 'HALO' && a.tier !== 'HALO') return 1
+        return a.name.localeCompare(b.name)
+      })
+    }
+
+    return list
+  }
+
+  // Development & Hermetic Test Fallback Store
+  let filtered = STORE_PRODUCTS.filter(
     (p) =>
       p.published &&
       ['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE'].includes(p.productType)
@@ -349,7 +513,7 @@ export async function getMachinesList(params?: {
 
   if (params?.brand) {
     const brandSlug = params.brand.toLowerCase()
-    const brand = SEED_BRANDS.find((b) => b.slug === brandSlug || b.id === params.brand)
+    const brand = STORE_BRANDS.find((b) => b.slug === brandSlug || b.id === params.brand)
     if (brand) {
       filtered = filtered.filter((p) => p.brandId === brand.id)
     }
@@ -359,12 +523,13 @@ export async function getMachinesList(params?: {
     filtered = filtered.filter((p) => p.tier === params.tier)
   }
 
-  if (params?.scale) {
-    filtered = filtered.filter((p) => p.scale?.includes(params.scale!))
+  if (params?.scale && params.scale !== 'all') {
+    const normalised = params.scale.replace('-', ':')
+    filtered = filtered.filter((p) => p.scale?.includes(normalised) || p.scale?.includes(params.scale!))
   }
 
-  return filtered.map((prod) => {
-    const brand = SEED_BRANDS.find((b) => b.id === prod.brandId)!
+  const list = filtered.map((prod) => {
+    const brand = STORE_BRANDS.find((b) => b.id === prod.brandId)!
     const offers = getOffersForProduct(prod.id)
     const offer = resolveMarketOffer(offers, market)
 
@@ -375,9 +540,9 @@ export async function getMachinesList(params?: {
       name: prod.name,
       shortName: prod.shortName,
       brand: {
-        id: brand.id,
-        slug: brand.slug,
-        name: brand.name,
+        id: brand ? brand.id : prod.brandId,
+        slug: brand ? brand.slug : 'unknown',
+        name: brand ? brand.name : 'Unknown',
       },
       tier: prod.tier,
       haloClassification: prod.haloClassification ?? null,
@@ -388,29 +553,364 @@ export async function getMachinesList(params?: {
       offer,
     }
   })
+
+  // Sorting
+  if (params?.sort === 'price_asc') {
+    list.sort((a, b) => (a.offer?.retailPriceMinorUnits ?? 0) - (b.offer?.retailPriceMinorUnits ?? 0))
+  } else if (params?.sort === 'price_desc') {
+    list.sort((a, b) => (b.offer?.retailPriceMinorUnits ?? 0) - (a.offer?.retailPriceMinorUnits ?? 0))
+  } else if (params?.sort === 'brand') {
+    list.sort((a, b) => a.brand.name.localeCompare(b.brand.name))
+  } else {
+    list.sort((a, b) => {
+      if (a.tier === 'HALO' && b.tier !== 'HALO') return -1
+      if (b.tier === 'HALO' && a.tier !== 'HALO') return 1
+      return a.name.localeCompare(b.name)
+    })
+  }
+
+  return list
 }
 
 /**
  * Hydrates complete product graph for a machine detail view:
  * Brand -> Platform -> Vehicle -> Variant -> Market Offer -> DNA -> Documents -> Compatible Parts -> Replacement
+ * In production (isDbConfigured): executes PostgreSQL queries via Drizzle ORM.
+ * In dev/hermetic tests (!isDbConfigured): queries the mutable catalogue store.
  */
 export async function getMachineDetail(
   slug: string,
   targetMarket: MarketCode
 ): Promise<MachineDetail | null> {
-  const product = SEED_PRODUCTS.find((p) => p.slug === slug && p.published)
+  if (isDbConfigured) {
+    const rows = await db
+      .select({
+        product: products,
+        brand: brands,
+        platform: vehiclePlatforms,
+      })
+      .from(products)
+      .innerJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(vehiclePlatforms, eq(products.platformId, vehiclePlatforms.id))
+      .where(and(eq(products.slug, slug), eq(products.published, true)))
+      .limit(1)
+
+    const match = rows[0]
+    if (!match) return null
+
+    const prod = match.product
+    const brand = match.brand
+    const platform = match.platform
+
+    // Retrieve market offer for primary variant
+    const offerRows = await db
+      .select({
+        offer: marketOffers,
+      })
+      .from(marketOffers)
+      .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+      .where(
+        and(
+          eq(productVariants.productId, prod.id),
+          eq(productVariants.published, true),
+          eq(marketOffers.marketCode, targetMarket)
+        )
+      )
+      .limit(1)
+
+    const rawOffer = offerRows[0]?.offer
+    const offer: ResolvedMarketOffer | null = rawOffer
+      ? {
+          id: rawOffer.id,
+          productVariantId: rawOffer.productVariantId,
+          marketCode: rawOffer.marketCode as MarketCode,
+          retailPriceMinorUnits: rawOffer.retailPrice,
+          currency: rawOffer.currency as Currency,
+          taxMode: rawOffer.taxMode as TaxMode,
+          availability: rawOffer.availability as AvailabilityStatus,
+          leadTimeDays: rawOffer.leadTimeDays ?? null,
+          supplyRoute: (rawOffer.supplyRoute as any) ?? null,
+          notes: rawOffer.notes ?? null,
+        }
+      : null
+
+    // Specifications sanitized of UNKNOWN
+    const specRows = await db
+      .select()
+      .from(specifications)
+      .where(and(eq(specifications.entityId, prod.id), ne(specifications.confidence, 'UNKNOWN')))
+
+    const dna: SpecificationRecord[] = specRows.map((s) => ({
+      key: s.key,
+      value: s.value,
+      unit: s.unit ?? null,
+      confidence: s.confidence,
+      sourceType: s.sourceType ?? null,
+      sourceUrl: s.sourceUrl ?? null,
+      sourceDocument: s.sourceDocument ?? null,
+      verifiedAt: s.verifiedAt ? new Date(s.verifiedAt) : null,
+    }))
+
+    // Documents
+    const entityIds = [prod.id, ...(platform?.id ? [platform.id] : [])]
+    const docRows = await db
+      .select()
+      .from(documents)
+      .where(
+        and(
+          inArray(documents.entityId, entityIds),
+          eq(documents.published, true),
+          eq(documents.approvedForUse, true)
+        )
+      )
+
+    const docs = docRows.map((d) => ({
+      id: d.id,
+      title: d.title,
+      documentType: d.documentType,
+      version: d.version ?? null,
+      sourceUrl: d.sourceUrl ?? null,
+    }))
+
+    // Compatible parts
+    const compRules = await db
+      .select()
+      .from(compatibilityRules)
+      .where(
+        and(
+          inArray(compatibilityRules.targetEntityId, entityIds),
+          eq(compatibilityRules.verified, true)
+        )
+      )
+
+    const compatibleParts: CompatiblePartRecord[] = []
+    for (const rule of compRules) {
+      const partRow = await db
+        .select()
+        .from(products)
+        .where(and(eq(products.id, rule.sourceEntityId), eq(products.published, true)))
+        .limit(1)
+
+      const part = partRow[0]
+      if (!part) continue
+
+      const partOfferRow = await db
+        .select({ offer: marketOffers })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(
+          and(
+            eq(productVariants.productId, part.id),
+            eq(productVariants.published, true),
+            eq(marketOffers.marketCode, targetMarket)
+          )
+        )
+        .limit(1)
+
+      const pOff = partOfferRow[0]?.offer
+      compatibleParts.push({
+        partId: part.id,
+        sku: part.sku,
+        name: part.name,
+        slug: part.slug,
+        ruleType: rule.ruleType,
+        verified: rule.verified,
+        tier: part.tier as ProductTier,
+        price: pOff
+          ? {
+              id: pOff.id,
+              productVariantId: pOff.productVariantId,
+              marketCode: pOff.marketCode as MarketCode,
+              retailPriceMinorUnits: pOff.retailPrice,
+              currency: pOff.currency as Currency,
+              taxMode: pOff.taxMode as TaxMode,
+              availability: pOff.availability as AvailabilityStatus,
+              leadTimeDays: pOff.leadTimeDays ?? null,
+              supplyRoute: (pOff.supplyRoute as any) ?? null,
+              notes: pOff.notes ?? null,
+            }
+          : null,
+      })
+    }
+
+    // Related products
+    const relatedRules = compRules.filter((r) =>
+      ['RECOMMENDED', 'UPGRADE', 'OPTION', 'REQUIRED'].includes(r.ruleType)
+    )
+
+    const relatedProducts = []
+    for (const rule of relatedRules) {
+      const relRow = await db
+        .select()
+        .from(products)
+        .where(and(eq(products.id, rule.sourceEntityId), eq(products.published, true)))
+        .limit(1)
+
+      const rel = relRow[0]
+      if (!rel) continue
+
+      const relOfferRow = await db
+        .select({ offer: marketOffers })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(
+          and(
+            eq(productVariants.productId, rel.id),
+            eq(productVariants.published, true),
+            eq(marketOffers.marketCode, targetMarket)
+          )
+        )
+        .limit(1)
+
+      const rOff = relOfferRow[0]?.offer
+      relatedProducts.push({
+        relationType: rule.ruleType,
+        product: {
+          id: rel.id,
+          slug: rel.slug,
+          name: rel.name,
+          sku: rel.sku ?? '',
+          tier: rel.tier as ProductTier,
+          offer: rOff
+            ? {
+                id: rOff.id,
+                productVariantId: rOff.productVariantId,
+                marketCode: rOff.marketCode as MarketCode,
+                retailPriceMinorUnits: rOff.retailPrice,
+                currency: rOff.currency as Currency,
+                taxMode: rOff.taxMode as TaxMode,
+                availability: rOff.availability as AvailabilityStatus,
+                leadTimeDays: rOff.leadTimeDays ?? null,
+                supplyRoute: (rOff.supplyRoute as any) ?? null,
+                notes: rOff.notes ?? null,
+              }
+            : null,
+        },
+      })
+    }
+
+    // Replacement lineage
+    let replacementLineage: ReplacementLineage | null = null
+    if (prod.lifecycle === 'REPLACED' && prod.replacementProductId) {
+      const replRow = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, prod.replacementProductId))
+        .limit(1)
+
+      const repl = replRow[0]
+      if (repl) {
+        replacementLineage = {
+          originalProductId: prod.id,
+          originalName: prod.name,
+          originalSku: prod.sku,
+          lifecycle: 'REPLACED',
+          replacementProductId: repl.id,
+          replacementName: repl.name,
+          replacementSku: repl.sku ?? '',
+          replacementSlug: repl.slug,
+        }
+      }
+    }
+
+    const haloSpecs =
+      prod.tier === 'HALO'
+        ? [
+            { category: 'Architecture', detail: 'Symmetrical chassis layout with variable torsional flex adjustment.' },
+            { category: 'Suspension', detail: 'C-hub-free ultra-low suspension arms with carbon-composite inserts.' },
+            { category: 'Transmission', detail: 'Direct-drive central spur with Kevlar-reinforced dual belt arrangement.' },
+            { category: 'Bearings', detail: 'High-speed precision steel ball bearings, rubber sealed throughout.' },
+            { category: 'Shocks', detail: 'Ultra-short ULP coil-over dampers with hard-anodised shock bodies.' },
+          ]
+        : undefined
+
+    const pedigree =
+      prod.tier === 'HALO' && prod.slug.includes('xray-x4')
+        ? [
+            { event: 'IFMAR World Championship', result: '1st Place (Touring Car)', year: '2024' },
+            { event: 'EFRA European Championship', result: 'Winner (Modified Class)', year: '2025' },
+          ]
+        : undefined
+
+    return {
+      id: prod.id,
+      slug: prod.slug,
+      sku: prod.sku ?? '',
+      name: prod.name,
+      shortName: prod.shortName ?? prod.name,
+      brand: {
+        id: brand.id,
+        slug: brand.slug,
+        name: brand.name,
+        tier: (brand.tier as any) || 'FLAGSHIP',
+        status: (brand.status as any) || 'ACTIVE',
+        countryOfOrigin: brand.countryOfOrigin ?? 'Unknown',
+        foundedYear: brand.foundedYear,
+        description: brand.description ?? '',
+        website: brand.website,
+        commercialRelationship: 'OFFICIAL_DEALER' as const,
+        specialisms: [],
+        disciplines: [],
+      },
+      platform: platform
+        ? {
+            id: platform.id,
+            slug: platform.slug,
+            name: platform.name,
+            brandId: platform.brandId,
+            chassisMaterial: platform.chassisMaterial ?? '',
+            driveConfig: (platform.driveConfig as any) || '4WD',
+            wheelbaseMm: platform.wheelbaseMm ?? 0,
+            description: platform.description ?? '',
+            status: platform.status as any,
+            published: platform.published,
+          }
+        : null,
+      tier: prod.tier as ProductTier,
+      haloClassification: prod.haloClassification ?? null,
+      scale: prod.scale ?? null,
+      powerType: prod.powerType ?? null,
+      discipline: ((prod.tags?.[0] as Discipline) || 'RACE'),
+      editorialSummary: prod.editorialSummary ?? '',
+      lifecycle: prod.lifecycle as LifecycleStatus,
+      offer,
+      dna,
+      documents: docs,
+      compatibleParts,
+      relatedProducts,
+      replacementLineage,
+      haloSpecs: haloSpecs ?? null,
+      pedigree: pedigree ?? null,
+    }
+  }
+
+  // Development & Hermetic Test Fallback Store
+  const product = STORE_PRODUCTS.find((p) => p.slug === slug && p.published)
   if (!product) return null
 
-  const brand = SEED_BRANDS.find((b) => b.id === product.brandId)!
+  const brand = STORE_BRANDS.find((b) => b.id === product.brandId) ?? {
+    id: product.brandId,
+    slug: 'unknown-brand',
+    name: 'Unknown Brand',
+    tier: 'FLAGSHIP' as const,
+    status: 'ACTIVE' as const,
+    countryOfOrigin: 'Unknown',
+    foundedYear: 2026,
+    description: '',
+    website: null,
+    commercialRelationship: 'OFFICIAL_DEALER' as const,
+    specialisms: [],
+    disciplines: [],
+  }
   const platform = product.platformId
-    ? SEED_PLATFORMS.find((p) => p.id === product.platformId) ?? null
+    ? STORE_PLATFORMS.find((p) => p.id === product.platformId) ?? null
     : null
 
   const offers = getOffersForProduct(product.id)
   const offer = resolveMarketOffer(offers, targetMarket)
 
   // Retrieve raw specifications and sanitize out UNKNOWN
-  const rawSpecs: SpecificationRecord[] = SEED_SPECIFICATIONS.filter(
+  const rawSpecs: SpecificationRecord[] = STORE_SPECIFICATIONS.filter(
     (s) => s.entityId === product.id
   ).map((s) => ({
     key: s.key,
@@ -427,7 +927,7 @@ export async function getMachineDetail(
 
   // Retrieve documents attached to this product or its platform
   const entityIds = [product.id, ...(platform ? [platform.id] : [])]
-  const docs = SEED_DOCUMENTS.filter(
+  const docs = STORE_DOCUMENTS.filter(
     (d) => entityIds.includes(d.entityId) && d.published && d.approvedForUse
   ).map((d) => ({
     id: d.id,
@@ -439,13 +939,13 @@ export async function getMachineDetail(
 
   // Retrieve compatible parts via platform or vehicle rules
   const targetIds = [product.id, ...(platform ? [platform.id] : [])]
-  const matchingRules = SEED_COMPATIBILITY_RULES.filter(
+  const matchingRules = STORE_COMPATIBILITY_RULES.filter(
     (r) => targetIds.includes(r.targetEntityId) && r.verified
   )
 
   const compatibleParts: CompatiblePartRecord[] = []
   for (const rule of matchingRules) {
-    const part = SEED_PRODUCTS.find((p) => p.id === rule.sourceEntityId)
+    const part = STORE_PRODUCTS.find((p) => p.id === rule.sourceEntityId)
     if (!part || !part.published) continue
     const partOffers = getOffersForProduct(part.id)
     const partOffer = resolveMarketOffer(partOffers, targetMarket)
@@ -463,7 +963,7 @@ export async function getMachineDetail(
   }
 
   // Related products (Recommended, Upgrades, Options)
-  const relatedRules = SEED_COMPATIBILITY_RULES.filter(
+  const relatedRules = STORE_COMPATIBILITY_RULES.filter(
     (r) =>
       (r.targetEntityId === product.id || (platform && r.targetEntityId === platform.id)) &&
       ['RECOMMENDED', 'UPGRADE', 'OPTION', 'REQUIRED'].includes(r.ruleType) &&
@@ -472,7 +972,7 @@ export async function getMachineDetail(
 
   const relatedProducts = relatedRules
     .map((rule) => {
-      const relProd = SEED_PRODUCTS.find((p) => p.id === rule.sourceEntityId)
+      const relProd = STORE_PRODUCTS.find((p) => p.id === rule.sourceEntityId)
       if (!relProd || !relProd.published) return null
       const relOffers = getOffersForProduct(relProd.id)
       return {
@@ -492,7 +992,7 @@ export async function getMachineDetail(
   // Replacement lineage check (if product is replaced)
   let replacementLineage: ReplacementLineage | null = null
   if (product.lifecycle === 'REPLACED' && product.replacementProductId) {
-    const replacementProd = SEED_PRODUCTS.find(
+    const replacementProd = STORE_PRODUCTS.find(
       (p) => p.id === product.replacementProductId
     )
     if (replacementProd) {
@@ -557,6 +1057,8 @@ export async function getMachineDetail(
 
 /**
  * Searches catalogue understanding part numbers, exact SKU, partial SKU, and replaced SKUs.
+ * In production (isDbConfigured): executes PostgreSQL queries via Drizzle ORM.
+ * In dev/hermetic tests (!isDbConfigured): queries the mutable catalogue store.
  */
 export async function searchCatalogue(params: {
   query: string
@@ -565,20 +1067,115 @@ export async function searchCatalogue(params: {
   const q = params.query.trim().toLowerCase()
   if (!q) return []
 
+  if (isDbConfigured) {
+    const rows = await db
+      .select({
+        product: products,
+        brand: brands,
+        platform: vehiclePlatforms,
+      })
+      .from(products)
+      .leftJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(vehiclePlatforms, eq(products.platformId, vehiclePlatforms.id))
+      .where(
+        and(
+          eq(products.published, true),
+          or(
+            ilike(products.name, `%${q}%`),
+            ilike(products.shortName, `%${q}%`),
+            ilike(products.sku, `%${q}%`),
+            ilike(products.manufacturerSku, `%${q}%`),
+            ilike(brands.name, `%${q}%`),
+            ilike(vehiclePlatforms.name, `%${q}%`)
+          )
+        )
+      )
+      .limit(50)
+
+    const results: SearchResultItem[] = []
+    for (const r of rows) {
+      const prod = r.product
+      const offerRows = await db
+        .select({ offer: marketOffers })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(
+          and(
+            eq(productVariants.productId, prod.id),
+            eq(productVariants.published, true),
+            eq(marketOffers.marketCode, params.marketCode)
+          )
+        )
+        .limit(1)
+
+      const rawOffer = offerRows[0]?.offer
+      const offer: ResolvedMarketOffer | null = rawOffer
+        ? {
+            id: rawOffer.id,
+            productVariantId: rawOffer.productVariantId,
+            marketCode: rawOffer.marketCode as MarketCode,
+            retailPriceMinorUnits: rawOffer.retailPrice,
+            currency: rawOffer.currency as Currency,
+            taxMode: rawOffer.taxMode as TaxMode,
+            availability: rawOffer.availability as AvailabilityStatus,
+            leadTimeDays: rawOffer.leadTimeDays ?? null,
+            supplyRoute: (rawOffer.supplyRoute as any) ?? null,
+            notes: rawOffer.notes ?? null,
+          }
+        : null
+
+      let replacement: SearchResultItem['replacement'] = null
+      if (prod.lifecycle === 'REPLACED' && prod.replacementProductId) {
+        const replRow = await db
+          .select()
+          .from(products)
+          .where(eq(products.id, prod.replacementProductId))
+          .limit(1)
+
+        const repl = replRow[0]
+        if (repl) {
+          replacement = {
+            id: repl.id,
+            name: repl.name,
+            sku: repl.sku ?? '',
+            slug: repl.slug,
+          }
+        }
+      }
+
+      results.push({
+        id: prod.id,
+        slug: prod.slug,
+        sku: prod.sku ?? '',
+        name: prod.name,
+        shortName: prod.shortName ?? prod.name,
+        brandName: r.brand?.name ?? '',
+        productType: prod.productType,
+        tier: prod.tier as ProductTier,
+        lifecycle: prod.lifecycle as LifecycleStatus,
+        offer,
+        isReplaced: prod.lifecycle === 'REPLACED',
+        replacement,
+      })
+    }
+
+    return results
+  }
+
+  // Development & Hermetic Test Fallback Store
   const results: SearchResultItem[] = []
 
-  for (const prod of SEED_PRODUCTS) {
+  for (const prod of STORE_PRODUCTS) {
     if (!prod.published) continue
 
-    const brand = SEED_BRANDS.find((b) => b.id === prod.brandId)
+    const brand = STORE_BRANDS.find((b) => b.id === prod.brandId)
     const brandName = brand ? brand.name : ''
     const sku = prod.sku ? prod.sku.toLowerCase() : ''
     const name = prod.name.toLowerCase()
     const shortName = prod.shortName.toLowerCase()
-    const platform = prod.platformId ? SEED_PLATFORMS.find((p) => p.id === prod.platformId) : null
+    const platform = prod.platformId ? STORE_PLATFORMS.find((p) => p.id === prod.platformId) : null
     const platformName = platform ? platform.name.toLowerCase() : ''
 
-    // Exact or partial SKU, name, or platform match
     const isSkuMatch = sku.includes(q)
     const isNameMatch = name.includes(q) || shortName.includes(q)
     const isPlatformMatch = platformName.includes(q)
@@ -590,7 +1187,7 @@ export async function searchCatalogue(params: {
 
       let replacement: SearchResultItem['replacement'] = null
       if (prod.lifecycle === 'REPLACED' && prod.replacementProductId) {
-        const repl = SEED_PRODUCTS.find((p) => p.id === prod.replacementProductId)
+        const repl = STORE_PRODUCTS.find((p) => p.id === prod.replacementProductId)
         if (repl) {
           replacement = {
             id: repl.id,
@@ -625,8 +1222,8 @@ export async function searchCatalogue(params: {
  * Retrieves all brands grouped with counts of their machines and parts.
  */
 export async function getBrandsList() {
-  return SEED_BRANDS.map((b) => {
-    const brandProducts = SEED_PRODUCTS.filter((p) => p.brandId === b.id && p.published)
+  return STORE_BRANDS.map((b) => {
+    const brandProducts = STORE_PRODUCTS.filter((p) => p.brandId === b.id && p.published)
     const machinesCount = brandProducts.filter((p) =>
       ['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE'].includes(p.productType)
     ).length
@@ -646,14 +1243,14 @@ export async function getBrandsList() {
  * Retrieves brand detail with active machines, platforms, and accurate relationship language.
  */
 export async function getBrandDetail(slug: string, targetMarket: MarketCode) {
-  const brand = SEED_BRANDS.find((b) => b.slug === slug.toLowerCase())
+  const brand = STORE_BRANDS.find((b) => b.slug === slug.toLowerCase())
   if (!brand) return null
 
-  const platforms = SEED_PLATFORMS.filter(
+  const platforms = STORE_PLATFORMS.filter(
     (p) => p.brandId === brand.id && p.published
   )
 
-  const brandProducts = SEED_PRODUCTS.filter(
+  const brandProducts = STORE_PRODUCTS.filter(
     (p) => p.brandId === brand.id && p.published
   )
 
@@ -1339,3 +1936,9 @@ export async function resolveBuildConfiguration(params: {
   }
 }
 
+// ─── Admin Platform Queries ──────────────────────────────────────────────────
+export * from './admin-products'
+export * from './admin-leads'
+export * from './admin-orders'
+export * from './admin-cms'
+export * from './catalogue-store'

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import s from './machines.module.css'
 import { getMarketPreference } from '@/actions/market'
 import { getMachinesList } from '@halo-rc/db'
 import { MarketAwarePrice, StockStatus } from '@halo-rc/ui'
@@ -14,221 +15,250 @@ export const metadata: Metadata = {
 }
 
 const DISCIPLINES = [
-  { label: 'All Disciplines', slug: 'all', count: 12 },
-  { label: 'Bash', slug: 'bash', description: 'Tough, high-speed, built for extreme punishment.' },
-  { label: 'Race', slug: 'race', description: 'World-championship competition engineering.' },
-  { label: 'Drift', slug: 'drift', description: 'Technical rear-wheel drive drift precision.' },
-  { label: 'Crawl', slug: 'crawl', description: 'Scale rock crawling and technical trail rigs.' },
-  { label: 'Scale', slug: 'scale', description: 'Authentic engineering fidelity and scale realism.' },
-  { label: 'Large Scale / 1:5', slug: 'large_scale', description: 'Serious scale petrol and high-voltage motorsport.' },
+  { label: 'All Disciplines', slug: 'all' },
+  { label: 'Bash', slug: 'bash' },
+  { label: 'Race', slug: 'race' },
+  { label: 'Drift', slug: 'drift' },
+  { label: 'Crawl', slug: 'crawl' },
+  { label: 'Scale', slug: 'scale' },
+  { label: 'Large Scale', slug: 'large_scale' },
+]
+
+const SCALES = [
+  { label: 'All Scales', value: 'all' },
+  { label: '1:5 Scale', value: '1:5' },
+  { label: '1:8 Scale', value: '1:8' },
+  { label: '1:10 Scale', value: '1:10' },
 ]
 
 interface MachinesPageProps {
-  searchParams: Promise<{ discipline?: string }>
+  searchParams: Promise<{
+    discipline?: string
+    scale?: string
+    sort?: string
+  }>
 }
 
 export default async function MachinesPage({ searchParams }: MachinesPageProps) {
-  const { discipline } = await searchParams
+  const { discipline, scale, sort } = await searchParams
   const activeDiscipline = discipline ?? 'all'
+  const activeScale = scale ?? 'all'
+  const activeSort = sort ?? 'featured'
   const activeMarket = await getMarketPreference()
 
   const machines = await getMachinesList({
     discipline: activeDiscipline,
+    ...(activeScale !== 'all' ? { scale: activeScale } : {}),
+    sort: activeSort,
     marketCode: activeMarket,
   })
 
+  // Helper to build filter query string
+  function buildFilterHref(newParams: { discipline?: string; scale?: string; sort?: string }) {
+    const d = newParams.discipline !== undefined ? newParams.discipline : activeDiscipline
+    const sc = newParams.scale !== undefined ? newParams.scale : activeScale
+    const so = newParams.sort !== undefined ? newParams.sort : activeSort
+
+    const queryParts: string[] = []
+    if (d && d !== 'all') queryParts.push(`discipline=${encodeURIComponent(d)}`)
+    if (sc && sc !== 'all') queryParts.push(`scale=${encodeURIComponent(sc)}`)
+    if (so && so !== 'featured') queryParts.push(`sort=${encodeURIComponent(so)}`)
+
+    return queryParts.length > 0 ? `/machines?${queryParts.join('&')}` : '/machines'
+  }
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
-      <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto' }}>
-
+    <div className={s.page}>
+      <div className={s.container}>
         {/* ── Header ── */}
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 600, letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase', color: 'var(--colour-smoke)', marginBottom: 'var(--space-2)' }}>
-          The Machines
-        </p>
+        <p className={s.eyebrow}>The Machines</p>
 
-        <h1 style={{ fontSize: 'clamp(var(--text-3xl), 5vw, var(--text-5xl))', fontWeight: 600, letterSpacing: 'var(--tracking-tight)', color: 'var(--colour-off-white)', marginBottom: 'var(--space-3)', textWrap: 'balance' }}>
+        <h1 className={s.headline}>
           Precision engineering,<br />at every scale.
         </h1>
 
-        <p style={{ fontSize: 'var(--text-base)', color: 'var(--colour-ash)', maxWidth: '56ch', marginBottom: 'var(--space-8)', lineHeight: 'var(--leading-relaxed)' }}>
+        <p className={s.subline}>
           Every machine in the Halo RC catalogue is chosen for documented engineering excellence.
           Verified platforms, structured compatibility, and market-aware delivery.
         </p>
 
-        {/* ── Discipline Filter Tabs ── */}
-        <nav aria-label="Machine disciplines" style={{ marginBottom: 'var(--space-9)' }}>
-          <ul style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', listStyle: 'none' }}>
-            {DISCIPLINES.map((d) => {
-              const isSelected = activeDiscipline.toLowerCase() === d.slug.toLowerCase()
-              return (
-                <li key={d.slug}>
-                  <Link
-                    href={d.slug === 'all' ? '/machines' : `/machines?discipline=${d.slug}`}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-2)',
-                      padding: 'var(--space-2) var(--space-4)',
-                      borderRadius: 'var(--radius-sm)',
-                      border: `1px solid ${isSelected ? 'var(--colour-halo)' : 'var(--colour-steel)'}`,
-                      backgroundColor: isSelected ? 'var(--colour-carbon)' : 'var(--colour-graphite)',
-                      color: isSelected ? 'var(--colour-white)' : 'var(--colour-smoke)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'var(--text-xs)',
-                      letterSpacing: '0.04em',
-                      textDecoration: 'none',
-                      transition: 'border-color 150ms ease, color 150ms ease',
-                    }}
-                  >
-                    {d.label}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
+        {/* ── Controls Bar: Filters & Sort ── */}
+        <div className={s.controlsBar}>
+          {/* Discipline tabs */}
+          <nav aria-label="Filter by discipline">
+            <ul className={s.disciplineTabs}>
+              {DISCIPLINES.map((d) => {
+                const isSelected = activeDiscipline.toLowerCase() === d.slug.toLowerCase()
+                return (
+                  <li key={d.slug}>
+                    <Link
+                      href={buildFilterHref({ discipline: d.slug })}
+                      className={`${s.tabLink} ${isSelected ? s.tabLinkActive : ''}`}
+                      aria-current={isSelected ? 'page' : undefined}
+                    >
+                      {d.label}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </nav>
+
+          {/* Scale & Sort controls */}
+          <div className={s.secondaryFilters}>
+            {/* Scale filter pills */}
+            <div className={s.filterGroup}>
+              <span className={s.filterLabel}>Scale:</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {SCALES.map((sc) => {
+                  const isSelected = activeScale === sc.value
+                  return (
+                    <Link
+                      key={sc.value}
+                      href={buildFilterHref({ scale: sc.value })}
+                      className={`${s.tabLink} ${isSelected ? s.tabLinkActive : ''}`}
+                      style={{ padding: '3px 8px', fontSize: '11px' }}
+                    >
+                      {sc.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Sort links */}
+            <div className={s.filterGroup}>
+              <span className={s.filterLabel}>Sort:</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <Link
+                  href={buildFilterHref({ sort: 'featured' })}
+                  className={`${s.tabLink} ${activeSort === 'featured' ? s.tabLinkActive : ''}`}
+                  style={{ padding: '3px 8px', fontSize: '11px' }}
+                >
+                  Featured
+                </Link>
+                <Link
+                  href={buildFilterHref({ sort: 'price_asc' })}
+                  className={`${s.tabLink} ${activeSort === 'price_asc' ? s.tabLinkActive : ''}`}
+                  style={{ padding: '3px 8px', fontSize: '11px' }}
+                >
+                  Price ↑
+                </Link>
+                <Link
+                  href={buildFilterHref({ sort: 'price_desc' })}
+                  className={`${s.tabLink} ${activeSort === 'price_desc' ? s.tabLinkActive : ''}`}
+                  style={{ padding: '3px 8px', fontSize: '11px' }}
+                >
+                  Price ↓
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ── Product Grid ── */}
         <section aria-label="Machines list">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: 'var(--space-4)',
-            }}
-          >
-            {machines.map((m) => {
-              const isHalo = m.tier === 'HALO'
-              return (
-                <article
-                  key={m.id}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    padding: 'var(--space-6)',
-                    backgroundColor: 'var(--colour-carbon)',
-                    border: `1px solid ${isHalo ? 'rgba(212, 168, 83, 0.4)' : 'var(--colour-steel)'}`,
-                    borderRadius: 'var(--radius-md)',
-                    transition: 'border-color 150ms ease',
-                  }}
-                >
-                  <div>
-                    {/* Brand & Tier Flag */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        {m.brand.name}
-                      </span>
-                      {isHalo ? (
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.625rem',
-                            letterSpacing: '0.1em',
-                            textTransform: 'uppercase',
-                            padding: '2px 6px',
-                            borderRadius: 'var(--radius-sm)',
-                            backgroundColor: 'rgba(212, 168, 83, 0.15)',
-                            color: 'var(--colour-halo)',
-                            border: '1px solid rgba(212, 168, 83, 0.3)',
-                          }}
-                        >
-                          ★ Halo / {m.haloClassification ?? 'Competition'}
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.625rem',
-                            letterSpacing: '0.08em',
-                            textTransform: 'uppercase',
-                            color: 'var(--colour-ash)',
-                          }}
-                        >
-                          {m.scale}
-                        </span>
-                      )}
+          {machines.length === 0 ? (
+            <div className={s.emptyGrid}>
+              <p className={s.emptyGridText}>
+                No platforms match the active discipline and scale criteria.
+              </p>
+              <Link href="/machines" className={s.tabLink}>
+                Reset all filters
+              </Link>
+            </div>
+          ) : (
+            <div className={s.productGrid}>
+              {machines.map((m) => {
+                const isHalo = m.tier === 'HALO'
+                return (
+                  <article
+                    key={m.id}
+                    className={`${s.card} ${isHalo ? s.cardHalo : ''}`}
+                  >
+                    <div>
+                      {/* Image Slot */}
+                      <div className={s.cardImageSlot}>
+                        <div className={s.imagePlaceholder}>
+                          {m.brand.name} · {m.shortName ?? m.name}
+                        </div>
+                      </div>
+
+                      {/* Brand & Tier Flag */}
+                      <div className={s.cardHeader}>
+                        <span className={s.brandName}>{m.brand.name}</span>
+                        {isHalo ? (
+                          <span className={`${s.tierBadge} ${s.tierBadgeHalo}`}>
+                            ★ Halo / {m.haloClassification ?? 'Competition'}
+                          </span>
+                        ) : (
+                          <span className={s.tierBadge}>
+                            {m.scale ?? 'Standard'}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Machine Title */}
+                      <h2 className={s.machineName}>
+                        <Link href={`/machines/${m.slug}`} style={{ color: 'inherit' }}>
+                          {m.name}
+                        </Link>
+                      </h2>
+
+                      {/* Editorial Summary */}
+                      <p className={s.editorial}>
+                        {m.editorialSummary}
+                      </p>
+
+                      {/* Tech specs chip row */}
+                      <div className={s.specsRow}>
+                        {m.scale && (
+                          <span className={s.specChip}>Scale: {m.scale}</span>
+                        )}
+                        {m.powerType && (
+                          <span className={s.specChip}>Power: {m.powerType}</span>
+                        )}
+                        <span className={s.specChip}>Discipline: {m.discipline}</span>
+                      </div>
                     </div>
 
-                    {/* Machine Title */}
-                    <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)', lineHeight: 'var(--leading-snug)' }}>
+                    {/* Commercial footer */}
+                    <div className={s.cardFooter}>
+                      <div>
+                        {m.offer ? (
+                          <>
+                            <MarketAwarePrice
+                              amountMinorUnits={m.offer.retailPriceMinorUnits}
+                              currency={m.offer.currency as Currency}
+                              taxMode={m.offer.taxMode}
+                              size="base"
+                            />
+                            <div style={{ marginTop: 'var(--space-1)' }}>
+                              <StockStatus status={m.offer.availability} leadTimeDays={m.offer.leadTimeDays} />
+                            </div>
+                          </>
+                        ) : (
+                          <div>
+                            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                              Not Available in {activeMarket}
+                            </p>
+                            <StockStatus status="NOT_AVAILABLE" />
+                          </div>
+                        )}
+                      </div>
+
                       <Link
                         href={`/machines/${m.slug}`}
-                        style={{ color: 'inherit', textDecoration: 'none' }}
+                        className={`${s.viewCta} ${isHalo ? s.viewCtaHalo : ''}`}
                       >
-                        {m.name}
+                        View Specs →
                       </Link>
-                    </h2>
-
-                    {/* Editorial Summary */}
-                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-4)' }}>
-                      {m.editorialSummary}
-                    </p>
-
-                    {/* Tech specs chip row */}
-                    <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-5)' }}>
-                      {m.scale && (
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', padding: '2px 6px', backgroundColor: 'var(--colour-graphite)', borderRadius: '2px', color: 'var(--colour-smoke)' }}>
-                          Scale: {m.scale}
-                        </span>
-                      )}
-                      {m.powerType && (
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', padding: '2px 6px', backgroundColor: 'var(--colour-graphite)', borderRadius: '2px', color: 'var(--colour-smoke)' }}>
-                          Power: {m.powerType}
-                        </span>
-                      )}
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', padding: '2px 6px', backgroundColor: 'var(--colour-graphite)', borderRadius: '2px', color: 'var(--colour-smoke)' }}>
-                        Discipline: {m.discipline}
-                      </span>
                     </div>
-                  </div>
-
-                  {/* Commercial footer */}
-                  <div style={{ paddingTop: 'var(--space-4)', borderTop: '1px solid var(--colour-steel)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      {m.offer ? (
-                        <>
-                          <MarketAwarePrice
-                            amountMinorUnits={m.offer.retailPriceMinorUnits}
-                            currency={m.offer.currency as Currency}
-                            taxMode={m.offer.taxMode}
-                            size="base"
-                          />
-                          <div style={{ marginTop: 'var(--space-1)' }}>
-                            <StockStatus status={m.offer.availability} leadTimeDays={m.offer.leadTimeDays} />
-                          </div>
-                        </>
-                      ) : (
-                        <div>
-                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                            Not Available in {activeMarket}
-                          </p>
-                          <StockStatus status="NOT_AVAILABLE" />
-                        </div>
-                      )}
-                    </div>
-
-                    <Link
-                      href={`/machines/${m.slug}`}
-                      style={{
-                        padding: 'var(--space-2) var(--space-4)',
-                        backgroundColor: isHalo ? 'var(--colour-halo)' : 'var(--colour-steel)',
-                        color: isHalo ? 'var(--colour-void)' : 'var(--colour-white)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        letterSpacing: '0.04em',
-                      }}
-                    >
-                      View Specs →
-                    </Link>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
         </section>
       </div>
     </div>

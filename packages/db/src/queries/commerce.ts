@@ -16,10 +16,13 @@ import type {
   AvailabilityStatus,
 } from '@halo-rc/types'
 import {
-  SEED_PRODUCTS,
-  SEED_VARIANTS,
-  SEED_OFFERS,
-} from '../seed/catalogue-data'
+  STORE_PRODUCTS as SEED_PRODUCTS,
+  STORE_VARIANTS as SEED_VARIANTS,
+  STORE_OFFERS as SEED_OFFERS,
+} from './catalogue-store'
+import { db, isDbConfigured } from '../client'
+import { orders, orderItems } from '../schema'
+import { eq, and, desc } from 'drizzle-orm'
 import { getMarketConfig, getShippingMethodsForMarket } from './markets'
 
 // ── In-Memory Database Stores ──────────────────────────────────────────────────
@@ -318,6 +321,65 @@ function enrichOrder(order: DbOrder): OrderRecord {
     items,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
+  }
+}
+
+function mapDbOrderToRecord(
+  orderRow: typeof orders.$inferSelect,
+  itemRows: (typeof orderItems.$inferSelect)[]
+): OrderRecord {
+  const items: OrderItemRecord[] = itemRows.map((item) => ({
+    id: item.id,
+    orderId: item.orderId,
+    productId: item.productId,
+    variantId: item.productVariantId,
+    marketOfferId: item.marketOfferId,
+    sku: item.sku ?? '',
+    productName: item.productName ?? '',
+    quantity: item.quantity,
+    unitPriceMinorUnits: item.unitPriceMinorUnits,
+    taxMinorUnits: item.taxMinorUnits,
+    lineTotalMinorUnits: item.lineTotalMinorUnits ?? item.unitPriceMinorUnits * item.quantity,
+    currency: (item.currency ?? orderRow.currency) as Currency,
+    taxMode: (item.taxMode ?? orderRow.taxMode) as TaxMode,
+    snapshot: (item.snapshot as CheckoutLineSnapshot) ?? {
+      productId: item.productId ?? '',
+      variantId: item.productVariantId,
+      marketOfferId: item.marketOfferId ?? '',
+      sku: item.sku ?? '',
+      productName: item.productName ?? '',
+      quantity: item.quantity,
+      unitPriceMinorUnits: item.unitPriceMinorUnits,
+      lineTotalMinorUnits: item.lineTotalMinorUnits ?? item.unitPriceMinorUnits * item.quantity,
+      currency: (item.currency ?? orderRow.currency) as Currency,
+      taxMode: (item.taxMode ?? orderRow.taxMode) as TaxMode,
+      lifecycleAtCheckout: 'ACTIVE',
+    },
+    garageVehicleId: item.garageVehicleId,
+  }))
+
+  return {
+    id: orderRow.id,
+    orderReference: orderRow.orderReference ?? '',
+    userId: orderRow.userId,
+    marketCode: orderRow.marketCode as MarketCode,
+    currency: orderRow.currency as Currency,
+    taxMode: orderRow.taxMode as TaxMode,
+    taxDisplayMode: orderRow.marketCode === 'UK' ? 'TAX_INCLUDED' : 'TAX_EXCLUDED',
+    paymentStatus: orderRow.paymentStatus as OrderPaymentStatus,
+    subtotalMinorUnits: orderRow.subtotalMinorUnits ?? 0,
+    taxMinorUnits: orderRow.taxMinorUnits ?? 0,
+    totalMinorUnits: orderRow.totalMinorUnits,
+    shippingMethodId: orderRow.shippingMethodId ?? null,
+    shippingCostMinorUnits:
+      orderRow.totalMinorUnits - (orderRow.subtotalMinorUnits ?? orderRow.totalMinorUnits) || 0,
+    stripeCheckoutSessionId: orderRow.stripeCheckoutSessionId,
+    stripePaymentIntentId: orderRow.stripePaymentIntentId,
+    buildId: null,
+    buildVersion: null,
+    items,
+    createdAt: orderRow.createdAt ? new Date(orderRow.createdAt).toISOString() : new Date().toISOString(),
+    updatedAt: orderRow.updatedAt ? new Date(orderRow.updatedAt).toISOString() : new Date().toISOString(),
   }
 }
 
@@ -747,27 +809,71 @@ export async function createPendingOrder(
     updatedAt: new Date().toISOString(),
   }
 
-  ORDERS.push(newOrder)
+  const itemsToInsert: DbOrderItem[] = snapshot.lines.map((line) => ({
+    id: `oi-${crypto.randomUUID()}`,
+    orderId,
+    productId: line.productId,
+    variantId: line.variantId ?? null,
+    marketOfferId: line.marketOfferId ?? null,
+    sku: line.sku,
+    productName: line.productName,
+    quantity: line.quantity,
+    unitPriceMinorUnits: line.unitPriceMinorUnits,
+    taxMinorUnits: line.taxMode === 'INCLUSIVE' ? Math.round((line.lineTotalMinorUnits * 20) / 120) : 0,
+    lineTotalMinorUnits: line.lineTotalMinorUnits,
+    currency: line.currency,
+    taxMode: line.taxMode,
+    snapshot: line,
+    garageVehicleId: null,
+  }))
 
-  for (const line of snapshot.lines) {
-    const newItem: DbOrderItem = {
-      id: `oi-${crypto.randomUUID()}`,
-      orderId,
-      productId: line.productId,
-      variantId: line.variantId ?? null,
-      marketOfferId: line.marketOfferId ?? null,
-      sku: line.sku,
-      productName: line.productName,
-      quantity: line.quantity,
-      unitPriceMinorUnits: line.unitPriceMinorUnits,
-      taxMinorUnits: line.taxMode === 'INCLUSIVE' ? Math.round((line.lineTotalMinorUnits * 20) / 120) : 0,
-      lineTotalMinorUnits: line.lineTotalMinorUnits,
-      currency: line.currency,
-      taxMode: line.taxMode,
-      snapshot: line,
-      garageVehicleId: null,
-    }
-    ORDER_ITEMS.push(newItem)
+  if (isDbConfigured) {
+    await db.transaction(async (tx) => {
+      await tx.insert(orders).values({
+        id: newOrder.id,
+        orderReference: newOrder.orderReference,
+        userId: newOrder.userId,
+        marketCode: newOrder.marketCode as any,
+        stripeCheckoutSessionId: newOrder.stripeCheckoutSessionId,
+        stripePaymentIntentId: newOrder.stripePaymentIntentId,
+        paymentStatus: 'PENDING_PAYMENT',
+        fulfilmentStatus: 'PENDING',
+        subtotalMinorUnits: newOrder.subtotalMinorUnits,
+        taxMinorUnits: newOrder.taxMinorUnits,
+        taxMode: newOrder.taxMode,
+        totalMinorUnits: newOrder.totalMinorUnits,
+        currency: newOrder.currency,
+        shippingMethodId: newOrder.shippingMethodId,
+        createdAt: new Date(newOrder.createdAt),
+        updatedAt: new Date(newOrder.updatedAt),
+      })
+
+      for (const item of itemsToInsert) {
+        await tx.insert(orderItems).values({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          productVariantId: item.variantId,
+          marketOfferId: item.marketOfferId,
+          sku: item.sku,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPriceMinorUnits: item.unitPriceMinorUnits,
+          taxMinorUnits: item.taxMinorUnits,
+          lineTotalMinorUnits: item.lineTotalMinorUnits,
+          currency: item.currency,
+          taxMode: item.taxMode,
+          snapshot: item.snapshot as any,
+          garageVehicleId: item.garageVehicleId,
+        })
+      }
+    })
+  }
+
+  // Always keep in-memory store synchronized (for hermetic test execution and cache)
+  ORDERS.push(newOrder)
+  for (const item of itemsToInsert) {
+    ORDER_ITEMS.push(item)
   }
 
   return enrichOrder(newOrder)
@@ -778,6 +884,46 @@ export async function markOrderPaid(params: {
   stripeSessionId?: string | null
   stripePaymentIntentId?: string | null
 }): Promise<OrderRecord> {
+  if (isDbConfigured) {
+    const whereCond = params.orderId
+      ? eq(orders.id, params.orderId)
+      : params.stripeSessionId
+        ? eq(orders.stripeCheckoutSessionId, params.stripeSessionId)
+        : undefined
+
+    if (whereCond) {
+      const dbRows = await db.select().from(orders).where(whereCond).limit(1)
+      if (dbRows[0]) {
+        if (dbRows[0].paymentStatus !== 'PAID') {
+          await db
+            .update(orders)
+            .set({
+              paymentStatus: 'PAID',
+              ...(params.stripePaymentIntentId ? { stripePaymentIntentId: params.stripePaymentIntentId } : {}),
+              updatedAt: new Date(),
+            })
+            .where(whereCond)
+        }
+        const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+        const updatedRow = {
+          ...dbRows[0],
+          paymentStatus: 'PAID' as const,
+          stripePaymentIntentId: params.stripePaymentIntentId ?? dbRows[0].stripePaymentIntentId,
+          updatedAt: new Date(),
+        }
+
+        const mem = ORDERS.find((o) => o.id === dbRows[0]!.id)
+        if (mem) {
+          mem.paymentStatus = 'PAID'
+          if (params.stripePaymentIntentId) mem.stripePaymentIntentId = params.stripePaymentIntentId
+          mem.updatedAt = new Date().toISOString()
+        }
+
+        return mapDbOrderToRecord(updatedRow, itemRows)
+      }
+    }
+  }
+
   let order = ORDERS.find((o) => {
     if (params.orderId && o.id === params.orderId) return true
     if (params.stripeSessionId && o.stripeCheckoutSessionId === params.stripeSessionId) return true
@@ -806,6 +952,42 @@ export async function markOrderPaymentFailed(params: {
   orderId?: string | null
   stripeSessionId?: string | null
 }): Promise<OrderRecord> {
+  if (isDbConfigured) {
+    const whereCond = params.orderId
+      ? eq(orders.id, params.orderId)
+      : params.stripeSessionId
+        ? eq(orders.stripeCheckoutSessionId, params.stripeSessionId)
+        : undefined
+
+    if (whereCond) {
+      const dbRows = await db.select().from(orders).where(whereCond).limit(1)
+      if (dbRows[0]) {
+        await db
+          .update(orders)
+          .set({
+            paymentStatus: 'PAYMENT_FAILED',
+            updatedAt: new Date(),
+          })
+          .where(whereCond)
+
+        const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+        const updatedRow = {
+          ...dbRows[0],
+          paymentStatus: 'PAYMENT_FAILED' as const,
+          updatedAt: new Date(),
+        }
+
+        const mem = ORDERS.find((o) => o.id === dbRows[0]!.id)
+        if (mem) {
+          mem.paymentStatus = 'PAYMENT_FAILED'
+          mem.updatedAt = new Date().toISOString()
+        }
+
+        return mapDbOrderToRecord(updatedRow, itemRows)
+      }
+    }
+  }
+
   const order = ORDERS.find((o) => {
     if (params.orderId && o.id === params.orderId) return true
     if (params.stripeSessionId && o.stripeCheckoutSessionId === params.stripeSessionId) return true
@@ -828,6 +1010,20 @@ export async function getOrderById(
   orderId: string,
   requestingUserId?: string | null
 ): Promise<OrderRecord | null> {
+  if (isDbConfigured) {
+    const rows = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1)
+    const orderRow = rows[0]
+    if (orderRow) {
+      // Strict Tenant Isolation: Only owner or authenticated staff can access
+      if (orderRow.userId && requestingUserId && orderRow.userId !== requestingUserId) {
+        return null // Unauthorized
+      }
+
+      const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, orderRow.id))
+      return mapDbOrderToRecord(orderRow, itemRows)
+    }
+  }
+
   const order = ORDERS.find((o) => o.id === orderId)
   if (!order) return null
 
@@ -843,6 +1039,19 @@ export async function getOrderByReference(
   orderReference: string,
   requestingUserId?: string | null
 ): Promise<OrderRecord | null> {
+  if (isDbConfigured) {
+    const rows = await db.select().from(orders).where(eq(orders.orderReference, orderReference)).limit(1)
+    const orderRow = rows[0]
+    if (orderRow) {
+      if (orderRow.userId && requestingUserId && orderRow.userId !== requestingUserId) {
+        return null
+      }
+
+      const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, orderRow.id))
+      return mapDbOrderToRecord(orderRow, itemRows)
+    }
+  }
+
   const order = ORDERS.find((o) => o.orderReference === orderReference)
   if (!order) return null
 
@@ -855,6 +1064,23 @@ export async function getOrderByReference(
 
 export async function getCustomerOrders(userId: string): Promise<OrderRecord[]> {
   if (!userId) return []
+
+  if (isDbConfigured) {
+    const rows = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt))
+
+    if (rows.length > 0) {
+      const results: OrderRecord[] = []
+      for (const orderRow of rows) {
+        const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, orderRow.id))
+        results.push(mapDbOrderToRecord(orderRow, itemRows))
+      }
+      return results
+    }
+  }
 
   const userOrders = ORDERS.filter((o) => o.userId === userId)
   userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -1038,4 +1264,8 @@ export function __getRawOrdersAndBaskets() {
     orders: ORDERS,
     baskets: BASKETS,
   }
+}
+
+export function __getRawOrderItems() {
+  return ORDER_ITEMS
 }

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { getSessionUser, STAFF_ROLES, hasRequiredRole } from '@/lib/auth'
+import { AdminSidebarNav } from './admin-nav'
 
 export const metadata: Metadata = {
   title: 'Halo RC Operations | Administration',
@@ -11,20 +12,7 @@ export const metadata: Metadata = {
   },
 }
 
-const ADMIN_NAV = [
-  { href: '/admin', label: 'Overview' },
-  { href: '/admin/procurement', label: 'Procurement & Feeds' },
-  { href: '/admin/procurement/unmatched', label: 'Unmatched Products' },
-  { href: '/admin/ai', label: 'AI Intelligence Telemetry' },
-  { href: '/admin/data-quality', label: 'Data Quality & Provenance' },
-  { href: '/admin/brands', label: 'Brands & Supply Routes' },
-  { href: '/admin/platforms', label: 'Vehicle Platforms' },
-  { href: '/admin/products', label: 'Products & SKUs' },
-  { href: '/admin/compatibility', label: 'Compatibility Rules' },
-  { href: '/admin/suppliers', label: 'Supplier CRM' },
-  { href: '/admin/media', label: 'Media & Licensing' },
-  { href: '/admin/markets', label: 'Markets & Tax' },
-]
+
 
 export default async function AdminLayout({
   children,
@@ -171,28 +159,7 @@ export default async function AdminLayout({
           </div>
         </div>
 
-        <nav aria-label="Admin Navigation">
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', listStyle: 'none' }}>
-            {ADMIN_NAV.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  style={{
-                    display: 'block',
-                    padding: 'var(--space-2) var(--space-3)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--colour-ash)',
-                    textDecoration: 'none',
-                    letterSpacing: '0.02em',
-                  }}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <AdminSidebarNav />
       </aside>
 
       {/* Main Content Area */}

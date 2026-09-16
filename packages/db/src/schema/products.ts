@@ -81,6 +81,9 @@ export const products = pgTable('products', {
   replacementProductId: text('replacement_product_id'), // self-ref, set on REPLACED
   haloClassification: text('halo_classification'), // e.g. "1:5 COMPETITION"
   editorialSummary: text('editorial_summary'),
+  manufacturerSku: text('manufacturer_sku'),
+  internalCode: text('internal_code'),
+  tags: text('tags').array().notNull().default(sql`'{}'::text[]`),
   published: boolean('published').notNull().default(false),
   // Full-text search vector — maintained by DB trigger in migration
   // searchVector: tsvector generated always
@@ -93,6 +96,8 @@ export const products = pgTable('products', {
   index('products_tier_idx').on(t.tier),
   index('products_lifecycle_idx').on(t.lifecycle),
   index('products_slug_idx').on(t.slug),
+  index('products_manufacturer_sku_idx').on(t.manufacturerSku),
+  index('products_internal_code_idx').on(t.internalCode),
   uniqueIndex('products_sku_unique').on(t.sku),
 ])
 

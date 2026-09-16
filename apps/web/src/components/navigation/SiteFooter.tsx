@@ -1,177 +1,98 @@
 import Link from 'next/link'
+import s from './SiteFooter.module.css'
 import { HaloLogo } from '@/components/brand/HaloLogo'
 
 export function SiteFooter() {
   return (
-    <footer
-      style={{
-        borderTop: '1px solid var(--colour-steel)',
-        backgroundColor: 'var(--colour-carbon)',
-        padding: 'var(--space-10) var(--gutter-md) var(--space-8)',
-        color: 'var(--colour-smoke)',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 'var(--container-2xl)',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 'var(--space-8)',
-          marginBottom: 'var(--space-10)',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
+    <footer className={s.footer}>
+      <div className={s.inner}>
+        {/* Brand identity column */}
+        <div className={s.brandColumn}>
+          <Link href="/" className={s.logoRow} aria-label="Halo RC — Home">
             <HaloLogo style={{ width: 24, height: 24 }} />
-            <span
-              style={{
-                fontFamily: 'var(--font-primary)',
-                fontWeight: 600,
-                fontSize: 'var(--text-sm)',
-                letterSpacing: 'var(--tracking-widest)',
-                textTransform: 'uppercase',
-                color: 'var(--colour-white)',
-              }}
-            >
-              Halo RC
-            </span>
-          </div>
-          <p
-            style={{
-              fontSize: 'var(--text-sm)',
-              color: 'var(--colour-ash)',
-              lineHeight: 'var(--leading-relaxed)',
-              maxWidth: '30ch',
-            }}
-          >
+            <span className={s.logoText}>Halo RC</span>
+          </Link>
+          <p className={s.brandDesc}>
             Remote Control. Without Compromise. Premium competition hardware and specialist racing department.
           </p>
         </div>
 
+        {/* Commercial Worlds */}
         <div>
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-xs)',
-              letterSpacing: 'var(--tracking-widest)',
-              textTransform: 'uppercase',
-              color: 'var(--colour-smoke)',
-              marginBottom: 'var(--space-4)',
-            }}
-          >
+          <p className={s.columnHeading}>
             Commercial Worlds
           </p>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', listStyle: 'none' }}>
+          <ul className={s.linksList}>
             <li>
-              <Link href="/machines" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
+              <Link href="/machines" className={s.footerLink}>
                 The Machines
               </Link>
             </li>
             <li>
-              <Link href="/race" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
+              <Link href="/race" className={s.footerLink}>
                 The Race Department
               </Link>
             </li>
             <li>
-              <Link href="/garage" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
-                The Garage
-              </Link>
-            </li>
-            <li>
-              <Link href="/brands" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
+              <Link href="/brands" className={s.footerLink}>
                 Brand Universe
               </Link>
             </li>
-          </ul>
-        </div>
-
-        <div>
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-xs)',
-              letterSpacing: 'var(--tracking-widest)',
-              textTransform: 'uppercase',
-              color: 'var(--colour-smoke)',
-              marginBottom: 'var(--space-4)',
-            }}
-          >
-            Tools & Consultation
-          </p>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', listStyle: 'none' }}>
             <li>
-              <Link href="/build" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
-                Build My Rig
-              </Link>
-            </li>
-            <li>
-              <Link href="/find" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
-                Find My Machine
-              </Link>
-            </li>
-            <li>
-              <Link href="/garage" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
-                My Garage & Fleet
-              </Link>
-            </li>
-            <li>
-              <Link href="/search" style={{ color: 'var(--colour-ash)', fontSize: 'var(--text-sm)' }}>
-                Compatibility Search
+              <Link href="/garage" className={s.footerLink}>
+                The Garage
               </Link>
             </li>
           </ul>
         </div>
 
+        {/* Tools & Consultation */}
         <div>
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-xs)',
-              letterSpacing: 'var(--tracking-widest)',
-              textTransform: 'uppercase',
-              color: 'var(--colour-smoke)',
-              marginBottom: 'var(--space-4)',
-            }}
-          >
-            Market & Jurisdiction
+          <p className={s.columnHeading}>
+            Tools &amp; Consultation
           </p>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-3)' }}>
+          <ul className={s.linksList}>
+            <li>
+              <Link href="/build" className={s.footerLink}>
+                Build My Rig Configurator
+              </Link>
+            </li>
+            <li>
+              <Link href="/find" className={s.footerLink}>
+                Find My Machine Advisor
+              </Link>
+            </li>
+            <li>
+              <Link href="/search" className={s.footerLink}>
+                Hardware &amp; Compatibility Search
+              </Link>
+            </li>
+            <li>
+              <Link href="/race/compare" className={s.footerLink}>
+                Chassis Comparison Matrix
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Market & Jurisdiction */}
+        <div>
+          <p className={s.columnHeading}>
+            Market &amp; Jurisdiction
+          </p>
+          <p className={s.jurisdictionText}>
             UK operations: GBP / VAT compliant.<br />
             USA operations: USD / State tax calculated.
           </p>
-          <span
-            style={{
-              display: 'inline-block',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              color: 'var(--colour-halo)',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
-            UK & USA Dual-Market Architecture
+          <span className={s.jurisdictionBadge}>
+            UK &amp; USA Dual-Market Architecture
           </span>
         </div>
       </div>
 
-      <div
-        style={{
-          maxWidth: 'var(--container-2xl)',
-          margin: '0 auto',
-          paddingTop: 'var(--space-6)',
-          borderTop: '1px solid var(--colour-steel)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 'var(--space-4)',
-          fontSize: 'var(--text-xs)',
-          color: 'var(--colour-smoke)',
-        }}
-      >
+      <div className={s.bottomBar}>
         <p>© {new Date().getFullYear()} Halo RC Ltd. All rights reserved.</p>
-        <p style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
+        <p className={s.bottomArchitecture}>
           VERIFIED RC DATA ARCHITECTURE
         </p>
       </div>

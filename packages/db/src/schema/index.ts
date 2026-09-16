@@ -31,3 +31,12 @@ export * from './commerce'
 // Race Department: halo builds, versions, components, audit logs
 export * from './race'
 
+// Leads: CRM-lite, activities
+export * from './leads'
+
+// CMS: pages, homepage config, navigation
+export * from './cms'
+
+// Admin: product content, SEO, relationships, audit log, AI suggestions
+export * from './admin'
+

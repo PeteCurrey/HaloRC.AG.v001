@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import s from './GlobalNav.module.css'
 import { MarketSelector } from './MarketSelector'
 import { HaloLogo } from '@/components/brand/HaloLogo'
@@ -27,8 +27,13 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: 'The Garage', href: '/garage' },
 ] as const
 
-export function GlobalNav() {
+interface GlobalNavProps {
+  cartCount?: number
+}
+
+export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuId | null>(null)
@@ -55,11 +60,24 @@ export function GlobalNav() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 24)
+      setScrolled(window.scrollY > 20)
     }
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Cmd+K / Ctrl+K → navigate to /search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        router.push('/search')
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [router])
 
   // Close menus on route change
   useEffect(() => {
@@ -157,11 +175,17 @@ export function GlobalNav() {
 
   return (
     <>
+      {/* Skip navigation — first focusable element on every page */}
+      <a href="#main-content" className={s.skipNav}>
+        Skip to content
+      </a>
+
       <nav
         ref={navRef}
         className={s.nav}
         data-scrolled={scrolled}
         data-megamenu-open={!!activeMegaMenu}
+        data-mobile-open={mobileOpen}
         aria-label="Main navigation"
         onBlur={handleNavBlur}
       >
@@ -224,8 +248,17 @@ export function GlobalNav() {
           </Link>
 
           {/* Cart */}
-          <Link href="/cart" className={s.iconButton} aria-label="Shopping Cart">
+          <Link
+            href="/cart"
+            className={`${s.iconButton} ${s.cartIconButton}`}
+            aria-label={cartCount > 0 ? `Shopping Cart (${cartCount} items)` : 'Shopping Cart'}
+          >
             <CartIcon />
+            {cartCount > 0 && (
+              <span className={s.cartBadge} aria-hidden="true">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
           </Link>
 
           {/* Mobile menu toggle */}

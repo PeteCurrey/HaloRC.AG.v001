@@ -727,8 +727,10 @@ export type BasketStatus =
   | 'EXPIRED'
 
 export type OrderPaymentStatus =
+  | 'PENDING'
   | 'PENDING_PAYMENT'
   | 'PAID'
+  | 'FAILED'
   | 'PAYMENT_FAILED'
   | 'CANCELLED'
   | 'REFUNDED'
@@ -1917,6 +1919,225 @@ export interface HaloCompanyProfile {
     relationship: string
   }>
 }
+
+// ─── Admin Platform Foundation Types ─────────────────────────────────────────
+
+export type LeadStatus =
+  | 'NEW'
+  | 'CONTACTED'
+  | 'QUALIFIED'
+  | 'QUOTED'
+  | 'WON'
+  | 'LOST'
+  | 'ARCHIVED'
+
+export type LeadSource =
+  | 'PRODUCT_ENQUIRY'
+  | 'CONTACT_FORM'
+  | 'QUOTE_REQUEST'
+  | 'COMPATIBILITY_QUESTION'
+  | 'TRADE_ENQUIRY'
+  | 'SUPPLIER_ENQUIRY'
+  | 'NEWSLETTER'
+  | 'OTHER'
+
+export type LeadPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'
+
+export interface Lead {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  company?: string | null
+  source: LeadSource
+  productInterestId?: string | null
+  message: string
+  status: LeadStatus
+  priority: LeadPriority
+  assignedUserId?: string | null
+  notes?: string | null
+  followUpDate?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LeadActivity {
+  id: string
+  leadId: string
+  userId?: string | null
+  userEmail?: string | null
+  action: string
+  details: Record<string, unknown>
+  createdAt: string
+}
+
+export type CmsPageType =
+  | 'BRAND'
+  | 'BUYING_GUIDE'
+  | 'EDITORIAL'
+  | 'LANDING'
+  | 'ABOUT'
+  | 'SHIPPING'
+  | 'RETURNS'
+  | 'CONTACT'
+  | 'OTHER'
+
+export interface CmsPage {
+  id: string
+  slug: string
+  title: string
+  status: RecordStatus
+  pageType: CmsPageType
+  heroHeading?: string | null
+  heroSubheading?: string | null
+  contentJson: Array<Record<string, unknown>>
+  seoTitle?: string | null
+  seoDescription?: string | null
+  canonicalUrl?: string | null
+  ogTitle?: string | null
+  ogDescription?: string | null
+  ogImageUrl?: string | null
+  indexPage: boolean
+  publishedAt?: string | null
+  publishedBy?: string | null
+  authorId?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type HomepageSectionType =
+  | 'HERO'
+  | 'FEATURED_MACHINES'
+  | 'FEATURED_BRANDS'
+  | 'EDITORIAL'
+  | 'PROMOTIONAL'
+  | 'COLLECTIONS'
+  | 'HALO_PRODUCT'
+  | 'BUYING_GUIDE'
+
+export interface CmsHomepageConfig {
+  id: string
+  sectionKey: string
+  sectionType: HomepageSectionType
+  title: string
+  subtitle?: string | null
+  contentJson: Record<string, unknown>
+  active: boolean
+  sortOrder: number
+  updatedAt: string
+  updatedBy?: string | null
+}
+
+export interface NavigationConfigItem {
+  id: string
+  navKey: string
+  label: string
+  href: string
+  parentId?: string | null
+  badge?: string | null
+  subText?: string | null
+  sortOrder: number
+  active: boolean
+  createdAt: string
+}
+
+export interface ProductContent {
+  id: string
+  productId: string
+  shortDescription?: string | null
+  longDescription?: string | null
+  keyFeatures: string[]
+  whatsIncluded: string[]
+  requirements: string[]
+  compatibilityNotes?: string | null
+  manufacturerInfo?: string | null
+  editorialNotes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProductSeo {
+  id: string
+  productId: string
+  seoTitle?: string | null
+  metaDescription?: string | null
+  canonicalUrl?: string | null
+  ogTitle?: string | null
+  ogDescription?: string | null
+  ogImageUrl?: string | null
+  indexPage: boolean
+  primaryKeyword?: string | null
+  seoNotes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProductRelationship {
+  id: string
+  productId: string
+  relatedProductId: string
+  relationshipType: string
+  sortOrder: number
+  notes?: string | null
+  createdAt: string
+}
+
+export type AuditAction =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'PUBLISH'
+  | 'UNPUBLISH'
+  | 'ARCHIVE'
+  | 'STATUS_CHANGE'
+  | 'PRICE_CHANGE'
+
+export interface AuditLogEntry {
+  id: string
+  userId?: string | null
+  userEmail?: string | null
+  action: AuditAction
+  entityType: string
+  entityId: string
+  previousState?: Record<string, unknown> | null
+  newState?: Record<string, unknown> | null
+  notes?: string | null
+  createdAt: string
+}
+
+export type AiSuggestionType =
+  | 'DESCRIPTION'
+  | 'SHORT_DESCRIPTION'
+  | 'SEO_TITLE'
+  | 'META_DESCRIPTION'
+  | 'FEATURES'
+  | 'COLLECTION_DESCRIPTION'
+
+export type AiSuggestionStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface AiSuggestion {
+  id: string
+  productId?: string | null
+  suggestionType: AiSuggestionType
+  draftContent: string
+  modelProvider: string
+  modelId: string
+  reviewedBy?: string | null
+  reviewedAt?: string | null
+  status: AiSuggestionStatus
+  createdAt: string
+}
+
+export type OrderFulfilmentStatus =
+  | 'PENDING'
+  | 'UNFULFILLED'
+  | 'PROCESSING'
+  | 'PACKED'
+  | 'PICKING'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CANCELLED'
+
 
 
 
