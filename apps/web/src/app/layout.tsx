@@ -5,6 +5,7 @@ import '../styles/base.css'
 import '../styles/typography.css'
 import { GlobalNav } from '@/components/navigation/GlobalNav'
 import { SiteFooter } from '@/components/navigation/SiteFooter'
+import { AuthLayoutGuard } from '@/components/navigation/AuthLayoutGuard'
 
 const workSans = Work_Sans({
   subsets: ['latin'],
@@ -64,11 +65,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
       className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable}`}
     >
       <body>
-        <GlobalNav />
+        <AuthLayoutGuard>
+          <GlobalNav />
+        </AuthLayoutGuard>
         <main id="main-content">
           {children}
         </main>
-        <SiteFooter />
+        <AuthLayoutGuard>
+          <SiteFooter />
+        </AuthLayoutGuard>
       </body>
     </html>
   )

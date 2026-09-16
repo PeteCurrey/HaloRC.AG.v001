@@ -90,36 +90,37 @@ export default function HomePage() {
                 All 12 Platforms →
               </Link>
             </div>
-
-            <div className={s.disciplineGrid}>
-              {SHOP_DISCIPLINES.map((item, idx) => (
-                <Link key={item.id} href={item.href} className={s.disciplineCard}>
-                  {item.image && (
-                    <div className={s.disciplineCardBg} aria-hidden="true">
-                      <Image
-                        src={item.image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        style={{ objectFit: 'cover', objectPosition: 'center' }}
-                      />
-                    </div>
-                  )}
-                  <div className={s.disciplineCardContent}>
-                    <div className={s.disciplineCardHeader}>
-                      <span className={s.disciplineCardNumber}>0{idx + 1}</span>
-                      {item.badge && (
-                        <span className={s.disciplineCardBadge}>{item.badge}</span>
-                      )}
-                    </div>
-                    <h3 className={s.disciplineCardTitle}>{item.label}</h3>
-                    <p className={s.disciplineCardSub}>{item.sub}</p>
-                    <span className={s.disciplineCardCta}>Explore Platforms →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </ScrollReveal>
+        </div>
+
+        {/* Full-width 2 rows of 3 edge-to-edge discipline grid */}
+        <div className={s.disciplineFullWidthContainer}>
+          <div className={s.disciplineGrid}>
+            {SHOP_DISCIPLINES.map((item, idx) => (
+              <Link key={item.id} href={item.href} className={s.disciplineCard}>
+                {item.image && (
+                  <div className={s.disciplineCardBg} aria-hidden="true">
+                    <Image
+                      src={item.image}
+                      alt={item.label}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.33vw"
+                      style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    />
+                  </div>
+                )}
+                <div className={s.disciplineCardScrim} aria-hidden="true" />
+                <div className={s.disciplineCardContent}>
+                  {item.badge && (
+                    <span className={s.disciplineCardBadge}>{item.badge}</span>
+                  )}
+                  <h3 className={s.disciplineCardTitle}>{item.label}</h3>
+                  <p className={s.disciplineCardSub}>{item.sub}</p>
+                  <span className={s.disciplineCardCta}>VIEW MORE</span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -543,7 +543,7 @@
 /* ─── Editorial Spread ───────────────────────────────────────────────────── */
 
 .editorialSpread {
-  padding: var(--space-16) 0;
+  padding: var(--space-20) 0;
   background-color: var(--bg-canvas);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -608,7 +608,7 @@
 /* ─── Featured Spotlight ─────────────────────────────────────────────────── */
 
 .featuredSection {
-  padding: var(--space-16) 0;
+  padding: var(--space-20) 0;
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -838,7 +838,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-8);
-  padding: var(--space-16) 0;
+  padding: var(--space-20) 0;
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -1077,7 +1077,7 @@
 
 .darkHaloChapter {
   background-color: var(--colour-void);
-  padding: var(--space-20) 0;
+  padding: var(--space-24, clamp(96px, 10vw, 160px)) 0;
 }
 
 .darkHaloInner {
@@ -1238,7 +1238,7 @@
 /* ─── Scale Progression Band ─────────────────────────────────────────────── */
 
 .scaleBand {
-  padding: var(--space-16) 0;
+  padding: var(--space-20) 0;
   background-color: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
@@ -1342,7 +1342,7 @@
 /* ─── Race Gateway ───────────────────────────────────────────────────────── */
 
 .raceGateway {
-  padding: var(--space-16) 0;
+  padding: var(--space-20) 0;
   background-color: var(--bg-canvas);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -1448,7 +1448,7 @@
 /* ─── Catalogue Gateway ──────────────────────────────────────────────────── */
 
 .catalogueGateway {
-  padding: var(--space-20) 0;
+  padding: var(--space-24, clamp(96px, 10vw, 160px)) 0;
   background-color: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
 }

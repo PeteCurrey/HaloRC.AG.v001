@@ -790,10 +790,19 @@
   color: var(--colour-ignition);
 }
 
+/* ─── Full-Width 2x3 Discipline Grid (Editorial Showroom) ──────────────── */
+
+.disciplineFullWidthContainer {
+  width: 100%;
+  margin-top: var(--space-6);
+}
+
 .disciplineGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
+  gap: 3px;
+  background-color: var(--colour-void);
+  width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -805,7 +814,7 @@
 @media (min-width: 1024px) {
   .disciplineGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
+    grid-template-rows: repeat(2, minmax(320px, 42vh));
   }
 }
 
@@ -814,18 +823,22 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 0;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-subtle);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 280px;
+  background-color: var(--colour-carbon);
   text-decoration: none;
-  min-height: 200px;
-  transition: var(--transition-card);
+  cursor: pointer;
 }
 
-/* Background image layer — sits behind content */
+@media (min-width: 1024px) {
+  .disciplineCard {
+    min-height: 340px;
+  }
+}
+
+/* Background image layer — fills full card edge-to-edge */
 .disciplineCardBg {
   position: absolute;
   inset: 0;
@@ -833,110 +846,104 @@
   overflow: hidden;
 }
 
-/* Scrim over the background image — transitions on hover to reveal rich artwork */
-.disciplineCardBg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    linear-gradient(
-      to top,
-      rgba(249, 248, 246, 0.96) 0%,
-      rgba(249, 248, 246, 0.88) 45%,
-      rgba(249, 248, 246, 0.72) 100%
-    );
-  transition: opacity 320ms var(--ease-standard), background 320ms var(--ease-standard);
-}
-
-/* Image itself — subtle resting state, smoothly emerges on hover */
 .disciplineCardBg img {
-  opacity: 0.12;
+  opacity: 0.72;
   transform: scale(1.0);
-  transition: opacity 360ms var(--ease-standard), transform 450ms var(--ease-standard);
+  transition: opacity 400ms var(--ease-standard), transform 600ms var(--ease-standard);
   object-fit: cover;
 }
 
-/* Reveal on hover */
+/* Dark atmospheric vignette scrim for high contrast readability */
+.disciplineCardScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at center, rgba(11, 12, 14, 0.45) 0%, rgba(11, 12, 14, 0.8) 100%);
+  transition: opacity 400ms var(--ease-standard), background 400ms var(--ease-standard);
+}
+
+/* Hover effects — image zooms subtly and brightens */
 .disciplineCard:hover .disciplineCardBg img {
-  opacity: 0.42;
+  opacity: 0.9;
   transform: scale(1.05);
 }
 
-.disciplineCard:hover .disciplineCardBg::after {
-  opacity: 0.75;
+.disciplineCard:hover .disciplineCardScrim {
+  background: radial-gradient(circle at center, rgba(11, 12, 14, 0.3) 0%, rgba(11, 12, 14, 0.7) 100%);
 }
 
-.disciplineCard:hover {
-  transform: translateY(-1px);
-  border-color: var(--border-medium);
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* Content wrapper sits above the bg */
+/* Content wrapper sits centered above the full background */
 .disciplineCardContent {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-  padding: var(--space-6);
-}
-
-.disciplineCardHeader {
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: var(--space-3);
-}
-
-.disciplineCardNumber {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  letter-spacing: var(--tracking-widest);
+  padding: var(--space-6) var(--space-4);
+  max-width: 36ch;
 }
 
 .disciplineCardBadge {
   font-family: var(--font-mono);
   font-size: 0.5625rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
-  background-color: var(--colour-ignition-10);
-  color: var(--colour-ignition);
-  border: 1px solid var(--colour-ignition-20);
+  background-color: rgba(242, 84, 11, 0.2);
+  color: var(--colour-ignition-bright);
+  border: 1px solid rgba(242, 84, 11, 0.4);
+  margin-bottom: var(--space-3);
 }
 
 .disciplineCardTitle {
   font-family: var(--font-primary);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin-bottom: var(--space-1);
+  font-size: clamp(var(--text-xl), 2.2vw, var(--text-2xl));
+  font-weight: var(--weight-bold);
+  color: var(--colour-white);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .disciplineCardSub {
   font-size: var(--text-xs);
-  color: var(--text-secondary);
+  color: var(--colour-chalk);
   line-height: var(--leading-relaxed);
-  flex-grow: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: var(--space-4);
+  opacity: 0.9;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .disciplineCardCta {
-  margin-top: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  letter-spacing: 0.04em;
-  transition: color var(--duration-fast) var(--ease-standard);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-white);
+  padding: 6px 18px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(8px);
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
 .disciplineCard:hover .disciplineCardCta {
-  color: var(--colour-ignition);
+  background-color: var(--colour-ignition);
+  border-color: var(--colour-ignition);
+  color: var(--colour-white);
+  box-shadow: 0 4px 16px rgba(242, 84, 11, 0.35);
+  transform: translateY(-1px);
 }
 
 /* ─── Section: Engineering Brands ─────────────────────────────────────── */

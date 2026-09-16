@@ -1,0 +1,198 @@
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colour-halo);
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--colour-halo);
+  border-radius: 50%;
+}
+
+.heading {
+  font-family: var(--font-primary);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: var(--space-2);
+}
+
+.sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.alertBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm, 3px);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  margin-bottom: var(--space-5);
+}
+
+.errorBanner {
+  background-color: rgba(200, 32, 32, 0.08);
+  border: 1px solid var(--colour-error);
+  color: var(--colour-error);
+}
+
+.successBanner {
+  background-color: rgba(26, 110, 52, 0.08);
+  border: 1px solid var(--colour-verified);
+  color: var(--colour-verified);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fieldRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.helperText {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.input {
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm, 3px);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--colour-ignition);
+  box-shadow: 0 0 0 3px var(--colour-ignition-10);
+  background-color: var(--bg-surface);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.btn {
+  margin-top: var(--space-3);
+  width: 100%;
+  background-color: var(--text-primary);
+  color: var(--colour-white);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm, 3px);
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background-color var(--duration-fast, 150ms) var(--ease-standard),
+              transform var(--duration-fast, 150ms) var(--ease-standard),
+              border-color var(--duration-fast, 150ms) var(--ease-standard);
+}
+
+.btn:hover {
+  background-color: var(--colour-ignition);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--colour-ignition);
+  outline-offset: 2px;
+}
+
+.footerLinks {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.footerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.link {
+  color: var(--colour-ignition);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--duration-fast, 150ms) ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: var(--colour-ignition-bright);
+}
+
+.linkMuted {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-size: var(--text-xs);
+  transition: color var(--duration-fast, 150ms) ease;
+}
+
+.linkMuted:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}

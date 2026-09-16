@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
@@ -12,8 +13,6 @@ export const metadata: Metadata = {
   },
 }
 
-
-
 export default async function AdminLayout({
   children,
 }: {
@@ -23,8 +22,13 @@ export default async function AdminLayout({
   const authHeader = headersList.get('authorization')
   const user = await getSessionUser(authHeader)
 
+  // If user is not authenticated at all, redirect to admin auth / sign-in page
+  if (!user) {
+    redirect('/auth/sign-in?redirectTo=/admin')
+  }
+
   // Server-side RBAC boundary: enforce staff or admin role
-  const isAuthorized = user && hasRequiredRole(user.role, STAFF_ROLES)
+  const isAuthorized = hasRequiredRole(user.role, STAFF_ROLES)
 
   if (!isAuthorized) {
     return (
