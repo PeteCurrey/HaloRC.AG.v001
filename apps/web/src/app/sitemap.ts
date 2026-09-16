@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://halo-rc.com'
+  const baseUrl = 'https://avorria.com'
   const now = new Date()
 
   return [

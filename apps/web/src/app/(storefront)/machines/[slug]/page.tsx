@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!detail) {
     return {
-      title: 'Product Not Found — Halo RC',
+      title: 'Product Not Found — Avorria RC',
       robots: { index: false, follow: false },
     }
   }
@@ -31,9 +31,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Non-blocking fallback if database is offline
   }
 
-  const title = seoRecord?.seoTitle || `${detail.name} | ${detail.brand.name} — Halo RC`
+  const title = seoRecord?.seoTitle || `${detail.name} | ${detail.brand.name} — Avorria RC`
   const description = seoRecord?.metaDescription || detail.editorialSummary || undefined
-  const canonical = seoRecord?.canonicalUrl || `https://halo-rc.com/machines/${detail.slug}`
+  const canonical = seoRecord?.canonicalUrl || `https://avorria.com/machines/${detail.slug}`
   const shouldIndex = seoRecord?.indexPage ?? true
 
   return {
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description: description ?? '',
       url: canonical,
-      siteName: 'Halo RC',
+      siteName: 'Avorria RC',
       type: 'website',
     },
   }
@@ -394,7 +394,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               letterSpacing: '0.04em',
             }}
           >
-            Editorial assessment by Halo RC engineering team.
+            Editorial assessment by Avorria RC engineering team.
           </p>
         </div>
         <p className={s.editorialBody}>{detail.editorialSummary}</p>

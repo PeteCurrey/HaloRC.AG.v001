@@ -48,7 +48,7 @@ describe('Phase 9 — Catalogue Offers, SEO & Measurement Units (Scenarios D, E,
   describe('Scenario L — Canonical SEO & Hreflang Alternates', () => {
     it('generates canonical URL without language folder and includes en-GB, en-US, x-default', () => {
       const slug = 'traxxas-x-maxx-8s-brushless-monster-truck'
-      const canonical = `https://halo-rc.com/machines/${slug}`
+      const canonical = `https://avorria.com/machines/${slug}`
       const alternates = {
         canonical,
         languages: {
@@ -58,7 +58,7 @@ describe('Phase 9 — Catalogue Offers, SEO & Measurement Units (Scenarios D, E,
         },
       }
 
-      expect(alternates.canonical).toBe('https://halo-rc.com/machines/traxxas-x-maxx-8s-brushless-monster-truck')
+      expect(alternates.canonical).toBe('https://avorria.com/machines/traxxas-x-maxx-8s-brushless-monster-truck')
       expect(alternates.languages['en-GB']).toBe(canonical)
       expect(alternates.languages['en-US']).toBe(canonical)
       expect(alternates.languages['x-default']).toBe(canonical)

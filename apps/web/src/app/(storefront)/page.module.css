@@ -170,10 +170,10 @@
   background: linear-gradient(to bottom, transparent, var(--colour-smoke));
 }
 
-/* ─── Section: Machines ───────────────────────────────────────────────── */
+/* ─── Section: Machines (Light Canvas Rhythm) ────────────────────────── */
 
 .sectionMachines {
-  background-color: var(--colour-void);
+  background-color: var(--bg-canvas);
   padding-block: var(--space-10) var(--space-11);
 }
 
@@ -196,20 +196,20 @@
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
 }
 
 .sectionLabelLine {
   flex: 1;
   height: 1px;
-  background-color: var(--colour-steel);
+  background-color: var(--border-subtle);
 }
 
 .sectionHeading {
   font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-snug);
-  color: var(--colour-off-white);
+  color: var(--text-primary);
   max-width: 20ch;
   margin-bottom: var(--space-3);
   text-wrap: balance;
@@ -217,33 +217,40 @@
 
 .sectionSubtext {
   font-size: var(--text-base);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   max-width: 52ch;
   margin-bottom: var(--space-8);
   line-height: var(--leading-relaxed);
 }
 
-/* Featured product — editorial layout, not a card */
+/* Featured product — crisp editorial layout */
 .featuredProduct {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-8);
   align-items: center;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-7);
+  box-shadow: var(--shadow-card);
 }
 
 @media (min-width: 1024px) {
   .featuredProduct {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.1fr 0.9fr;
     gap: var(--space-9);
+    padding: var(--space-9);
   }
 }
 
 .featuredImageWrap {
   position: relative;
   aspect-ratio: 4 / 3;
-  background-color: var(--colour-graphite);
+  background-color: var(--bg-surface-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
+  border: 1px solid var(--border-subtle);
 }
 
 .featuredImageWrap img {
@@ -256,8 +263,8 @@
 }
 
 .featuredImageWrap:hover img {
-  transform: scale(1.03);
-  filter: brightness(1.06) contrast(1.04);
+  transform: scale(1.02);
+  filter: brightness(1.02);
 }
 
 .featuredInfo {
@@ -267,18 +274,19 @@
 }
 
 .featuredBrand {
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
 }
 
 .featuredName {
   font-size: clamp(var(--text-xl), 3vw, var(--text-3xl));
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-snug);
-  color: var(--colour-off-white);
+  color: var(--text-primary);
   line-height: var(--leading-tight);
 }
 
@@ -290,7 +298,7 @@
 
 .featuredEditorial {
   font-size: var(--text-base);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   line-height: var(--leading-relaxed);
   max-width: 46ch;
 }
@@ -744,9 +752,9 @@
 /* ─── Section: Shop by Discipline ─────────────────────────────────────── */
 
 .sectionDisciplines {
-  background-color: var(--colour-void);
+  background-color: var(--bg-canvas);
   padding-block: var(--space-9) var(--space-10);
-  border-bottom: 1px solid var(--colour-steel);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .disciplinesHeader,
@@ -764,7 +772,7 @@
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-wide);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-standard);
   white-space: nowrap;
@@ -795,27 +803,72 @@
 }
 
 .disciplineCard {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--space-6);
-  background-color: var(--colour-carbon);
-  border: 1px solid var(--colour-steel);
+  padding: 0;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
   text-decoration: none;
-  min-height: 180px;
-  transition:
-    transform var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+  min-height: 200px;
+  transition: var(--transition-card);
+}
+
+/* Background image layer — sits behind content */
+.disciplineCardBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Scrim over the background image */
+.disciplineCardBg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      to top,
+      rgba(249, 248, 246, 0.96) 0%,
+      rgba(249, 248, 246, 0.85) 45%,
+      rgba(249, 248, 246, 0.65) 100%
+    );
+  transition: opacity var(--duration-standard) var(--ease-standard);
+}
+
+/* Image itself — subtle preview */
+.disciplineCardBg img {
+  opacity: 0.22;
+  transition: opacity var(--duration-standard) var(--ease-standard), transform var(--duration-standard) var(--ease-standard);
+  object-fit: cover;
+}
+
+/* Reveal on hover */
+.disciplineCard:hover .disciplineCardBg img {
+  opacity: 0.4;
+  transform: scale(1.04);
 }
 
 .disciplineCard:hover {
   transform: translateY(-2px);
-  border-color: var(--colour-ignition-20);
-  box-shadow: 0 4px 20px var(--colour-ignition-10);
-  background-color: var(--colour-graphite);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Content wrapper sits above the bg */
+.disciplineCardContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  padding: var(--space-6);
 }
 
 .disciplineCardHeader {
@@ -828,7 +881,7 @@
 .disciplineCardNumber {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
   letter-spacing: var(--tracking-widest);
 }
 
@@ -849,13 +902,13 @@
   font-family: var(--font-primary);
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
-  color: var(--colour-off-white);
+  color: var(--text-primary);
   margin-bottom: var(--space-1);
 }
 
 .disciplineCardSub {
   font-size: var(--text-xs);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   line-height: var(--leading-relaxed);
   flex-grow: 1;
 }
@@ -864,19 +917,19 @@
   margin-top: var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
   letter-spacing: 0.04em;
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .disciplineCard:hover .disciplineCardCta {
-  color: var(--colour-white);
+  color: var(--colour-ignition);
 }
 
 /* ─── Section: Engineering Brands ─────────────────────────────────────── */
 
 .sectionEngineeringBrands {
-  background-color: var(--colour-void);
+  background-color: var(--bg-canvas);
   padding-block: var(--space-10) var(--space-11);
 }
 
@@ -903,20 +956,18 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-6);
-  background-color: var(--colour-carbon);
-  border: 1px solid var(--colour-steel);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
   text-decoration: none;
-  transition:
-    transform var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard);
+  transition: var(--transition-card);
 }
 
 .engineeringBrandCard:hover {
   transform: translateY(-2px);
-  border-color: var(--colour-halo-20);
-  box-shadow: 0 4px 16px rgba(184, 147, 90, 0.08);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .engineeringBrandTop {
@@ -931,7 +982,7 @@
   font-size: 0.625rem;
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
 }
 
 .engineeringBrandStatus {
@@ -946,13 +997,13 @@
   font-size: var(--text-xl);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-snug);
-  color: var(--colour-white);
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
 }
 
 .engineeringBrandSpecialism {
   font-size: var(--text-xs);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   line-height: var(--leading-relaxed);
   margin-bottom: var(--space-4);
   flex-grow: 1;
@@ -961,13 +1012,13 @@
 .engineeringBrandArrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
   letter-spacing: 0.04em;
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .engineeringBrandCard:hover .engineeringBrandArrow {
-  color: var(--colour-halo);
+  color: var(--colour-ignition);
 }
 
 /* ─── Section: Build My Rig Banner ────────────────────────────────────── */

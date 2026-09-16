@@ -31,7 +31,7 @@ describe('Admin Leads Lifecycle & Pipeline Transitions', () => {
     const activity = {
       leadId: 'lead-test-01',
       userId: 'usr-staff-01',
-      userEmail: 'support@halorc.com',
+      userEmail: 'support@avorria.com',
       action: 'STATUS_CHANGE',
       details: {
         previousStatus: 'NEW',
@@ -44,6 +44,6 @@ describe('Admin Leads Lifecycle & Pipeline Transitions', () => {
     expect(activity.details.previousStatus).toBe('NEW')
     expect(activity.details.newStatus).toBe('QUALIFIED')
     expect(activity.details.note).toBeTruthy()
-    expect(activity.userEmail).toBe('support@halorc.com')
+    expect(activity.userEmail).toBe('support@avorria.com')
   })
 })

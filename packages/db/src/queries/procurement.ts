@@ -1230,12 +1230,12 @@ export const HALO_BUSINESS_PROFILE: HaloCompanyProfile = {
   primaryContact: {
     name: 'Peter Currey',
     title: 'Managing Director & Head of Procurement',
-    email: 'procurement@halo-rc.com',
+    email: 'procurement@avorria.com',
     phone: '+44 1327 850123',
   },
   bankDetails: {
     bankName: 'Barclays Bank UK PLC',
-    accountName: 'Halo RC Ltd Client Clearing',
+    accountName: 'Avorria RC Ltd Client Clearing',
     sortCode: '20-00-00',
     accountNumber: '83920194',
     iban: 'GB29BARC20000083920194',

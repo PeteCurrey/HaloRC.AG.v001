@@ -20,21 +20,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const build = await getHaloBuildBySlug(slug)
   if (!build) {
-    return { title: 'Build Not Found — Halo RC' }
+    return { title: 'Build Not Found — Avorria RC' }
   }
   return {
-    title: `${build.title} — Halo RC Race Department`,
+    title: `${build.title} — Avorria RC Race Department`,
     description: build.engineeringSummary ?? `Engineered competition configuration: ${build.title}`,
     alternates: {
-      canonical: `https://halo-rc.com/race/${build.slug}`,
+      canonical: `https://avorria.com/race/${build.slug}`,
       languages: {
-        'en-GB': `https://halo-rc.com/race/${build.slug}`,
-        'en-US': `https://halo-rc.com/race/${build.slug}`,
-        'x-default': `https://halo-rc.com/race/${build.slug}`,
+        'en-GB': `https://avorria.com/race/${build.slug}`,
+        'en-US': `https://avorria.com/race/${build.slug}`,
+        'x-default': `https://avorria.com/race/${build.slug}`,
       },
     },
     openGraph: {
-      title: `${build.title} — Halo RC Race Department`,
+      title: `${build.title} — Avorria RC Race Department`,
       description: build.engineeringSummary ?? undefined,
     },
   }
@@ -146,7 +146,7 @@ export default async function HaloBuildDetailPage({ params }: PageProps) {
     '@type': 'Product',
     name: build.title,
     description: build.engineeringSummary ?? undefined,
-    brand: { '@type': 'Brand', name: 'Halo RC Race Department' },
+    brand: { '@type': 'Brand', name: 'Avorria RC Race Department' },
     sku: build.id,
     offers: ukPricing.totalMinorUnits
       ? {
@@ -156,7 +156,7 @@ export default async function HaloBuildDetailPage({ params }: PageProps) {
           availability: ukPricing.isPurchasable
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
-          url: `https://halo-rc.com/race/${build.slug}`,
+          url: `https://avorria.com/race/${build.slug}`,
         }
       : undefined,
   }

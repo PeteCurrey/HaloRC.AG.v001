@@ -48,10 +48,10 @@ export async function getSessionUser(authHeader?: string | null): Promise<Sessio
   // 1. Test mock tokens — preserved for Vitest without live Supabase
   if (authHeader) {
     if (authHeader.startsWith('Bearer test-super-admin')) {
-      return { id: 'usr-super-admin', role: 'SUPER_ADMIN', email: 'admin@halo-rc.com' }
+      return { id: 'usr-super-admin', role: 'SUPER_ADMIN', email: 'admin@avorria.com' }
     }
     if (authHeader.startsWith('Bearer test-staff')) {
-      return { id: 'usr-staff', role: 'STAFF', email: 'staff@halo-rc.com' }
+      return { id: 'usr-staff', role: 'STAFF', email: 'staff@avorria.com' }
     }
     if (authHeader.startsWith('Bearer test-customer')) {
       return { id: 'usr-customer', role: 'CUSTOMER', email: 'customer@example.com' }
@@ -77,7 +77,7 @@ export async function getSessionUser(authHeader?: string | null): Promise<Sessio
     return {
       id: 'usr-dev-admin',
       role: process.env['HALO_DEV_ADMIN_ROLE'] as UserRole,
-      email: 'dev@halo-rc.local',
+      email: 'dev@avorria.local',
     }
   }
 

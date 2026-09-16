@@ -6,11 +6,11 @@
   left: 0;
   right: 0;
   width: 100%;
-  background-color: rgba(8, 8, 8, 0.98);
+  background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border-bottom: 1px solid var(--colour-steel);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-flyout);
   z-index: calc(var(--z-nav) - 1);
   overflow: hidden;
 
@@ -67,10 +67,10 @@
   font-weight: 600;
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
   margin: 0 0 var(--space-2) 0;
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--colour-steel);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .linksList {
@@ -91,7 +91,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   text-decoration: none;
   border-left: 2px solid transparent;
@@ -103,7 +103,7 @@
 
 .linkAnchor:hover,
 .linkAnchor:focus-visible {
-  background-color: var(--colour-carbon);
+  background-color: var(--bg-surface-subtle);
   border-left-color: var(--colour-ignition);
   outline: none;
 }
@@ -119,25 +119,25 @@
   font-family: var(--font-primary);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--colour-off-white);
+  color: var(--text-primary);
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .linkAnchor:hover .linkLabel,
 .linkAnchor:focus-visible .linkLabel {
-  color: var(--colour-white);
+  color: var(--colour-ignition);
 }
 
 .linkSub {
   font-size: var(--text-xs);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   line-height: var(--leading-snug);
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .linkAnchor:hover .linkSub,
 .linkAnchor:focus-visible .linkSub {
-  color: var(--colour-chalk);
+  color: var(--text-primary);
 }
 
 .badge {
@@ -169,8 +169,8 @@
 /* ─── Spotlight Card ─────────────────────────────────────────────────────── */
 
 .spotlightCard {
-  background-color: var(--colour-carbon);
-  border: 1px solid var(--colour-steel);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: var(--space-5);
   display: flex;
@@ -178,9 +178,11 @@
   gap: var(--space-3);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-subtle);
   transition:
     border-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard);
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .spotlightCard::before {
@@ -191,12 +193,13 @@
   right: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--colour-ignition), var(--colour-halo));
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 .spotlightCard:hover {
-  border-color: var(--colour-mist);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
 }
 
 .spotlightTagRow {
@@ -212,7 +215,7 @@
   font-weight: 600;
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  color: var(--text-tertiary);
 }
 
 .spotlightImageWrap {
@@ -221,8 +224,8 @@
   height: 120px;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background-color: var(--colour-void);
-  border: 1px solid var(--colour-steel);
+  background-color: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
   margin-block: var(--space-1);
 }
 
@@ -230,14 +233,14 @@
   font-family: var(--font-primary);
   font-size: var(--text-base);
   font-weight: var(--weight-semibold);
-  color: var(--colour-white);
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: var(--tracking-tight);
 }
 
 .spotlightDescription {
   font-size: var(--text-xs);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
   line-height: var(--leading-relaxed);
   margin: 0;
 }

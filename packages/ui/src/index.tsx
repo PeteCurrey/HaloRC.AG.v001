@@ -18,7 +18,7 @@ export const DataConfidenceBadge: React.FC<DataConfidenceBadgeProps> = ({
 
   const colorMap: Record<Exclude<DataConfidence, 'UNKNOWN'>, string> = {
     VERIFIED: 'var(--colour-verified, #1A6E34)',
-    KNOWN: 'var(--colour-ash, #909090)',
+    KNOWN: 'var(--text-tertiary, #767A85)',
     INFERRED: 'var(--colour-caution, #B86818)',
   }
 
@@ -28,12 +28,13 @@ export const DataConfidenceBadge: React.FC<DataConfidenceBadgeProps> = ({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '4px',
+        gap: '5px',
         fontSize: '0.625rem',
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
         fontFamily: 'var(--font-mono, monospace)',
-        color: 'var(--colour-smoke, #606060)',
+        color: 'var(--text-tertiary, #767A85)',
+        fontWeight: 500,
       }}
       title={sourceType ? `Source: ${sourceType}` : undefined}
     >
@@ -44,6 +45,7 @@ export const DataConfidenceBadge: React.FC<DataConfidenceBadgeProps> = ({
           borderRadius: '50%',
           backgroundColor: colorMap[confidence],
           display: 'inline-block',
+          flexShrink: 0,
         }}
         aria-hidden="true"
       />
@@ -90,8 +92,8 @@ export const MarketAwarePrice: React.FC<MarketAwarePriceProps> = ({
           fontFamily: 'var(--font-primary, sans-serif)',
           fontWeight: 600,
           fontSize: fontSizes[size],
-          color: 'var(--colour-off-white, #E8E8E8)',
-          letterSpacing: '-0.01em',
+          color: 'var(--text-primary, #111215)',
+          letterSpacing: '-0.02em',
         }}
       >
         {formatted}
@@ -100,7 +102,7 @@ export const MarketAwarePrice: React.FC<MarketAwarePriceProps> = ({
         style={{
           fontFamily: 'var(--font-mono, monospace)',
           fontSize: '0.6875rem',
-          color: 'var(--colour-smoke, #606060)',
+          color: 'var(--text-tertiary, #767A85)',
           letterSpacing: '0.04em',
         }}
       >

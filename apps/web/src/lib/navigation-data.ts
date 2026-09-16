@@ -95,15 +95,16 @@ export interface ShopDisciplineItem {
   sub: string
   href: string
   badge?: string
+  image?: string
 }
 
 export const SHOP_DISCIPLINES: readonly ShopDisciplineItem[] = [
-  { id: 'bash', label: 'Bash & Stunt', sub: 'High-speed, extreme durability', href: '/machines?discipline=bash', badge: 'HEAVYWEIGHT' },
-  { id: 'race', label: 'Competition Race', sub: 'Championship touring & buggy', href: '/machines?discipline=race', badge: 'HALO TIER' },
-  { id: 'drift', label: 'Precision Drift', sub: 'RWD chassis dynamics & countersteer', href: '/machines?discipline=drift' },
-  { id: 'crawl', label: 'Scale Trail & Crawl', sub: 'Technical portal-axle terrain rigs', href: '/machines?discipline=crawl' },
-  { id: 'scale', label: 'Engineering Realism', sub: 'Authentic mechanical fidelity', href: '/machines?discipline=scale' },
-  { id: 'large_scale', label: 'Large Scale 1:5', sub: 'High-voltage and petrol motorsport', href: '/machines?discipline=large_scale', badge: '1:5 SCALE' },
+  { id: 'bash', label: 'Bash & Stunt', sub: 'High-speed, extreme durability', href: '/machines?discipline=bash', badge: 'HEAVYWEIGHT', image: '/images/disciplines/bash.jpg' },
+  { id: 'race', label: 'Competition Race', sub: 'Championship touring & buggy', href: '/machines?discipline=race', badge: 'HALO TIER', image: '/images/disciplines/race.jpg' },
+  { id: 'drift', label: 'Precision Drift', sub: 'RWD chassis dynamics & countersteer', href: '/machines?discipline=drift', image: '/images/disciplines/drift.jpg' },
+  { id: 'crawl', label: 'Scale Trail & Crawl', sub: 'Technical portal-axle terrain rigs', href: '/machines?discipline=crawl', image: '/images/disciplines/crawl.jpg' },
+  { id: 'scale', label: 'Engineering Realism', sub: 'Authentic mechanical fidelity', href: '/machines?discipline=scale', image: '/images/disciplines/scale.jpg' },
+  { id: 'large_scale', label: 'Large Scale 1:5', sub: 'High-voltage and petrol motorsport', href: '/machines?discipline=large_scale', badge: '1:5 SCALE', image: '/images/disciplines/large-scale.jpg' },
 ] as const
 
 export interface EngineeringBrandItem {

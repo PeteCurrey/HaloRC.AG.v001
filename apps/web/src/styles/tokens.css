@@ -8,26 +8,44 @@
 
 /* ─── Colour: Dark Surfaces ──────────────────────────────────────────────── */
 :root {
-  /* Foundation — dark */
-  --colour-void:      #080808;
-  --colour-carbon:    #0F0F0F;
-  --colour-graphite:  #181818;
-  --colour-steel:     #222222;
-  --colour-mist:      #383838;
-  --colour-smoke:     #606060;
-  --colour-ash:       #909090;
-  --colour-chalk:     #C0C0C0;
-  --colour-off-white: #E8E8E8;
-  --colour-white:     #F8F8F8;
+  /* Foundation — dark (used for dramatic chapters, heroes, footer, technical contrast) */
+  --colour-void:      #0B0C0E;
+  --colour-carbon:    #111317;
+  --colour-graphite:  #181A20;
+  --colour-steel:     #23262E;
+  --colour-mist:      #383C46;
+  --colour-smoke:     #5E636E;
+  --colour-ash:       #8E939E;
+  --colour-chalk:     #C5C8D0;
+  --colour-off-white: #EDEDF0;
+  --colour-white:     #F8F9FA;
 
-  /* Foundation — light editorial */
-  --colour-paper:     #F5F3EF;
-  --colour-linen:     #EDEAE4;
-  --colour-rule:      #D8D4CC;
-  --colour-body-dark: #1A1A1A;
+  /* Foundation — Light-first semantic surfaces (Precision engineering aesthetic) */
+  --bg-canvas:           #F9F8F6;   /* Warm off-white / technical paper background */
+  --bg-surface:          #FFFFFF;   /* Clean white cards, product tiles, flyouts */
+  --bg-surface-subtle:   #F3F1EB;   /* Soft contrast wells, image backgrounds */
+  --bg-surface-elevated: #FFFFFF;   /* Raised dropdowns, modals, sticky bars */
+  --bg-surface-inset:    #EDEAE2;   /* Inset spec wells, input backgrounds */
+
+  /* Light-first typography hierarchy */
+  --text-primary:        #111215;   /* Deep graphite black — primary headings & titles */
+  --text-secondary:      #4A4E57;   /* Medium charcoal — body copy, active filters */
+  --text-tertiary:       #767A85;   /* Neutral slate — metadata, specs, captions */
+  --text-muted:          #9EA2AB;   /* Subtle labels, disabled states */
+
+  /* Light-first borders & structural rules */
+  --border-subtle:       #E5E2DA;   /* Crisp architectural 1px boundary */
+  --border-medium:       #D1CCC2;   /* Interactive / hover border */
+  --border-strong:       #9E988D;   /* High-emphasis frame */
+
+  /* Foundation — light editorial (legacy compatibility) */
+  --colour-paper:     #F9F8F6;
+  --colour-linen:     #F3F1EB;
+  --colour-rule:      #E5E2DA;
+  --colour-body-dark: #111215;
 
   /* Signal — used sparingly, intentionally */
-  --colour-halo:      #B8935A;   /* Classification signal only */
+  --colour-halo:      #B8935A;   /* Classification signal / craftsmanship */
   --colour-race:      #C8001A;   /* Competition / Race Dept marker */
   --colour-verified:  #1A6E34;   /* Verified data indicator */
   --colour-caution:   #B86818;   /* Inferred data indicator */
@@ -46,6 +64,7 @@
   --colour-white-05:  rgba(248, 248, 248, 0.05);
   --colour-white-08:  rgba(248, 248, 248, 0.08);
   --colour-white-12:  rgba(248, 248, 248, 0.12);
+  --colour-dark-scrim: rgba(11, 12, 14, 0.75);
 }
 
 /* ─── Typography ─────────────────────────────────────────────────────────── */
@@ -119,25 +138,37 @@
 
 /* ─── Shadows ────────────────────────────────────────────────────────────── */
 :root {
-  --shadow-subtle:  0 1px 3px rgba(0, 0, 0, 0.45);
-  --shadow-card:    0 4px 16px rgba(0, 0, 0, 0.55);
-  --shadow-raised:  0 8px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-halo:    0 0 48px rgba(184, 147, 90, 0.12), 0 0 8px rgba(184, 147, 90, 0.06);
-  --shadow-image:   0 16px 64px rgba(0, 0, 0, 0.7);
+  /* Light-first elevation (restrained, multi-layer soft diffusion) */
+  --shadow-subtle:      0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --shadow-card:        0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover:  0 12px 28px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.03);
+  --shadow-raised:      0 16px 36px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-flyout:      0 20px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Dark surface elevation */
+  --shadow-dark-subtle: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-dark-card:   0 4px 16px rgba(0, 0, 0, 0.55);
+  --shadow-dark-raised: 0 8px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-halo:        0 0 48px rgba(184, 147, 90, 0.12), 0 0 8px rgba(184, 147, 90, 0.06);
+  --shadow-image:       0 16px 64px rgba(0, 0, 0, 0.7);
 }
 
-/* ─── Motion ─────────────────────────────────────────────────────────────── */
+/* ─── Motion (Quiet, physical, precision engineering) ─────────────────────── */
 :root {
-  --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-enter:     cubic-bezier(0, 0, 0.2, 1);
-  --ease-exit:      cubic-bezier(0.4, 0, 1, 1);
-  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-standard:      cubic-bezier(0.16, 1, 0.3, 1);     /* Smooth exponential decelerate */
+  --ease-enter:         cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit:          cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring:        cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --duration-instant:   80ms;
-  --duration-fast:      150ms;
-  --duration-standard:  250ms;
-  --duration-slow:      400ms;
+  --duration-micro:     180ms;
+  --duration-fast:      220ms;
+  --duration-standard:  300ms;
+  --duration-slow:      450ms;
   --duration-cinematic: 800ms;
+
+  --transition-hover:   all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-card:    transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms ease;
 }
 
 /* ─── Layout ─────────────────────────────────────────────────────────────── */

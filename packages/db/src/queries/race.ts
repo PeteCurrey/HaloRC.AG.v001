@@ -49,7 +49,7 @@ const INITIAL_HALO_BUILDS: HaloBuildRecord[] = [
     baseProductName: "XRAY X4 '26 1/10 Electric Touring Car Kit",
     status: 'PUBLISHED',
     published: true,
-    heroImageUrl: 'https://images.halo-rc.com/builds/halo-x4-hero.jpg',
+    heroImageUrl: 'https://images.avorria.com/builds/halo-x4-hero.jpg',
     engineeringSummary:
       'Engineered specifically for high-bite carpet and medium-to-high asphalt competition. Calibrated with mid-motor twin belt weight distribution, high-voltage brushless telemetry control, and 13.5T stock class thermal efficiency.',
     trackConditions: 'Indoor High-Grip Carpet / High-Bite Asphalt',
@@ -197,7 +197,7 @@ const INITIAL_HALO_BUILDS: HaloBuildRecord[] = [
     baseProductName: "XRAY X4 '26 1/10 Electric Touring Car Kit",
     status: 'PUBLISHED',
     published: true,
-    heroImageUrl: 'https://images.halo-rc.com/builds/halo-tc10-club.jpg',
+    heroImageUrl: 'https://images.avorria.com/builds/halo-tc10-club.jpg',
     engineeringSummary:
       'Configured with cost-effective, zero-maintenance electronics complying with standard club blinking rules. Reliable, balanced, and durable for weekend racing.',
     trackConditions: 'Club Carpet & Asphalt',

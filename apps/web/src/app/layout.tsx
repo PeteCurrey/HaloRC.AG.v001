@@ -30,15 +30,15 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s — Halo RC',
-    default: 'Halo RC — Remote Control. Without Compromise.',
+    template: '%s — Avorria RC',
+    default: 'Avorria RC — Remote Control. Without Compromise.',
   },
   description:
     'A premium RC destination for people who take RC seriously. Competition hardware, specialist brands, and the knowledge to match.',
   keywords: ['RC cars', 'radio controlled', 'competition RC', 'XRAY', 'Traxxas', '1/5 scale', 'RC racing'],
   openGraph: {
     type: 'website',
-    siteName: 'Halo RC',
+    siteName: 'Avorria RC',
     locale: 'en_GB',
   },
   robots: {

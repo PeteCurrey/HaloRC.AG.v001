@@ -15,16 +15,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!page) {
     return {
-      title: 'Page Not Found — Halo RC',
+      title: 'Page Not Found — Avorria RC',
       robots: { index: false, follow: false },
     }
   }
 
   return {
-    title: `${page.seoTitle || page.title} — Halo RC`,
+    title: `${page.seoTitle || page.title} — Avorria RC`,
     description: page.seoDescription || page.heroSubheading || undefined,
     alternates: {
-      canonical: `https://halo-rc.com/pages/${page.slug}`,
+      canonical: `https://avorria.com/pages/${page.slug}`,
     },
     robots: {
       index: true,
@@ -151,7 +151,7 @@ export default async function PublicCmsPage({ params }: PageProps) {
             ))
           ) : (
             <p style={{ color: 'var(--colour-smoke)', fontStyle: 'italic' }}>
-              Content for this page is being curated by the Halo RC editorial department.
+              Content for this page is being curated by the Avorria RC editorial department.
             </p>
           )}
         </article>

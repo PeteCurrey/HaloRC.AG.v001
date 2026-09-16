@@ -51,11 +51,62 @@
     border-color var(--duration-standard) var(--ease-standard);
 }
 
+/* Scrolled state: light frosted glass matching light-first canvas */
 .nav[data-scrolled="true"] {
-  background-color: rgba(8, 8, 8, 0.85);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border-bottom-color: var(--colour-white-05);
+  background-color: rgba(249, 248, 246, 0.88);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom-color: var(--border-subtle);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.nav[data-scrolled="true"] .logoText {
+  color: var(--text-primary);
+}
+
+.nav[data-scrolled="true"] .navLink {
+  color: var(--text-secondary);
+}
+
+.nav[data-scrolled="true"] .navLink:hover {
+  color: var(--text-primary);
+}
+
+.nav[data-scrolled="true"] .navLink[aria-current="page"] {
+  color: var(--text-primary);
+}
+
+.nav[data-scrolled="true"] .marketButton {
+  color: var(--text-tertiary);
+}
+
+.nav[data-scrolled="true"] .marketButton:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+}
+
+.nav[data-scrolled="true"] .marketButton[aria-pressed="true"] {
+  background-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.nav[data-scrolled="true"] .marketSelector {
+  border-color: var(--border-subtle);
+}
+
+.nav[data-scrolled="true"] .marketDivider {
+  background-color: var(--border-subtle);
+}
+
+.nav[data-scrolled="true"] .iconButton,
+.nav[data-scrolled="true"] .mobileMenuButton {
+  color: var(--text-secondary);
+}
+
+.nav[data-scrolled="true"] .iconButton:hover,
+.nav[data-scrolled="true"] .mobileMenuButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
 }
 
 /* ─── Logo ─────────────────────────────────────────────────────────────── */

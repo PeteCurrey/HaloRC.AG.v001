@@ -16,9 +16,9 @@ html {
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
 
-  /* Default to dark surface */
-  background-color: var(--colour-void);
-  color: var(--colour-chalk);
+  /* Default to light-first premium engineering canvas */
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
 }
 
 body {
@@ -26,8 +26,8 @@ body {
   font-size: var(--text-base);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);
-  color: var(--colour-chalk);
-  background-color: var(--colour-void);
+  color: var(--text-primary);
+  background-color: var(--bg-canvas);
   min-height: 100dvh;
   overflow-x: hidden;
 }
@@ -39,17 +39,19 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: var(--weight-semibold);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-snug);
-  color: var(--colour-off-white);
+  color: var(--text-primary);
 }
 
 p {
   line-height: var(--leading-relaxed);
   max-width: 68ch;
+  color: var(--text-secondary);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: var(--transition-hover);
 }
 
 /* ─── Images ─────────────────────────────────────────────────────────────── */
@@ -83,10 +85,31 @@ ul, ol {
 
 /* ─── Surface modes ──────────────────────────────────────────────────────── */
 
-/* Dark surface — default */
-[data-surface="dark"] {
+/* Dark surface — dramatic chapters, heroes, footer, technical contrast */
+[data-surface="dark"],
+.theme-dark {
   background-color: var(--colour-void);
   color: var(--colour-chalk);
+}
+
+[data-surface="dark"] h1,
+[data-surface="dark"] h2,
+[data-surface="dark"] h3,
+[data-surface="dark"] h4,
+[data-surface="dark"] h5,
+[data-surface="dark"] h6,
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6 {
+  color: var(--colour-off-white);
+}
+
+[data-surface="dark"] p,
+.theme-dark p {
+  color: var(--colour-ash);
 }
 
 /* Graphite surface */
@@ -95,10 +118,10 @@ ul, ol {
   color: var(--colour-chalk);
 }
 
-/* Light editorial surface */
+/* Light surface — standard clean white product surface */
 [data-surface="light"] {
-  background-color: var(--colour-paper);
-  color: var(--colour-body-dark);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
 }
 
 /* Linen surface — heritage, editorial */
@@ -110,16 +133,16 @@ ul, ol {
 /* ─── Focus visible ──────────────────────────────────────────────────────── */
 
 :focus-visible {
-  outline: 2px solid var(--colour-halo);
-  outline-offset: 3px;
+  outline: 2px solid var(--colour-ignition);
+  outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
 /* ─── Selection ──────────────────────────────────────────────────────────── */
 
 ::selection {
-  background-color: var(--colour-halo-20);
-  color: var(--colour-white);
+  background-color: var(--colour-ignition-20);
+  color: var(--colour-void);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-# Halo RC — Engineering & Commercial Platform
+# Avorria RC — Engineering & Commercial Platform
 
 > **A premium RC destination for people who take RC seriously.**
 > Built on verified engineering specifications, real platform compatibility, and an authoritative dual-market (UK & USA) architecture.

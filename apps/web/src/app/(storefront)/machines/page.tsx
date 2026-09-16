@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import s from './machines.module.css'
+import { PageHero } from '@/components/layout/PageHero'
 import { getMarketPreference } from '@/actions/market'
 import { getMachinesList } from '@halo-rc/db'
 import { MarketAwarePrice, StockStatus } from '@halo-rc/ui'
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: 'The Machines — Curated RC Catalogue',
   description: 'Browse our curated selection of verified competition and flagship RC machines across bash, race, drift, crawl, and large scale.',
   alternates: {
-    canonical: 'https://halo-rc.com/machines',
+    canonical: 'https://avorria.com/machines',
   },
 }
 
@@ -68,24 +69,21 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
   }
 
   return (
-    <div className={s.page}>
-      <div className={s.container}>
-        {/* ── Header ── */}
-        <p className={s.eyebrow}>The Machines</p>
+    <>
+      <PageHero
+        eyebrow="The Machines"
+        headline={"Precision engineering,\nat every scale."}
+        subline="Every machine in the Avorria RC catalogue is chosen for documented engineering excellence. Verified platforms, structured compatibility, and market-aware delivery."
+        imageSrc="/images/hero/hero-1-5-scale-rc.jpg"
+        imagePosition="center 30%"
+      />
+      <div className={s.page}>
+        <div className={s.container}>
 
-        <h1 className={s.headline}>
-          Precision engineering,<br />at every scale.
-        </h1>
-
-        <p className={s.subline}>
-          Every machine in the Halo RC catalogue is chosen for documented engineering excellence.
-          Verified platforms, structured compatibility, and market-aware delivery.
-        </p>
-
-        {/* ── Controls Bar: Filters & Sort ── */}
-        <div className={s.controlsBar}>
-          {/* Discipline tabs */}
-          <nav aria-label="Filter by discipline">
+          {/* ── Controls Bar: Filters & Sort ── */}
+          <div className={s.controlsBar}>
+            {/* Discipline tabs */}
+            <nav aria-label="Filter by discipline">
             <ul className={s.disciplineTabs}>
               {DISCIPLINES.map((d) => {
                 const isSelected = activeDiscipline.toLowerCase() === d.slug.toLowerCase()
@@ -262,5 +260,6 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         </section>
       </div>
     </div>
+    </>
   )
 }

@@ -31,6 +31,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://halo-rc.com/sitemap.xml',
+    sitemap: 'https://avorria.com/sitemap.xml',
   }
 }

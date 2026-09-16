@@ -5,6 +5,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import s from './race.module.css'
+import { PageHero } from '@/components/layout/PageHero'
 import { getPublishedHaloBuilds, resolveCurrentBuildPricing } from '@halo-rc/db'
 
 export const metadata: Metadata = {
@@ -32,32 +33,25 @@ export default async function RaceDepartmentPage({ searchParams }: RacePageProps
   const scales = ['ALL', '1:10', '1:8', '1:5']
 
   return (
-    <div className={s.page}>
-      <div className={s.container}>
-        {/* Eyebrow & Headline */}
-        <div className={s.eyebrow}>
-          <span className={s.eyebrowDot} aria-hidden="true" />
-          <span className={s.eyebrowText}>
-            Engineering &amp; Competition Division
-          </span>
-        </div>
-
-        <div className={s.headerRow}>
-          <div>
-            <h1 className={s.headline}>
-              Halo Builds
-            </h1>
-            <p className={s.subline}>
-              Engineered competition vehicle configurations. Each build integrates verified chassis platforms, matched powertrain electronics, and calibrated running gear.
-            </p>
+    <>
+      <PageHero
+        eyebrow="Race Department"
+        headline={"Halo Builds"}
+        subline="Engineered competition vehicle configurations. Each build integrates verified chassis platforms, matched powertrain electronics, and calibrated running gear."
+        imageSrc="/images/disciplines/race.jpg"
+        imagePosition="center 40%"
+        badge="COMPETITION DIVISION"
+      />
+      <div className={s.page}>
+        <div className={s.container}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-6)' }}>
+            <Link href="/race/compare" className={s.compareButton}>
+              Compare Builds →
+            </Link>
           </div>
-          <Link href="/race/compare" className={s.compareButton}>
-            Compare Builds →
-          </Link>
-        </div>
 
-        {/* Filter Controls */}
-        <div className={s.filterBar}>
+          {/* Filter Controls */}
+          <div className={s.filterBar}>
           <div className={s.filterGroup}>
             <span className={s.filterLabel}>Discipline</span>
             <div className={s.filterPills}>
@@ -163,5 +157,6 @@ export default async function RaceDepartmentPage({ searchParams }: RacePageProps
         )}
       </div>
     </div>
+    </>
   )
 }

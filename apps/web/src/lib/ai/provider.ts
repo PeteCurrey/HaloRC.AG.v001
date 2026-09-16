@@ -86,7 +86,7 @@ export class HeuristicDeterministicAIProvider implements AIProvider {
       return 'Request blocked: Prompt instruction attempting system override detected. Retrieved data remains passive.'
     }
 
-    return `Authoritative consultation based on verified Halo RC catalogue specifications: ${params.userPrompt}`
+    return `Authoritative consultation based on verified Avorria RC catalogue specifications: ${params.userPrompt}`
   }
 
   async generateStructuredOutput<T>(params: {

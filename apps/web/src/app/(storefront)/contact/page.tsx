@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { submitPublicLeadAction } from '@/actions/admin'
+import { PageHero } from '@/components/layout/PageHero'
 
 export const metadata: Metadata = {
-  title: 'Specialist Consultation & Enquiries — Halo RC',
-  description: 'Connect with the Halo RC engineering team and Race Department specialists for bespoke build advice, kit selection, or trade enquiries.',
+  title: 'Specialist Consultation & Enquiries — Avorria RC',
+  description: 'Connect with the Avorria RC engineering team and Race Department specialists for bespoke build advice, kit selection, or trade enquiries.',
   alternates: {
-    canonical: 'https://halo-rc.com/contact',
+    canonical: 'https://avorria.com/contact',
   },
 }
 
@@ -23,69 +24,25 @@ export default async function ContactPage({
   const { success, error, productInterestId, productName } = await searchParams
 
   return (
-    <main
-      style={{
-        minHeight: '80vh',
-        backgroundColor: 'var(--colour-void)',
-        paddingTop: 'calc(var(--nav-height) + var(--space-12))',
-        paddingBottom: 'var(--space-16)',
-        paddingInline: 'var(--gutter-md)',
-      }}
-    >
-      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-        {/* Breadcrumb */}
-        <nav
-          aria-label="Breadcrumb"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-xs)',
-            color: 'var(--colour-smoke)',
-            marginBottom: 'var(--space-6)',
-          }}
-        >
-          <Link href="/" style={{ color: 'var(--colour-smoke)', textDecoration: 'none' }}>
-            Home
-          </Link>
-          <span aria-hidden="true">/</span>
-          <span aria-current="page" style={{ color: 'var(--colour-white)' }}>
-            Specialist Consultation
-          </span>
-        </nav>
-
-        {/* Heading */}
-        <div style={{ marginBottom: 'var(--space-8)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-            <span
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.6875rem',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'var(--colour-halo)',
-              }}
-            >
-              Direct Engineering Consultation
-            </span>
-          </div>
-          <h1
-            style={{
-              fontSize: 'clamp(var(--text-3xl), 4vw, var(--text-4xl))',
-              fontWeight: 600,
-              color: 'var(--colour-white)',
-              letterSpacing: 'var(--tracking-tight)',
-              marginBottom: 'var(--space-3)',
-            }}
-          >
-            Race Department Advisory
-          </h1>
-          <p style={{ fontSize: 'var(--text-base)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)' }}>
-            Submit an enquiry regarding bespoke competition builds, chassis geometry setups, commercial partnerships, or specialist parts compatibility. All requests are handled directly by Halo RC staff.
-          </p>
-        </div>
+    <>
+      <PageHero
+        eyebrow="Direct Engineering Consultation"
+        headline="Race Department Advisory"
+        subline="Submit an enquiry regarding bespoke competition builds, chassis geometry setups, commercial partnerships, or specialist parts compatibility."
+        imageSrc="/images/disciplines/race.jpg"
+        imagePosition="center 50%"
+        badge="ADVISORY"
+      />
+      <main
+        style={{
+          minHeight: '60vh',
+          backgroundColor: 'var(--colour-void)',
+          paddingTop: 'var(--space-12)',
+          paddingBottom: 'var(--space-16)',
+          paddingInline: 'var(--gutter-md)',
+        }}
+      >
+        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
 
         {success ? (
           <div
@@ -297,7 +254,8 @@ export default async function ContactPage({
             </button>
           </form>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   )
 }

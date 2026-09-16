@@ -75,7 +75,7 @@ describe('Scenario L — Grounded AI inventory consultation', () => {
     const response = await consultSupplierStock('prod-does-not-exist', 'UK')
 
     expect(response.groundingState).toBe('INSUFFICIENT_EVIDENCE')
-    expect(response.answer).toContain('not currently held in Halo RC physical workshop inventory')
+    expect(response.answer).toContain('not currently held in Avorria RC physical workshop inventory')
     expect(response.warnings.length).toBeGreaterThan(0)
   })
 })

@@ -8,9 +8,9 @@ export function SiteFooter() {
       <div className={s.inner}>
         {/* Brand identity column */}
         <div className={s.brandColumn}>
-          <Link href="/" className={s.logoRow} aria-label="Halo RC — Home">
+          <Link href="/" className={s.logoRow} aria-label="Avorria RC — Home">
             <HaloLogo style={{ width: 24, height: 24 }} />
-            <span className={s.logoText}>Halo RC</span>
+            <span className={s.logoText}>Avorria RC</span>
           </Link>
           <p className={s.brandDesc}>
             Remote Control. Without Compromise. Premium competition hardware and specialist racing department.
@@ -91,7 +91,7 @@ export function SiteFooter() {
       </div>
 
       <div className={s.bottomBar}>
-        <p>© {new Date().getFullYear()} Halo RC Ltd. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Avorria RC Ltd. All rights reserved.</p>
         <p className={s.bottomArchitecture}>
           VERIFIED RC DATA ARCHITECTURE
         </p>

@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <>
       {/* ── Hero ── */}
-      <section className={s.hero} aria-label="Halo RC — Hero">
+      <section className={s.hero} aria-label="Avorria RC — Hero">
         <div className={s.heroBg} aria-hidden="true">
           <Image
             src="/images/hero/hero-1-5-scale-rc.jpg"
@@ -94,15 +94,28 @@ export default function HomePage() {
             <div className={s.disciplineGrid}>
               {SHOP_DISCIPLINES.map((item, idx) => (
                 <Link key={item.id} href={item.href} className={s.disciplineCard}>
-                  <div className={s.disciplineCardHeader}>
-                    <span className={s.disciplineCardNumber}>0{idx + 1}</span>
-                    {item.badge && (
-                      <span className={s.disciplineCardBadge}>{item.badge}</span>
-                    )}
+                  {item.image && (
+                    <div className={s.disciplineCardBg} aria-hidden="true">
+                      <Image
+                        src={item.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      />
+                    </div>
+                  )}
+                  <div className={s.disciplineCardContent}>
+                    <div className={s.disciplineCardHeader}>
+                      <span className={s.disciplineCardNumber}>0{idx + 1}</span>
+                      {item.badge && (
+                        <span className={s.disciplineCardBadge}>{item.badge}</span>
+                      )}
+                    </div>
+                    <h3 className={s.disciplineCardTitle}>{item.label}</h3>
+                    <p className={s.disciplineCardSub}>{item.sub}</p>
+                    <span className={s.disciplineCardCta}>Explore Platforms →</span>
                   </div>
-                  <h3 className={s.disciplineCardTitle}>{item.label}</h3>
-                  <p className={s.disciplineCardSub}>{item.sub}</p>
-                  <span className={s.disciplineCardCta}>Explore Platforms →</span>
                 </Link>
               ))}
             </div>

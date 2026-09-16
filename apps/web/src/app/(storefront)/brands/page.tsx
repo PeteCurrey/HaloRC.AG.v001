@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import s from './brands.module.css'
+import { PageHero } from '@/components/layout/PageHero'
 import { getBrandsList } from '@halo-rc/db'
 import type { CommercialRelationship } from '@halo-rc/types'
 
@@ -45,18 +46,17 @@ export default async function BrandsPage() {
   ].filter((g) => g.brands.length > 0)
 
   return (
-    <div className={s.page}>
-      <div className={s.container}>
-        <p className={s.eyebrow}>Brand Universe</p>
-
-        <h1 className={s.headline}>
-          The Authoritative Roster
-        </h1>
-
-        <p className={s.subline}>
-          We distinguish between authorised dealers, distributor-sourced brands, and researched imports.
-          Supply status is stated accurately — no grey-market ambiguity.
-        </p>
+    <>
+      <PageHero
+        eyebrow="Brand Universe"
+        headline={"The Authoritative\nRoster"}
+        subline="We distinguish between authorised dealers, distributor-sourced brands, and researched imports. Supply status is stated accurately — no grey-market ambiguity."
+        imageSrc="/images/disciplines/scale.jpg"
+        imagePosition="center 45%"
+        badge="21 BRANDS"
+      />
+      <div className={s.page}>
+        <div className={s.container}>
 
         <div className={s.groupsStack}>
           {groups.map((group) => (
@@ -111,5 +111,6 @@ export default async function BrandsPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

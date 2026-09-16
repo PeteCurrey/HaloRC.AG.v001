@@ -2,7 +2,7 @@
  * Supabase server client — used in Server Components, Route Handlers, Server Actions.
  * Uses @supabase/ssr cookie utilities to read/write cookies from the Next.js
  * cookies() API. This is the ONLY authoritative way to resolve a server-side
- * session in Halo RC.
+ * session in Avorria RC.
  *
  * SECURITY: This file runs server-side only. Never import it from a Client Component.
  */

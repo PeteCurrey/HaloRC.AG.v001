@@ -1,5 +1,5 @@
 // apps/web/src/lib/ai/consultation.ts
-// Core advisory consultation engine for Halo RC AI Intelligence Layer.
+// Core advisory consultation engine for Avorria RC AI Intelligence Layer.
 // Deterministic retrieval, verified compatibility rules, strict market isolation,
 // and refusal of unverified/guessed claims.
 
@@ -133,12 +133,12 @@ export async function consultProductDiscovery(
     const structured = interpretCatalogueQuery(query, marketCode)
     return {
       answer:
-        'Halo RC does not make unsupported superlatives such as "best" or "fastest". Competition performance depends on track surface, chassis geometry, gearing, and driver calibration. Below are verified catalogue options matching your criteria:',
+        'Avorria RC does not make unsupported superlatives such as "best" or "fastest". Competition performance depends on track surface, chassis geometry, gearing, and driver calibration. Below are verified catalogue options matching your criteria:',
       groundingState: 'GROUNDED',
       intent: 'PRODUCT_DISCOVERY',
       sources: [],
       recommendations: getDeterministicRecommendations(structured, marketCode),
-      warnings: ['Superlative claims are excluded from authoritative Halo RC specifications.'],
+      warnings: ['Superlative claims are excluded from authoritative Avorria RC specifications.'],
       followUpActions: [
         { label: 'View All Touring Machines', href: '/machines' },
         { label: 'Explore Build My Rig', href: '/build' },
@@ -210,11 +210,11 @@ export async function consultCompatibility(
   if (ctx.hasExplicitRule && ctx.ruleVerified && ctx.isCompatible) {
     answer = `Verified Compatible: ${ctx.productName} is confirmed compatible with ${ctx.targetMachineName}. The catalogue cites verified rule (${ctx.ruleId}): "${ctx.ruleDescription}".`
   } else if (ctx.hasExplicitRule && !ctx.ruleVerified) {
-    answer = `Compatibility Rejected: The relationship between ${ctx.productName} and ${ctx.targetMachineName} carries an unverified rule (${ctx.ruleId}). In accordance with Halo RC data integrity invariants, unverified rules cannot be treated as valid.`
+    answer = `Compatibility Rejected: The relationship between ${ctx.productName} and ${ctx.targetMachineName} carries an unverified rule (${ctx.ruleId}). In accordance with Avorria RC data integrity invariants, unverified rules cannot be treated as valid.`
     warnings.push('Unverified compatibility rule detected.')
     groundingState = 'PARTIALLY_GROUNDED'
   } else {
-    answer = `Compatibility Not Verified: The Halo RC catalogue does not contain an explicit verified compatibility rule connecting ${ctx.productName} to ${ctx.targetMachineName}. Halo RC does not infer compatibility from product names or dimensional similarity.`
+    answer = `Compatibility Not Verified: The Avorria RC catalogue does not contain an explicit verified compatibility rule connecting ${ctx.productName} to ${ctx.targetMachineName}. Avorria RC does not infer compatibility from product names or dimensional similarity.`
     groundingState = 'INSUFFICIENT_EVIDENCE'
   }
 
@@ -275,7 +275,7 @@ export async function consultSpecification(
 
   if (!spec || spec.confidence === 'UNKNOWN') {
     return {
-      answer: `That specification (${specKey}) is not currently verified in the Halo RC catalogue for ${prod.name}. Halo RC does not guess or interpolate unknown values.`,
+      answer: `That specification (${specKey}) is not currently verified in the Avorria RC catalogue for ${prod.name}. Avorria RC does not guess or interpolate unknown values.`,
       groundingState: 'INSUFFICIENT_EVIDENCE',
       intent: 'SPECIFICATION_EXPLANATION',
       sources: [],
@@ -366,7 +366,7 @@ export async function consultTechnicalQA(
   // Refusal: if question asks about something outside the document
   if (/temperature|weather|tire additive formula/i.test(question)) {
     return {
-      answer: `The available documentation (${docCtx.title}) does not specify this information. Halo RC only cites verified technical documentation.`,
+      answer: `The available documentation (${docCtx.title}) does not specify this information. Avorria RC only cites verified technical documentation.`,
       groundingState: 'INSUFFICIENT_EVIDENCE',
       intent: 'DOCUMENT_QA',
       sources: docCtx.sources,
@@ -393,7 +393,7 @@ export async function consultTechnicalQA(
 export function consultCommercePurchase(query: string, marketCode: MarketCode = 'UK'): AIResponse {
   return {
     answer:
-      'Halo RC AI cannot autonomously place orders, charge payment methods, or execute purchases. Please proceed through the secure storefront checkout to complete your order with Stripe.',
+      'Avorria RC AI cannot autonomously place orders, charge payment methods, or execute purchases. Please proceed through the secure storefront checkout to complete your order with Stripe.',
     groundingState: 'GROUNDED',
     intent: 'UNSUPPORTED_REQUEST',
     sources: [],
@@ -423,7 +423,7 @@ export async function consultSupplierStock(
   if (!ctx.hasSupplierCoverage) {
     return {
       answer:
-        'Authoritative inventory record: This product is not currently held in Halo RC physical workshop inventory, and no active distributor supply feed is currently registered for this market.',
+        'Authoritative inventory record: This product is not currently held in Avorria RC physical workshop inventory, and no active distributor supply feed is currently registered for this market.',
       groundingState: 'INSUFFICIENT_EVIDENCE',
       intent: 'MARKET_AVAILABILITY',
       sources: [],
@@ -436,7 +436,7 @@ export async function consultSupplierStock(
   }
 
   const leadTimeNote = ctx.leadTimeText ? ` Typical lead time: ${ctx.leadTimeText}.` : ''
-  const answer = `Distributor Sourcing Status: Availability is currently reported as ${ctx.supplierAvailability} via verified supplier feed.${leadTimeNote} (Note: Sourced via distributor inventory authority, not physical Halo RC workshop stock; verified checked at ${ctx.lastCheckedAt ? new Date(ctx.lastCheckedAt).toLocaleTimeString('en-GB') : 'recently'}).`
+  const answer = `Distributor Sourcing Status: Availability is currently reported as ${ctx.supplierAvailability} via verified supplier feed.${leadTimeNote} (Note: Sourced via distributor inventory authority, not physical Avorria RC workshop stock; verified checked at ${ctx.lastCheckedAt ? new Date(ctx.lastCheckedAt).toLocaleTimeString('en-GB') : 'recently'}).`
 
   return {
     answer,
@@ -552,7 +552,7 @@ export async function consultCrossMarketPrice(
 
   if (customerMarket !== targetMarket && customerOffer) {
     const customerPriceStr = `${customerOffer.currency === 'USD' ? '$' : '£'}${(customerOffer.retailPriceMinorUnits / 100).toFixed(2)} ${customerOffer.currency} (${customerOffer.taxMode === 'INCLUSIVE' ? 'inc. VAT' : 'excl. tax'})`
-    explanation += ` For ${customerMarket} delivery, dispatch must be ordered through the ${customerMarket} catalogue at ${customerPriceStr}. Halo RC maintains strict currency and market isolation and does not calculate arbitrary live exchange rates.`
+    explanation += ` For ${customerMarket} delivery, dispatch must be ordered through the ${customerMarket} catalogue at ${customerPriceStr}. Avorria RC maintains strict currency and market isolation and does not calculate arbitrary live exchange rates.`
   }
 
   return {
@@ -594,7 +594,7 @@ export async function consultBrandDistribution(
 
   if (!brand) {
     return {
-      answer: `Brand "${brandIdOrName}" was not found in the verified Halo RC catalogue.`,
+      answer: `Brand "${brandIdOrName}" was not found in the verified Avorria RC catalogue.`,
       groundingState: 'INSUFFICIENT_EVIDENCE',
       intent: 'PRODUCT_DISCOVERY',
       sources: [],

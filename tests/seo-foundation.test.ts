@@ -18,18 +18,18 @@ describe('SEO Foundation & Metadata Verification', () => {
 
   it('robots configuration points to authoritative sitemap.xml', () => {
     const robotsConfig = robots()
-    expect(robotsConfig.sitemap).toBe('https://halo-rc.com/sitemap.xml')
+    expect(robotsConfig.sitemap).toBe('https://avorria.com/sitemap.xml')
   })
 
   it('sitemap generates canonical public URLs', () => {
     const sitemapEntries = sitemap()
 
     const urls = sitemapEntries.map((e) => e.url)
-    expect(urls).toContain('https://halo-rc.com/')
-    expect(urls).toContain('https://halo-rc.com/machines')
-    expect(urls).toContain('https://halo-rc.com/race')
-    expect(urls).toContain('https://halo-rc.com/brands')
-    expect(urls).toContain('https://halo-rc.com/brands/xray')
+    expect(urls).toContain('https://avorria.com/')
+    expect(urls).toContain('https://avorria.com/machines')
+    expect(urls).toContain('https://avorria.com/race')
+    expect(urls).toContain('https://avorria.com/brands')
+    expect(urls).toContain('https://avorria.com/brands/xray')
 
     // Must NOT contain private routes
     expect(urls.some((u) => u.includes('/admin'))).toBe(false)

@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { PageHero } from '@/components/layout/PageHero'
 import type { AIResponse, MarketCode } from '@halo-rc/types'
 
 const PRESET_QUERIES = [
@@ -74,25 +75,19 @@ export default function FindMyMachinePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
-      <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto' }}>
-        {/* Eyebrow */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-          <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--colour-halo)' }}>
-            Grounded Consultation Engine
-          </span>
-        </div>
-
-        <h1 style={{ fontSize: 'clamp(var(--text-3xl), 5vw, var(--text-5xl))', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-4)' }}>
-          Find My Machine
-        </h1>
-        <p style={{ fontSize: 'var(--text-base)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-8)' }}>
-          Not a generic AI chatbot. A deterministic engineering advisor that translates your natural requirements strictly into verified catalogue specifications, explicit compatibility rules, and live market offers.
-        </p>
-
-        {/* Input Form */}
-        <form onSubmit={handleConsult} style={{ marginBottom: 'var(--space-6)' }}>
+    <>
+      <PageHero
+        eyebrow="Grounded Consultation Engine"
+        headline="Find My Machine"
+        subline="Not a generic AI chatbot. A deterministic engineering advisor that translates your natural requirements strictly into verified catalogue specifications, explicit compatibility rules, and live market offers."
+        imageSrc="/images/disciplines/drift.jpg"
+        imagePosition="center 40%"
+        badge="PRECISION ENGINE"
+      />
+      <div style={{ minHeight: '100vh', backgroundColor: 'var(--colour-void)', padding: 'var(--space-9) var(--gutter-md)' }}>
+        <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto' }}>
+          {/* Input Form */}
+          <form onSubmit={handleConsult} style={{ marginBottom: 'var(--space-6)' }}>
           <div style={{ display: 'flex', gap: 'var(--space-3)', maxWidth: '720px' }}>
             <input
               type="text"
@@ -333,5 +328,6 @@ export default function FindMyMachinePage() {
         )}
       </div>
     </div>
+    </>
   )
 }

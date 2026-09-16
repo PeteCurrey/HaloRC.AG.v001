@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import s from './search.module.css'
+import { PageHero } from '@/components/layout/PageHero'
 import { getMarketPreference } from '@/actions/market'
 import { searchCatalogue, getBrandsList } from '@halo-rc/db'
 import { MarketAwarePrice, StockStatus } from '@halo-rc/ui'
@@ -64,16 +65,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   )
 
   return (
-    <div className={s.page}>
-      <div className={s.container}>
-        <p className={s.eyebrow}>Authoritative Catalogue Search</p>
-        <h1 className={s.headline}>Hardware & Compatibility</h1>
-        <p className={s.subline}>
-          Search across brand, vehicle platform, chassis material, exact manufacturer SKU, scale, or discipline.
-        </p>
-
-        {/* Search Input Bar (standard accessible GET form updating ?q=) */}
-        <form action="/search" method="GET" className={s.searchForm}>
+    <>
+      <PageHero
+        eyebrow="Authoritative Catalogue Search"
+        headline={"Hardware & Compatibility"}
+        subline="Search across brand, vehicle platform, chassis material, exact manufacturer SKU, scale, or discipline."
+        imageSrc="/images/disciplines/crawl.jpg"
+        imagePosition="center 35%"
+        badge="CATALOGUE ENGINE"
+      />
+      <div className={s.page}>
+        <div className={s.container}>
+          {/* Search Input Bar (standard accessible GET form updating ?q=) */}
+          <form action="/search" method="GET" className={s.searchForm}>
           <div className={s.searchBar}>
             <span className={s.searchIcon} aria-hidden="true">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -348,7 +352,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

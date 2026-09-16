@@ -192,7 +192,7 @@ export async function retrieveCompatibilityContext(
     isCompatible: false,
     hasExplicitRule: false,
     ruleVerified: false,
-    ruleDescription: 'No verified compatibility rule exists in the Halo RC catalogue.',
+    ruleDescription: 'No verified compatibility rule exists in the Avorria RC catalogue.',
     ruleId: null,
     sources,
   }

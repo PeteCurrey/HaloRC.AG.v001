@@ -80,7 +80,7 @@ describe('Halo RC Critical Journey 4: Product SEO Edit & Metadata Integrity', ()
         productId: testProductId,
         seoTitle: 'Custom Authoritative Title — IFMAR World Champion Chassis',
         metaDescription: 'Specialist British & European racing kit with calibrated setup sheets.',
-        canonicalUrl: 'https://halo-rc.com/machines/xray-x4-2026-1-10-touring-car-kit',
+        canonicalUrl: 'https://avorria.com/machines/xray-x4-2026-1-10-touring-car-kit',
         indexPage: false, // NOINDEX requested
       },
       actor
@@ -108,7 +108,7 @@ describe('Halo RC Critical Journey 5: CMS Draft -> Publish -> Unpublish Round-Tr
         heroHeading: 'Express Trackside Logistics',
         heroSubheading: 'Guaranteed weekend delivery to national race venues.',
         contentJson: ['Deliveries dispatched via dedicated motorsport couriers.'],
-        seoTitle: 'Trackside Delivery Logistics — Halo RC',
+        seoTitle: 'Trackside Delivery Logistics — Avorria RC',
         seoDescription: 'Weekend dispatch to major circuits.',
       },
       actor
@@ -260,7 +260,7 @@ describe('Halo RC Critical Journey 10: AI Suggestion -> Review -> Approval Workf
     const suggestion = await createAiSuggestion({
       productId,
       suggestionType: 'SEO_TITLE',
-      draftContent: 'XRAY X4 2026 Luxury 1/10 Electric Touring Car Kit — Halo RC',
+      draftContent: 'XRAY X4 2026 Luxury 1/10 Electric Touring Car Kit — Avorria RC',
       modelProvider: 'google-gemini',
       modelId: 'gemini-1.5-pro',
     })
@@ -284,7 +284,7 @@ describe('Halo RC Critical Journey 10: AI Suggestion -> Review -> Approval Workf
 
       // Verify SEO record was updated with the approved AI copy
       const seo = await getProductSeo(productId)
-      expect(seo?.seoTitle).toBe('XRAY X4 2026 Luxury 1/10 Electric Touring Car Kit — Halo RC')
+      expect(seo?.seoTitle).toBe('XRAY X4 2026 Luxury 1/10 Electric Touring Car Kit — Avorria RC')
     }
 
     // 4. Test Rejection flow

@@ -193,11 +193,11 @@ export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
         <Link
           href="/"
           className={s.logo}
-          aria-label="Halo RC — Home"
+          aria-label="Avorria RC — Home"
           onClick={() => setActiveMegaMenu(null)}
         >
           <HaloLogo className={s.logoMark} />
-          <span className={s.logoText}>Halo RC</span>
+          <span className={s.logoText}>Avorria RC</span>
         </Link>
 
         {/* Desktop navigation links */}

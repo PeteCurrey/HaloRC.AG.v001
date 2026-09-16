@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { PageHero } from '@/components/layout/PageHero'
 import { getMarketPreference } from '@/actions/market'
 import { getBuildMyRigMachines, resolveBuildConfiguration } from '@halo-rc/db'
 import { BuildEngineClient } from './build-engine-client'
@@ -29,10 +30,20 @@ export default async function BuildMyRigPage({ searchParams }: BuildPageProps) {
   }
 
   return (
-    <BuildEngineClient
-      initialMachines={machines}
-      initialBuild={initialBuild}
-      activeMarket={activeMarket}
-    />
+    <>
+      <PageHero
+        eyebrow="Engineering Configurator"
+        headline="Build My Rig"
+        subline="Deterministic product-graph compatibility engine. Assemble verified turnkey chassis configurations with matched competition electronics."
+        imageSrc="/images/disciplines/bash.jpg"
+        imagePosition="center 30%"
+        badge="BLUEPRINT ENGINE"
+      />
+      <BuildEngineClient
+        initialMachines={machines}
+        initialBuild={initialBuild}
+        activeMarket={activeMarket}
+      />
+    </>
   )
 }
