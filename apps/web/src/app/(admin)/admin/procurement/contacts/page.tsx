@@ -27,16 +27,20 @@ export default async function SupplierContactsPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
             <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', color: 'var(--colour-halo)', textTransform: 'uppercase' }}>
-              Procurement Operations
+              Procurement Directory
             </span>
           </div>
           <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
             Supplier Contacts Directory
           </h1>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)' }}>
-            Direct manufacturer account reps, wholesale sales managers, credit controllers, and technical warranty liaisons.
+            Directory of key supplier contacts: commercial sales, trade coordinators, credit control, and technical support.
           </p>
         </div>
+
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', padding: 'var(--space-2) var(--space-3)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-sm)' }}>
+          {contactRows.length} Contacts
+        </span>
       </div>
 
       {/* Contacts Table */}
@@ -44,92 +48,84 @@ export default async function SupplierContactsPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--colour-steel)', backgroundColor: 'var(--colour-charcoal)' }}>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Contact Name / Title
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                Contact Person
               </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Supplier Partner
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                Supplier Entity
               </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Role
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                Role / Function
               </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
                 Email
               </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Phone
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
+                Phone / Mobile
               </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Primary
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase', textAlign: 'right' }}>
+                Action
               </th>
             </tr>
           </thead>
           <tbody>
-            {contactRows.map((contact) => (
-              <tr key={contact.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span style={{ color: 'var(--colour-white)', fontWeight: 600, display: 'block' }}>
-                    {contact.name}
-                  </span>
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
-                    {contact.title ?? 'Commercial Representative'}
-                  </span>
-                </td>
-
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <Link
-                    href={`/admin/procurement/suppliers/${contact.supplierId}`}
-                    style={{ color: 'var(--colour-white)', textDecoration: 'none', fontWeight: 500 }}
-                  >
-                    {contact.supplier?.name ?? contact.supplierId}
-                  </Link>
-                </td>
-
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '2px 6px',
-                      backgroundColor: 'var(--colour-charcoal)',
-                      border: '1px solid var(--colour-steel)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '11px',
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--colour-smoke)',
-                    }}
-                  >
-                    {contact.role.replace('_', ' ')}
-                  </span>
-                </td>
-
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
-                    {contact.email ?? '—'}
-                  </span>
-                </td>
-
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
-                    {contact.phone ?? '—'}
-                  </span>
-                </td>
-
-                <td style={{ padding: 'var(--space-4)' }}>
-                  {contact.isPrimary && (
-                    <span
-                      style={{
-                        padding: '1px 6px',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '10px',
-                        fontFamily: 'var(--font-mono)',
-                        backgroundColor: 'var(--colour-halo-10)',
-                        color: 'var(--colour-halo)',
-                        border: '1px solid var(--colour-halo)',
-                      }}
-                    >
-                      PRIMARY
+            {contactRows.map((ct) => (
+              <tr key={ct.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
+                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--colour-white)', fontSize: 'var(--text-sm)' }}>
+                      {ct.firstName ? `${ct.firstName} ${ct.lastName}` : ct.name}
+                    </span>
+                    {ct.isPrimary && (
+                      <span style={{ fontSize: '10px', color: 'var(--colour-halo)', fontFamily: 'var(--font-mono)' }}>
+                        [PRIMARY]
+                      </span>
+                    )}
+                  </div>
+                  {ct.title && (
+                    <span style={{ fontSize: '11px', color: 'var(--colour-ash)' }}>
+                      {ct.title}
                     </span>
                   )}
+                </td>
+
+                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <Link
+                    href={`/admin/procurement/suppliers/${ct.supplierId}`}
+                    style={{ color: 'var(--colour-white)', textDecoration: 'none', fontSize: 'var(--text-xs)', fontWeight: 600 }}
+                  >
+                    {ct.supplier?.name ?? ct.supplierId}
+                  </Link>
+                  <span style={{ fontSize: '11px', color: 'var(--colour-ash)', display: 'block' }}>
+                    {ct.supplier?.country ?? 'Unknown'}
+                  </span>
+                </td>
+
+                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
+                  {ct.role.replace(/_/g, ' ')}
+                </td>
+
+                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)' }}>
+                  {ct.email ? (
+                    <a href={`mailto:${ct.email}`} style={{ color: 'var(--colour-smoke)', textDecoration: 'none' }}>
+                      {ct.email}
+                    </a>
+                  ) : (
+                    <span style={{ color: 'var(--colour-slate)' }}>None</span>
+                  )}
+                </td>
+
+                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
+                  {ct.phone ?? ct.mobile ?? 'None'}
+                </td>
+
+                <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
+                  <Link
+                    href={`/admin/procurement/suppliers/${ct.supplierId}`}
+                    style={{ fontSize: '11px', color: 'var(--colour-halo)', textDecoration: 'none', fontFamily: 'var(--font-mono)' }}
+                  >
+                    Supplier &rarr;
+                  </Link>
                 </td>
               </tr>
             ))}

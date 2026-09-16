@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import s from './page.module.css'
@@ -9,6 +10,24 @@ import type { Currency } from '@halo-rc/types'
 
 interface PageProps {
   params: Promise<{ slug: string }>
+}
+
+const BRAND_IMAGES: Record<string, string> = {
+  awesomatix: '/images/brands/awesomatix.jpg',
+  hobbywing: '/images/brands/hobbywing.jpg',
+  sanwa: '/images/brands/sanwa.jpg',
+  schumacher: '/images/brands/schumacher.jpg',
+  traxxas: '/images/brands/traxxas.jpg',
+  xray: '/images/brands/xray.jpg',
+}
+
+const DISCIPLINE_IMAGES: Record<string, string> = {
+  BASH: '/images/disciplines/bash.jpg',
+  RACE: '/images/disciplines/race.jpg',
+  DRIFT: '/images/disciplines/drift.jpg',
+  CRAWL: '/images/disciplines/crawl.jpg',
+  SCALE: '/images/disciplines/scale.jpg',
+  LARGE_SCALE: '/images/disciplines/large-scale.jpg',
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -72,6 +91,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const isHalo = detail.tier === 'HALO'
   const offer = detail.offer
+
+  const heroImgSrc = BRAND_IMAGES[detail.brand.slug] || DISCIPLINE_IMAGES[detail.discipline]
+  const storyImgSrc = DISCIPLINE_IMAGES[detail.discipline] || BRAND_IMAGES[detail.brand.slug]
 
   // JSON-LD Structured Data
   const jsonLd = {
@@ -160,56 +182,67 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className={s.imagePanel}>
           <div
             className={s.heroImage}
-            style={isHalo ? { border: '1px solid var(--colour-halo)', boxShadow: 'var(--shadow-halo)' } : undefined}
+            style={isHalo ? { borderColor: 'var(--colour-halo)', boxShadow: '0 0 0 1px var(--colour-halo)' } : undefined}
           >
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'var(--bg-surface-subtle)',
-                padding: 'var(--space-6)',
-                textAlign: 'center',
-              }}
-            >
-              <span
+            {heroImgSrc ? (
+              <Image
+                src={heroImgSrc}
+                alt={detail.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                style={{ objectFit: 'cover' }}
+              />
+            ) : (
+              <div
                 style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.6875rem',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: isHalo ? 'var(--colour-halo)' : 'var(--text-tertiary)',
-                  marginBottom: 'var(--space-2)',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'var(--bg-surface-subtle)',
+                  padding: 'var(--space-6)',
+                  textAlign: 'center',
                 }}
               >
-                {isHalo ? 'HALO COMPETITION SPECIFICATION' : 'VERIFIED FACTORY MACHINE'}
-              </span>
-              <span
-                style={{
-                  fontFamily: 'var(--font-primary)',
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                }}
-              >
-                {detail.name}
-              </span>
-              {detail.sku && (
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.625rem',
-                    color: 'var(--text-tertiary)',
-                    marginTop: 'var(--space-2)',
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: isHalo ? 'var(--colour-halo)' : 'var(--text-tertiary)',
+                    marginBottom: 'var(--space-2)',
                   }}
                 >
-                  SKU: {detail.sku}
+                  {isHalo ? 'HALO COMPETITION SPECIFICATION' : 'VERIFIED FACTORY MACHINE'}
                 </span>
-              )}
-            </div>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: 'var(--text-lg)',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  {detail.name}
+                </span>
+                {detail.sku && (
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.625rem',
+                      color: 'var(--text-tertiary)',
+                      marginTop: 'var(--space-2)',
+                    }}
+                  >
+                    SKU: {detail.sku}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className={s.imageThumbs} aria-label="Component gallery">
@@ -237,6 +270,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
             {detail.platform && <span className={s.chip}>Platform: {detail.platform.name}</span>}
             <span className={s.chip}>{detail.discipline}</span>
           </div>
+
+          {detail.editorialSummary && (
+            <p className={s.heroSummary}>
+              {detail.editorialSummary}
+            </p>
+          )}
 
           {/* Pricing & Stock (Market-Specific) */}
           <div className={s.priceBlock}>
@@ -323,12 +362,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {/* ── Machine DNA (Verified Specs — UNKNOWN strictly excluded by getMachineDetail) ── */}
       {detail.dna.length > 0 && (
         <section className={s.section} aria-labelledby="dna-heading">
-          <h2 id="dna-heading" className={s.sectionTitle}>
-            Machine DNA — Verified Engineering Specs
-          </h2>
-          <div className={s.dnaGrid}>
+          <div className={s.sectionHeader}>
+            <div className={s.sectionEyebrow}>Machine DNA</div>
+            <h2 id="dna-heading" className={s.sectionTitle}>
+              Verified Engineering Specifications
+            </h2>
+          </div>
+          <div className={s.dnaDatasheet}>
             {detail.dna.map((spec) => (
-              <div key={spec.key} className={s.dnaCell}>
+              <div key={spec.key} className={s.dnaRow}>
                 <span className={s.dnaKey}>{spec.key}</span>
                 <span className={s.dnaValue}>{spec.value}</span>
                 <div className={s.dnaConfidence}>
@@ -340,49 +382,81 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </section>
       )}
 
+      {/* ── Visual Story Chapter ── */}
+      {storyImgSrc && (
+        <section className={s.visualStory} aria-label="Engineering Philosophy">
+          <div className={s.visualStoryBg}>
+            <Image
+              src={storyImgSrc}
+              alt={`${detail.brand.name} ${detail.discipline}`}
+              fill
+              sizes="100vw"
+            />
+          </div>
+          <div className={s.visualStoryScrim} />
+          <div className={s.visualStoryInner}>
+            <div>
+              <div className={s.visualStoryEyebrow}>
+                {detail.brand.name} · {detail.discipline} Class
+              </div>
+              <h2 className={s.visualStoryHeadline}>
+                Engineered for the Edge
+              </h2>
+              <p className={s.visualStoryBody}>
+                Every chassis in the Avorria registry is catalogued with verified engineering tolerances, verified part compatibility, and platform provenance.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Halo-Specific Architecture Section ── */}
       {isHalo && detail.haloSpecs && detail.haloSpecs.length > 0 && (
         <section className={s.engineeringSpec} aria-labelledby="halo-specs-heading">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: 'var(--colour-halo)',
-              }}
-              aria-hidden="true"
-            />
-            <h2
-              id="halo-specs-heading"
-              style={{
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-lg)',
-                fontWeight: 600,
-                color: 'var(--colour-white)',
-                letterSpacing: 'var(--tracking-tight)',
-              }}
-            >
-              Chassis Architecture &amp; Precision Engineering
-            </h2>
+          <div style={{ maxWidth: 'var(--container-2xl, 1440px)', marginInline: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-6)' }}>
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--colour-halo)',
+                }}
+                aria-hidden="true"
+              />
+              <h2
+                id="halo-specs-heading"
+                style={{
+                  fontFamily: 'var(--font-primary)',
+                  fontSize: 'clamp(var(--text-xl), 2.5vw, var(--text-2xl))',
+                  fontWeight: 400,
+                  color: 'var(--colour-white)',
+                  letterSpacing: 'var(--tracking-tight)',
+                  margin: 0,
+                }}
+              >
+                Chassis Architecture &amp; Precision Engineering
+              </h2>
+            </div>
+            <table className={s.specTable}>
+              <tbody>
+                {detail.haloSpecs.map((spec) => (
+                  <tr key={spec.category}>
+                    <td>{spec.category}</td>
+                    <td>{spec.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <table className={s.specTable}>
-            <tbody>
-              {detail.haloSpecs.map((spec) => (
-                <tr key={spec.category}>
-                  <td>{spec.category}</td>
-                  <td>{spec.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </section>
       )}
 
       {/* ── Editorial: Why We Chose It ── */}
       <section className={s.editorial} aria-labelledby="editorial-heading">
         <div>
+          <div className={s.sectionEyebrow}>Curator Assessment</div>
           <h2 id="editorial-heading" className={s.sectionTitle}>
             Why We Chose It
           </h2>
@@ -392,9 +466,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
               fontSize: 'var(--text-xs)',
               color: 'var(--colour-smoke)',
               letterSpacing: '0.04em',
+              marginTop: 'var(--space-3)',
             }}
           >
-            Editorial assessment by Avorria RC engineering team.
+            Editorial assessment by Avorria RC engineering department.
           </p>
         </div>
         <p className={s.editorialBody}>{detail.editorialSummary}</p>
@@ -403,58 +478,31 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {/* ── Compatible Parts & Components ── */}
       {detail.compatibleParts.length > 0 && (
         <section className={s.section} aria-labelledby="compat-heading">
-          <h2 id="compat-heading" className={s.sectionTitle}>
-            Compatible Parts &amp; Components
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div className={s.sectionHeader}>
+            <div className={s.sectionEyebrow}>Verified Ecosystem</div>
+            <h2 id="compat-heading" className={s.sectionTitle}>
+              Compatible Parts &amp; Components
+            </h2>
+          </div>
+          <div className={s.partsRegister}>
             {detail.compatibleParts.map((part) => (
               <Link
                 key={part.partId}
                 href={`/parts/${part.slug}`}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: 'var(--space-3) var(--space-4)',
-                  backgroundColor: 'var(--colour-carbon)',
-                  border: '1px solid var(--colour-steel)',
-                  borderRadius: 'var(--radius-sm)',
-                  textDecoration: 'none',
-                }}
+                className={s.partRow}
               >
                 <div>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--colour-off-white)',
-                    }}
-                  >
+                  <span className={s.partName}>
                     {part.name}
                   </span>
                   {part.sku && (
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.625rem',
-                        color: 'var(--colour-smoke)',
-                      }}
-                    >
-                      {part.sku}
-                    </span>
+                    <div className={s.partSku}>
+                      SKU: {part.sku}
+                    </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.625rem',
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      color: 'var(--colour-smoke)',
-                    }}
-                  >
+                <div className={s.partMeta}>
+                  <span className={s.partRule}>
                     {part.ruleType}
                   </span>
                   {part.price && (
@@ -475,121 +523,64 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {/* ── Technical Documents ── */}
       {detail.documents.length > 0 && (
         <section className={s.section} aria-labelledby="docs-heading">
-          <h2 id="docs-heading" className={s.sectionTitle}>
-            Technical Documents
-          </h2>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', listStyle: 'none' }}>
-            {detail.documents.map((doc) => (
-              <li key={doc.id}>
-                {doc.sourceUrl ? (
-                  <a
-                    href={doc.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: 'var(--space-3) var(--space-4)',
-                      backgroundColor: 'var(--colour-carbon)',
-                      border: '1px solid var(--colour-steel)',
-                      borderRadius: 'var(--radius-sm)',
-                      textDecoration: 'none',
-                      color: 'var(--colour-off-white)',
-                      fontSize: 'var(--text-sm)',
-                    }}
-                  >
-                    <span>{doc.title}</span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.625rem',
-                        color: 'var(--colour-smoke)',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      {doc.documentType}{doc.version && ` · ${doc.version}`}
+          <div className={s.sectionHeader}>
+            <div className={s.sectionEyebrow}>Factory Documentation</div>
+            <h2 id="docs-heading" className={s.sectionTitle}>
+              Technical Documents &amp; Manuals
+            </h2>
+          </div>
+          <div className={s.partsRegister}>
+            {detail.documents.map((doc) =>
+              doc.sourceUrl ? (
+                <a
+                  key={doc.id}
+                  href={doc.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={s.partRow}
+                >
+                  <span className={s.partName}>{doc.title}</span>
+                  <div className={s.partMeta}>
+                    <span className={s.partRule}>
+                      {doc.documentType}{doc.version ? ` · ${doc.version}` : ''} ↗
                     </span>
-                  </a>
-                ) : (
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: 'var(--space-3) var(--space-4)',
-                      backgroundColor: 'var(--colour-carbon)',
-                      border: '1px solid var(--colour-steel)',
-                      borderRadius: 'var(--radius-sm)',
-                      color: 'var(--colour-ash)',
-                      fontSize: 'var(--text-sm)',
-                    }}
-                  >
-                    <span>{doc.title}</span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.625rem',
-                        color: 'var(--colour-smoke)',
-                        textTransform: 'uppercase',
-                      }}
-                    >
+                  </div>
+                </a>
+              ) : (
+                <div key={doc.id} className={s.partRow} style={{ opacity: 0.7 }}>
+                  <span className={s.partName}>{doc.title}</span>
+                  <div className={s.partMeta}>
+                    <span className={s.partRule}>
                       {doc.documentType}
                     </span>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                </div>
+              )
+            )}
+          </div>
         </section>
       )}
 
       {/* ── Related Products ── */}
       {detail.relatedProducts.length > 0 && (
         <section className={s.section} aria-labelledby="related-heading">
-          <h2 id="related-heading" className={s.sectionTitle}>
-            Related Products
-          </h2>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: 'var(--space-3)',
-            }}
-          >
+          <div className={s.sectionHeader}>
+            <div className={s.sectionEyebrow}>Lineage &amp; Platform</div>
+            <h2 id="related-heading" className={s.sectionTitle}>
+              Related Machines &amp; References
+            </h2>
+          </div>
+          <div className={s.relatedGrid}>
             {detail.relatedProducts.map(({ relationType, product: rel }) => (
               <Link
                 key={rel.id}
                 href={`/machines/${rel.slug}`}
-                style={{
-                  padding: 'var(--space-4)',
-                  backgroundColor: 'var(--colour-carbon)',
-                  border: '1px solid var(--colour-steel)',
-                  borderRadius: 'var(--radius-md)',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 'var(--space-2)',
-                }}
+                className={s.relatedCard}
               >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.5625rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: 'var(--colour-smoke)',
-                  }}
-                >
+                <span className={s.relatedRelation}>
                   {relationType}
                 </span>
-                <span
-                  style={{
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: 500,
-                    color: 'var(--colour-off-white)',
-                  }}
-                >
+                <span className={s.relatedName}>
                   {rel.name}
                 </span>
                 {rel.offer && (
@@ -609,10 +600,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {/* ── Competition Pedigree (Halo Only) ── */}
       {isHalo && detail.pedigree && detail.pedigree.length > 0 && (
         <section className={s.pedigree} aria-labelledby="pedigree-heading">
-          <h2 id="pedigree-heading" className={s.sectionTitle} style={{ color: 'var(--colour-halo)' }}>
-            Competition Pedigree &amp; Track Record
-          </h2>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', listStyle: 'none' }}>
+          <div className={s.sectionHeader}>
+            <div className={s.sectionEyebrow} style={{ color: 'var(--colour-halo)' }}>
+              Competition Record
+            </div>
+            <h2 id="pedigree-heading" className={s.sectionTitle} style={{ color: 'var(--colour-halo)' }}>
+              Championship Pedigree &amp; Palmarès
+            </h2>
+          </div>
+          <ul style={{ display: 'flex', flexDirection: 'column', listStyle: 'none', padding: 0, margin: 0 }}>
             {detail.pedigree.map((item) => (
               <li
                 key={item.event}
@@ -620,13 +616,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: 'var(--space-3) 0',
-                  borderBottom: '1px solid var(--colour-steel)',
+                  padding: 'var(--space-4) 0',
+                  borderBottom: '1px solid var(--border-subtle)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: 'var(--text-sm)',
                 }}
               >
-                <span style={{ color: 'var(--colour-off-white)' }}>
+                <span style={{ color: 'var(--text-primary)' }}>
                   {item.event} ({item.year})
                 </span>
                 <span style={{ color: 'var(--colour-halo)', fontWeight: 600 }}>{item.result}</span>

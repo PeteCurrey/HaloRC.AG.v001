@@ -258,7 +258,7 @@ export default async function ProcurementDashboardPage() {
                 borderRadius: 'var(--radius-sm)',
               }}
             >
-              Unmatched SKUs: {summary.unmappedProductsCount || summary.unmatchedMappings}
+              Unmatched SKUs: {summary.unmatchedMappings}
             </Link>
           </div>
         </div>
