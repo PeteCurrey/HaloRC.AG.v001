@@ -6,7 +6,7 @@
 /* ─── Breadcrumb ─────────────────────────────────────────────────────────── */
 
 .breadcrumb {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-5) var(--gutter-md) 0;
   display: flex;
@@ -37,7 +37,7 @@
 /* ─── Product Hero ───────────────────────────────────────────────────────── */
 
 .hero {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-8) var(--gutter-md);
   display: grid;
@@ -240,7 +240,7 @@
 /* ─── Sections ───────────────────────────────────────────────────────────── */
 
 .section {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-8) var(--gutter-md);
   border-top: 1px solid var(--border-subtle);
@@ -393,7 +393,7 @@
 /* ─── Editorial Section ──────────────────────────────────────────────────── */
 
 .editorial {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-8) var(--gutter-md);
   border-top: 1px solid var(--border-subtle);

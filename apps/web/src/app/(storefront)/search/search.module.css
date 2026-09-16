@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
 }
 

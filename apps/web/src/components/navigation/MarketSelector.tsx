@@ -68,22 +68,62 @@ export function MarketSelector() {
       >
         <button
           type="button"
-          className={s.marketButton}
+          className={`${s.marketButton} ${s.marketButtonUk}`}
           aria-pressed={market === 'UK'}
           onClick={() => handleMarketClick('UK')}
           title="United Kingdom — GBP £ (VAT inc.)"
         >
-          UK
+          <span className={s.marketFlagBg} aria-hidden="true">
+            {/* UK Flag (Union Jack) */}
+            <svg viewBox="0 0 60 30" width="100%" height="100%" preserveAspectRatio="none">
+              <clipPath id="uk-clip">
+                <rect width="60" height="30" />
+              </clipPath>
+              <g clipPath="url(#uk-clip)">
+                <rect width="60" height="30" fill="#012169" />
+                <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+                <path d="M0,0 L60,30" stroke="#C8102E" strokeWidth="2" />
+                <path d="M60,0 L0,30" stroke="#C8102E" strokeWidth="2" />
+                <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+                <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+              </g>
+            </svg>
+          </span>
+          <span className={s.marketButtonText}>UK</span>
         </button>
         <div className={s.marketDivider} aria-hidden="true" />
         <button
           type="button"
-          className={s.marketButton}
+          className={`${s.marketButton} ${s.marketButtonUs}`}
           aria-pressed={market === 'US'}
           onClick={() => handleMarketClick('US')}
           title="United States — USD $ (Excl. tax)"
         >
-          US
+          <span className={s.marketFlagBg} aria-hidden="true">
+            {/* USA Flag (Stars and Stripes simplified for compact icon badge) */}
+            <svg viewBox="0 0 60 30" width="100%" height="100%" preserveAspectRatio="none">
+              <rect width="60" height="30" fill="#B22234" />
+              {/* 7 white stripes */}
+              <rect y="2.3" width="60" height="2.3" fill="#fff" />
+              <rect y="6.9" width="60" height="2.3" fill="#fff" />
+              <rect y="11.5" width="60" height="2.3" fill="#fff" />
+              <rect y="16.1" width="60" height="2.3" fill="#fff" />
+              <rect y="20.7" width="60" height="2.3" fill="#fff" />
+              <rect y="25.3" width="60" height="2.3" fill="#fff" />
+              {/* Canton */}
+              <rect width="25" height="16.1" fill="#3C3B6E" />
+              {/* Stars pattern grid */}
+              <circle cx="5" cy="4" r="1.1" fill="#fff" />
+              <circle cx="12.5" cy="4" r="1.1" fill="#fff" />
+              <circle cx="20" cy="4" r="1.1" fill="#fff" />
+              <circle cx="8.7" cy="8" r="1.1" fill="#fff" />
+              <circle cx="16.2" cy="8" r="1.1" fill="#fff" />
+              <circle cx="5" cy="12" r="1.1" fill="#fff" />
+              <circle cx="12.5" cy="12" r="1.1" fill="#fff" />
+              <circle cx="20" cy="12" r="1.1" fill="#fff" />
+            </svg>
+          </span>
+          <span className={s.marketButtonText}>USA</span>
         </button>
       </div>
 

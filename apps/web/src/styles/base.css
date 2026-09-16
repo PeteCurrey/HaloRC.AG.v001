@@ -34,15 +34,25 @@ body {
 
 /* ─── Typography defaults ────────────────────────────────────────────────── */
 
-h1, h2, h3, h4, h5, h6 {
+h1 {
   font-family: var(--font-primary);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extralight);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  font-weight: var(--weight-light);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-snug);
   color: var(--text-primary);
 }
 
 p {
+  font-family: var(--font-primary);
+  font-weight: var(--weight-light);
   line-height: var(--leading-relaxed);
   max-width: 68ch;
   color: var(--text-secondary);

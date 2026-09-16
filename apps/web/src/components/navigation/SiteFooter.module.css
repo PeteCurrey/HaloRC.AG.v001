@@ -1,12 +1,19 @@
 .footer {
   border-top: 1px solid var(--colour-steel);
   background-color: var(--colour-carbon);
-  padding: var(--space-10) var(--gutter-md) var(--space-8);
+  padding-block: var(--section-space-standard);
+  padding-inline: var(--gutter-lg);
   color: var(--colour-smoke);
 }
 
+@media (min-width: 1280px) {
+  .footer {
+    padding-inline: var(--gutter-xl);
+  }
+}
+
 .inner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -89,7 +96,7 @@
 }
 
 .bottomBar {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin: 0 auto;
   padding-top: var(--space-6);
   border-top: 1px solid var(--colour-steel);

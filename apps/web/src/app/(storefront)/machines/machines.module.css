@@ -50,7 +50,7 @@
 }
 
 .catalogueHeaderInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   display: flex;
   align-items: center;
@@ -89,21 +89,15 @@
 }
 
 .catalogueBody {
-  padding: var(--space-8) 0 var(--space-12);
+  padding-block: var(--section-space-standard);
 }
 
 /* ─── Controls Bar: Filters & Sort ────────────────────────────────────────── */
 
 .container {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
-  padding-inline: var(--gutter-md);
-}
-
-@media (min-width: 768px) {
-  .container {
-    padding-inline: var(--gutter-lg);
-  }
+  padding-inline: var(--gutter-lg);
 }
 
 @media (min-width: 1280px) {
@@ -456,8 +450,9 @@
 .showroomHeroContent {
   position: relative;
   z-index: 2;
-  padding: var(--space-16) var(--gutter-md);
-  max-width: var(--container-2xl);
+  padding-block: var(--section-space-hero);
+  padding-inline: var(--gutter-lg);
+  max-width: var(--container-wide);
   margin-inline: auto;
   width: 100%;
 }
@@ -475,7 +470,7 @@
 .showroomHeroHeadline {
   font-family: var(--font-primary);
   font-size: clamp(var(--text-4xl), 6.5vw, 5.5rem);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extralight);
   letter-spacing: var(--tracking-tight);
   color: #ffffff;
   line-height: var(--leading-tight);
@@ -484,7 +479,9 @@
 }
 
 .showroomHeroSubline {
+  font-family: var(--font-primary);
   font-size: var(--text-base);
+  font-weight: var(--weight-light);
   color: rgba(255,255,255,0.6);
   max-width: 52ch;
   line-height: var(--leading-relaxed);
@@ -552,7 +549,7 @@
 }
 
 .editorialSpreadInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding-inline: var(--gutter-md);
   display: grid;
@@ -623,15 +620,9 @@
 }
 
 .featuredInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
-  padding-inline: var(--gutter-md);
-}
-
-@media (min-width: 768px) {
-  .featuredInner {
-    padding-inline: var(--gutter-lg);
-  }
+  padding-inline: var(--gutter-lg);
 }
 
 @media (min-width: 1280px) {
@@ -838,15 +829,9 @@
 }
 
 .disciplineChaptersInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
-  padding-inline: var(--gutter-md);
-}
-
-@media (min-width: 768px) {
-  .disciplineChaptersInner {
-    padding-inline: var(--gutter-lg);
-  }
+  padding-inline: var(--gutter-lg);
 }
 
 @media (min-width: 1280px) {
@@ -1102,15 +1087,9 @@
 }
 
 .darkHaloInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
-  padding-inline: var(--gutter-md);
-}
-
-@media (min-width: 768px) {
-  .darkHaloInner {
-    padding-inline: var(--gutter-lg);
-  }
+  padding-inline: var(--gutter-lg);
 }
 
 @media (min-width: 1280px) {
@@ -1272,15 +1251,9 @@
 }
 
 .scaleBandInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
-  padding-inline: var(--gutter-md);
-}
-
-@media (min-width: 768px) {
-  .scaleBandInner {
-    padding-inline: var(--gutter-lg);
-  }
+  padding-inline: var(--gutter-lg);
 }
 
 @media (min-width: 1280px) {
@@ -1381,7 +1354,7 @@
 }
 
 .raceGatewayInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding-inline: var(--gutter-md);
   display: grid;
@@ -1493,7 +1466,7 @@
 }
 
 .catalogueGatewayInner {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding-inline: var(--gutter-md);
   text-align: center;

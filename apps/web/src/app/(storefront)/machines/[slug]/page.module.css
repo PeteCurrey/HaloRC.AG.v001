@@ -6,7 +6,7 @@
 /* ─── Breadcrumb ─────────────────────────────────────────────────────────── */
 
 .breadcrumb {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-5) var(--gutter-md) 0;
   display: flex;
@@ -36,7 +36,7 @@
 /* ─── Product Hero ───────────────────────────────────────────────────────── */
 
 .hero {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-8) var(--gutter-md);
   display: grid;
@@ -271,7 +271,7 @@
 /* ─── Machine DNA ────────────────────────────────────────────────────────── */
 
 .section {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-9) var(--gutter-md);
   border-top: 1px solid var(--border-subtle);
@@ -356,7 +356,7 @@
 /* ─── Editorial / Why We Chose It ────────────────────────────────────────── */
 
 .editorial {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-9) var(--gutter-md);
   border-top: 1px solid var(--border-subtle);
@@ -396,7 +396,7 @@
 
 .specTable {
   width: 100%;
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   border-collapse: collapse;
   font-family: var(--font-mono);
@@ -431,7 +431,7 @@
 
 /* Competition pedigree */
 .pedigree {
-  max-width: var(--container-2xl);
+  max-width: var(--container-standard);
   margin-inline: auto;
   padding: var(--space-9) var(--gutter-md);
   border-top: 1px solid rgba(184, 147, 90, 0.3);

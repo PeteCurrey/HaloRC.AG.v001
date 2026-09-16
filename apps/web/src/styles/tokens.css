@@ -88,11 +88,12 @@
   --text-6xl:   7rem;        /* 112px */
 
   /* Weight */
-  --weight-light:    300;
-  --weight-regular:  400;
-  --weight-medium:   500;
-  --weight-semibold: 600;
-  --weight-bold:     700;
+  --weight-extralight: 200;
+  --weight-light:      300;
+  --weight-regular:    400;
+  --weight-medium:     500;
+  --weight-semibold:   600;
+  --weight-bold:       700;
 
   /* Line height */
   --leading-none:    1;
@@ -176,17 +177,29 @@
   --nav-height:       64px;
   --nav-height-md:    72px;
 
-  --container-sm:     640px;
-  --container-md:     768px;
-  --container-lg:     1024px;
-  --container-xl:     1280px;
-  --container-2xl:    1440px;
-  --container-3xl:    1680px;
+  /* Container width hierarchy */
+  --container-editorial: 840px;    /* Deep technical notes, manifesto prose */
+  --container-sm:        640px;
+  --container-md:        768px;
+  --container-lg:        1024px;
+  --container-standard:  1240px;   /* Standard readable showroom & catalogue container */
+  --container-xl:        1280px;
+  --container-wide:      1360px;   /* Wide showcase, hero splits, asymmetric rails */
+  --container-2xl:       1440px;
+  --container-3xl:       1680px;
+  --container-full:      100%;
 
-  --gutter-sm:   var(--space-4);
-  --gutter-md:   var(--space-6);
-  --gutter-lg:   var(--space-8);
-  --gutter-xl:   var(--space-9);
+  /* Fluid responsive gutters — prevents edge crowding on both mobile and ultrawide */
+  --gutter-sm:   clamp(16px, 3.5vw, 20px);
+  --gutter-md:   clamp(24px, 4vw, 36px);
+  --gutter-lg:   clamp(36px, 5vw, 56px);
+  --gutter-xl:   clamp(48px, 6.5vw, 80px);
+
+  /* Section vertical rhythm tokens */
+  --section-space-hero:     clamp(88px, 9vw, 144px);
+  --section-space-standard: clamp(64px, 6vw, 96px);
+  --section-space-tight:    clamp(40px, 4vw, 56px);
+  --section-space-compact:  clamp(24px, 2.5vw, 36px);
 }
 
 /* ─── Z-index ────────────────────────────────────────────────────────────── */

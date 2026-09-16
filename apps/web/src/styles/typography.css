@@ -7,7 +7,7 @@
 .text-display-xl {
   font-family: var(--font-primary);
   font-size: var(--text-6xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extralight);
   line-height: var(--leading-none);
   letter-spacing: var(--tracking-tight);
 }
@@ -15,7 +15,7 @@
 .text-display-lg {
   font-family: var(--font-primary);
   font-size: var(--text-5xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extralight);
   line-height: var(--leading-none);
   letter-spacing: var(--tracking-tight);
 }
@@ -23,7 +23,7 @@
 .text-display-md {
   font-family: var(--font-primary);
   font-size: var(--text-4xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extralight);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-snug);
 }
@@ -31,45 +31,45 @@
 /* ─── Headings ───────────────────────────────────────────────────────────── */
 .text-heading-xl {
   font-size: var(--text-3xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-light);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-snug);
 }
 
 .text-heading-lg {
   font-size: var(--text-2xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-light);
   line-height: var(--leading-snug);
 }
 
 .text-heading-md {
   font-size: var(--text-xl);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-light);
   line-height: var(--leading-snug);
 }
 
 .text-heading-sm {
   font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-light);
   line-height: var(--leading-snug);
 }
 
 /* ─── Body ───────────────────────────────────────────────────────────────── */
 .text-body-lg {
   font-size: var(--text-md);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-light);
   line-height: var(--leading-relaxed);
 }
 
 .text-body {
   font-size: var(--text-base);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-light);
   line-height: var(--leading-relaxed);
 }
 
 .text-body-sm {
   font-size: var(--text-sm);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-light);
   line-height: var(--leading-normal);
 }
 
