@@ -64,6 +64,8 @@ import { __getRawCommerceCounts } from './commerce'
 import { __getRawRaceCounts } from './race'
 import { __getRawProcurementCounts } from './procurement'
 
+const IS_PRODUCTION = process.env['NODE_ENV'] === 'production'
+
 export { __resetCatalogueStoreForTesting }
 
 export * from './garage'

@@ -470,8 +470,8 @@ export const SEED_PLATFORMS: SeedPlatform[] = [
     driveConfig: '4WD',
     wheelbaseMm: 535,
     description: 'FG Modellsport 1/5 scale competition touring car platform.',
-    status: 'PUBLISHED',
-    published: true,
+    status: 'DRAFT',
+    published: false,
   },
   {
     id: 'plat-mecatech-fw01',
@@ -482,8 +482,8 @@ export const SEED_PLATFORMS: SeedPlatform[] = [
     driveConfig: '4WD',
     wheelbaseMm: 530,
     description: 'Mecatech bespoke large scale rolling race chassis featuring integrated hydraulic brakes.',
-    status: 'PUBLISHED',
-    published: true,
+    status: 'DRAFT',
+    published: false,
   },
 ]
 
@@ -1008,8 +1008,8 @@ export const SEED_VARIANTS: SeedVariant[] = [
   { id: 'var-trx4-bronco-sunset', productId: 'prod-traxxas-trx4-bronco', sku: 'TRX-82046-4-SNT', name: 'Sunset Orange', colour: 'Orange', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },
   { id: 'var-scx10-jeep-grey', productId: 'prod-axial-scx10-iii-jeep', sku: 'AXI03007-GRY', name: 'Sting Grey', colour: 'Grey', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },
   { id: 'var-cc02-g500-kit', productId: 'prod-tamiya-cc02-g500', sku: 'TAM-58675', name: 'Kit with Body', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },
-  { id: 'var-fg-porsche-rtr', productId: 'prod-fg-sportsline-porsche', sku: 'FG-145180R', name: '26cc RTR', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },
-  { id: 'var-mecatech-fw01-chassis', productId: 'prod-mecatech-fw01', sku: 'MEC-FW01', name: 'Rolling Chassis', status: 'PUBLISHED', lifecycle: 'SPECIAL_ORDER', published: true },
+  { id: 'var-fg-porsche-rtr', productId: 'prod-fg-sportsline-porsche', sku: 'FG-145180R', name: '26cc RTR', status: 'DRAFT', lifecycle: 'ACTIVE', published: false },
+  { id: 'var-mecatech-fw01-chassis', productId: 'prod-mecatech-fw01', sku: 'MEC-FW01', name: 'Rolling Chassis', status: 'DRAFT', lifecycle: 'SPECIAL_ORDER', published: false },
   // Electronics & Parts
   { id: 'var-hw-xr10-esc', productId: 'prod-hw-xr10-pro-g3', sku: 'HW-30112614', name: 'Single Unit', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },
   { id: 'var-sanwa-m17-tx', productId: 'prod-sanwa-m17', sku: 'SAN-101A32471A', name: 'Radio + RX Set', status: 'PUBLISHED', lifecycle: 'ACTIVE', published: true },

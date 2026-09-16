@@ -1231,22 +1231,96 @@ export type SupplierChangeType =
   | 'DISCONTINUED_BY_SUPPLIER'
   | 'REMOVED_FROM_FEED'
 
+// ─── Avorria Procurement Master Types ────────────────────────────────────────
+
+/** Controlled procurement status for the Avorria supplier CRM pipeline. */
+export type ProcurementStatus =
+  | 'RESEARCH'
+  | 'TARGET'
+  | 'CONTACT_TO_MAKE'
+  | 'CONTACTED'
+  | 'APPLICATION_AVAILABLE'
+  | 'APPLICATION_SUBMITTED'
+  | 'AWAITING_RESPONSE'
+  | 'APPROVED'
+  | 'ACCOUNT_OPEN'
+  | 'TERMS_RECEIVED'
+  | 'TRADING'
+  | 'PAUSED'
+  | 'REJECTED'
+  | 'CLOSED'
+
+export type ProcurementNoteType =
+  | 'GENERAL'
+  | 'COMMERCIAL'
+  | 'CONTACT'
+  | 'APPLICATION'
+  | 'BRAND'
+  | 'TERRITORY'
+  | 'PRICING'
+  | 'LOGISTICS'
+  | 'LEGAL'
+  | 'TECHNICAL'
+  | 'FOLLOW_UP'
+
+export type CommunicationDirection = 'INBOUND' | 'OUTBOUND'
+
+export interface ProcurementNote {
+  id: string
+  supplierId: string
+  note: string
+  author: string
+  noteType: ProcurementNoteType
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProcurementAuditEntry {
+  id: string
+  supplierId?: string | null
+  entityType: string
+  entityId: string
+  action: string
+  oldValue?: string | null
+  newValue?: string | null
+  performedBy: string
+  performedAt: string
+}
+
 export interface SupplierRecord {
   id: string
   slug: string
   name: string
   legalName?: string | null
+  tradingName?: string | null
   supplierType: SupplierType
   country: string
+  city?: string | null
   website?: string | null
+  description?: string | null
+  logoUrl?: string | null
   accountReference?: string | null
+  /** @deprecated use procurementStatus for CRM status */
   relationshipStatus: SupplierRelationshipStatus
+  /** Primary controlled procurement pipeline status */
+  procurementStatus?: ProcurementStatus | null
   currency: Currency
   vatStatus?: string | null
+  // Contact routes — stored separately rather than a single field
   contactEmail?: string | null
   contactPhone?: string | null
+  generalEmail?: string | null
+  salesEmail?: string | null
+  dealerEmail?: string | null
+  wholesaleEmail?: string | null
+  whatsapp?: string | null
+  dealerApplicationUrl?: string | null
+  tradeRegistrationUrl?: string | null
+  wholesaleUrl?: string | null
+  contactPageUrl?: string | null
   integrationType: SupplierIntegrationType
   lastSyncAt?: string | null
+  lastContactedAt?: string | null
   notes?: string | null
   createdAt: string
   updatedAt: string
@@ -1760,6 +1834,12 @@ export type SupplierContactRole =
   | 'WARRANTY'
   | 'MARKETING'
   | 'MANAGEMENT'
+  | 'WHOLESALE'
+  | 'EXPORT'
+  | 'DISTRIBUTION'
+  | 'OWNER'
+  | 'DIRECTOR'
+  | 'DEALER_ACCOUNTS'
   | 'OTHER'
 
 export type CommunicationType =
@@ -1927,11 +2007,17 @@ export interface SupplierPricingPolicy {
 export interface SupplierContact {
   id: string
   supplierId: string
+  firstName: string
+  lastName: string
+  /** @deprecated use firstName + lastName */
   name: string
   role: SupplierContactRole
+  department?: string | null
   title?: string | null
   email?: string | null
   phone?: string | null
+  mobile?: string | null
+  preferredContactMethod?: 'EMAIL' | 'PHONE' | 'MOBILE' | 'WHATSAPP' | null
   isPrimary: boolean
   notes?: string | null
   createdAt: string
@@ -1943,8 +2029,10 @@ export interface SupplierCommunication {
   supplierId: string
   contactId?: string | null
   type: CommunicationType
+  direction?: CommunicationDirection | null
   subject: string
   summary: string
+  outcome?: string | null
   loggedBy: string
   occurredAt: string
   nextFollowUpDate?: string | null
@@ -1967,10 +2055,11 @@ export interface SupplierDocument {
 export interface ProcurementTask {
   id: string
   supplierId: string
+  brandId?: string | null
   taskType: ProcurementTaskType
   title: string
   description?: string | null
-  status: 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+  status: 'OPEN' | 'IN_PROGRESS' | 'WAITING' | 'COMPLETED' | 'CANCELLED'
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
   dueDate?: string | null
   assignedTo?: string | null
@@ -1978,6 +2067,7 @@ export interface ProcurementTask {
   createdAt: string
   updatedAt: string
 }
+
 
 export interface ProcurementReadinessChecklist {
   hasVerifiedRelationship: boolean

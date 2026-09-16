@@ -47,7 +47,6 @@ export default function HomePage() {
 
           <p className={s.heroSubline}>
             Competition hardware. Specialist manufacturers. The knowledge to match.
-            From your first Traxxas to a £5,000 XRAY race build.
           </p>
 
           <div className={s.heroActions}>

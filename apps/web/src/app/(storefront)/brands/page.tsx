@@ -6,7 +6,7 @@ import { getBrandsList } from '@halo-rc/db'
 import type { CommercialRelationship } from '@halo-rc/types'
 
 export const metadata: Metadata = {
-  title: 'Brand Universe — Halo RC',
+  title: 'Brand Universe — Avorria RC',
   description: 'Curated world of flagship manufacturers, specialist engineering brands, and competition tuners.',
 }
 
@@ -53,7 +53,6 @@ export default async function BrandsPage() {
         subline="We distinguish between authorised dealers, distributor-sourced brands, and researched imports. Supply status is stated accurately — no grey-market ambiguity."
         imageSrc="/images/disciplines/scale.jpg"
         imagePosition="center 45%"
-        badge="21 BRANDS"
       />
       <div className={s.page}>
         <div className={s.container}>

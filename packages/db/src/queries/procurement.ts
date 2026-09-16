@@ -77,128 +77,13 @@ import {
   SEED_OFFERS,
 } from '../seed/catalogue-data'
 
-// ── In-Memory Database Stores ──────────────────────────────────────────────────
+import {
+  ProcurementNote,
+  ProcurementAuditEntry,
+  ProcurementStatus,
+} from '@halo-rc/types'
+import { AVORRIA_PROCUREMENT_MASTER } from '../seed/avorria-procurement-master'
 
-const INITIAL_SUPPLIERS: SupplierRecord[] = [
-  {
-    id: 'sup-cml',
-    slug: 'cml-distribution',
-    name: 'CML Distribution',
-    legalName: 'CML Distribution Ltd',
-    supplierType: 'UK_DISTRIBUTOR',
-    country: 'GB',
-    website: 'https://cmldistribution.co.uk',
-    accountReference: 'ACC-HALO-UK-01',
-    relationshipStatus: 'ACTIVE',
-    currency: 'GBP',
-    vatStatus: 'GB123456789',
-    contactEmail: 'trade@cmldistribution.co.uk',
-    contactPhone: '+44 1527 575349',
-    integrationType: 'CSV',
-    lastSyncAt: '2026-03-01T10:00:00Z',
-    notes: 'Authoritative UK distributor for competition race chassis, electronics, and nitro accessories.',
-    createdAt: '2026-01-01T09:00:00Z',
-    updatedAt: '2026-03-01T10:00:00Z',
-  },
-  {
-    id: 'sup-rcmart',
-    slug: 'rc-mart',
-    name: 'RC Mart',
-    legalName: 'Dinball Limited',
-    supplierType: 'WHOLESALER',
-    country: 'HK',
-    website: 'https://rcmart.com',
-    accountReference: 'HALO-HK-TRADE',
-    relationshipStatus: 'ACTIVE',
-    currency: 'USD',
-    vatStatus: null,
-    contactEmail: 'wholesale@rcmart.com',
-    contactPhone: '+852 2345 6789',
-    integrationType: 'JSON_API',
-    lastSyncAt: '2026-02-28T04:30:00Z',
-    notes: 'Direct Asia-Pacific competition specialist. Excellent stock for Japanese and specialist option parts.',
-    createdAt: '2026-01-05T09:00:00Z',
-    updatedAt: '2026-02-28T04:30:00Z',
-  },
-  {
-    id: 'sup-hobbywing-uk',
-    slug: 'hobbywing-uk-direct',
-    name: 'Hobbywing Direct UK',
-    legalName: 'Hobbywing Technology UK Ltd',
-    supplierType: 'DIRECT_BRAND',
-    country: 'GB',
-    website: 'https://hobbywing.co.uk',
-    accountReference: 'HW-DIR-449',
-    relationshipStatus: 'ACTIVE',
-    currency: 'GBP',
-    vatStatus: 'GB987654321',
-    contactEmail: 'orders@hobbywing.co.uk',
-    integrationType: 'REST_API',
-    lastSyncAt: '2026-03-02T08:15:00Z',
-    notes: 'Direct manufacturer account for competition speed controllers and sensored brushless motors.',
-    createdAt: '2026-01-10T12:00:00Z',
-    updatedAt: '2026-03-02T08:15:00Z',
-  },
-  {
-    id: 'sup-horizon-us',
-    slug: 'horizon-hobby-us',
-    name: 'Horizon Hobby US',
-    legalName: 'Horizon Hobby LLC',
-    supplierType: 'US_DISTRIBUTOR',
-    country: 'US',
-    website: 'https://horizonhobby.com',
-    accountReference: 'HH-US-COMM-99',
-    relationshipStatus: 'ACTIVE',
-    currency: 'USD',
-    vatStatus: null,
-    contactEmail: 'dealer-services@horizonhobby.com',
-    integrationType: 'CSV',
-    lastSyncAt: '2026-03-01T15:00:00Z',
-    notes: 'Primary North American distributor for ARRMA, Spektrum, and TLR platforms.',
-    createdAt: '2026-01-15T14:00:00Z',
-    updatedAt: '2026-03-01T15:00:00Z',
-  },
-  {
-    id: 'sup-xray-direct',
-    slug: 'team-xray-europe',
-    name: 'Team XRAY Factory Direct',
-    legalName: 'XRAY Model Racing Cars s.r.o.',
-    supplierType: 'DIRECT_BRAND',
-    country: 'SK',
-    website: 'https://teamxray.com',
-    accountReference: 'XRAY-FAC-DIRECT',
-    relationshipStatus: 'ACTIVE',
-    currency: 'GBP',
-    vatStatus: 'SK2020234567',
-    contactEmail: 'export@teamxray.com',
-    contactPhone: '+421 32 7401111',
-    integrationType: 'MANUAL',
-    lastSyncAt: '2026-03-01T08:00:00Z',
-    notes: 'Manufacturer headquarters in Trencin, Slovakia. Direct supply for European continent and factory racing division.',
-    createdAt: '2026-01-02T10:00:00Z',
-    updatedAt: '2026-03-01T08:00:00Z',
-  },
-  {
-    id: 'sup-rc-america',
-    slug: 'rc-america-us',
-    name: 'RC America',
-    legalName: 'RC America Inc.',
-    supplierType: 'US_DISTRIBUTOR',
-    country: 'US',
-    website: 'https://rcamerica.com',
-    accountReference: 'RCA-US-COMM-12',
-    relationshipStatus: 'ACTIVE',
-    currency: 'USD',
-    vatStatus: null,
-    contactEmail: 'sales@rcamerica.com',
-    contactPhone: '+1 214 744 2400',
-    integrationType: 'CSV',
-    lastSyncAt: '2026-03-01T12:00:00Z',
-    notes: 'Exclusive North American importer and distributor for Team XRAY, HUDY, and FX Engines.',
-    createdAt: '2026-01-12T11:00:00Z',
-    updatedAt: '2026-03-01T12:00:00Z',
-  },
-]
 
 const INITIAL_FEEDS: SupplierFeed[] = [
   {
@@ -303,10 +188,15 @@ const INITIAL_SUPPLIER_PRODUCTS: SupplierProduct[] = [
   },
 ]
 
-let SUPPLIERS_STORE: SupplierRecord[] = [...INITIAL_SUPPLIERS]
+// ── In-Memory Database Stores ──────────────────────────────────────────────────
+
+let SUPPLIERS_STORE: SupplierRecord[] = [...AVORRIA_PROCUREMENT_MASTER]
 let SUPPLIER_FEEDS_STORE: SupplierFeed[] = [...INITIAL_FEEDS]
 let SUPPLIER_PRODUCTS_STORE: SupplierProduct[] = [...INITIAL_SUPPLIER_PRODUCTS]
 let SUPPLIER_EXCEPTIONS_STORE: SupplierImportException[] = []
+
+let PROCUREMENT_NOTES_STORE: ProcurementNote[] = []
+let PROCUREMENT_AUDIT_STORE: ProcurementAuditEntry[] = []
 
 let SUPPLIER_MAPPINGS_STORE: SupplierProductMapping[] = [
   {
@@ -472,7 +362,7 @@ let SUPPLIER_CHANGE_EVENTS_STORE: SupplierChangeEvent[] = [
 ]
 
 export function __resetProcurementStoreForTesting(): void {
-  SUPPLIERS_STORE = [...INITIAL_SUPPLIERS]
+  SUPPLIERS_STORE = [...AVORRIA_PROCUREMENT_MASTER]
   SUPPLIER_MAPPINGS_STORE = [
     {
       id: 'map-cml-xray-01',
@@ -2371,6 +2261,8 @@ const INITIAL_CONTACTS: SupplierContact[] = [
   {
     id: 'ct-cml-sales',
     supplierId: 'sup-cml',
+    firstName: 'Mark',
+    lastName: 'Edwards',
     name: 'Mark Edwards',
     role: 'COMMERCIAL_SALES',
     title: 'National Accounts Manager',
@@ -2384,6 +2276,8 @@ const INITIAL_CONTACTS: SupplierContact[] = [
   {
     id: 'ct-cml-credit',
     supplierId: 'sup-cml',
+    firstName: 'Brenda',
+    lastName: 'Phillips',
     name: 'Brenda Phillips',
     role: 'CREDIT',
     title: 'Credit Control Lead',
@@ -2397,6 +2291,8 @@ const INITIAL_CONTACTS: SupplierContact[] = [
   {
     id: 'ct-hw-trade',
     supplierId: 'sup-hobbywing-uk',
+    firstName: 'Andrew',
+    lastName: 'Miller',
     name: 'Andrew Miller',
     role: 'TRADE_ACCOUNTS',
     title: 'UK Trade Coordinator',
@@ -2410,6 +2306,8 @@ const INITIAL_CONTACTS: SupplierContact[] = [
   {
     id: 'ct-horizon-dealer',
     supplierId: 'sup-horizon-us',
+    firstName: 'Jason',
+    lastName: 'Vance',
     name: 'Jason Vance',
     role: 'TRADE_ACCOUNTS',
     title: 'Dealer Onboarding Specialist',
@@ -2528,6 +2426,8 @@ export function __resetProcurementPhase11StoreForTesting() {
   SUPPLIER_COMMUNICATIONS_STORE = [...INITIAL_COMMUNICATIONS]
   SUPPLIER_DOCUMENTS_STORE = [...INITIAL_DOCUMENTS]
   PROCUREMENT_TASKS_STORE = [...INITIAL_TASKS]
+  PROCUREMENT_NOTES_STORE = []
+  PROCUREMENT_AUDIT_STORE = []
 }
 
 // ── Territory Coverage Operations ──────────────────────────────────────────────
@@ -2978,6 +2878,8 @@ export async function addSupplierContact(
   const contact: SupplierContact = {
     id: `ct-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     supplierId: input.supplierId,
+    firstName: input.firstName,
+    lastName: input.lastName,
     name: input.name,
     role: input.role,
     title: input.title ?? null,
@@ -3518,8 +3420,10 @@ export async function detectDuplicateSupplier(
       }
     }
     if (website && s.website) {
-      const w1 = website.replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase()
-      const w2 = s.website.replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase()
+      const normaliseUrl = (u: string) =>
+        u.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase()
+      const w1 = normaliseUrl(website)
+      const w2 = normaliseUrl(s.website)
       if (w1 === w2) {
         return {
           isDuplicate: true,
@@ -3528,11 +3432,19 @@ export async function detectDuplicateSupplier(
         }
       }
     }
-    if (email && s.contactEmail && email.toLowerCase().trim() === s.contactEmail.toLowerCase().trim()) {
+    const normEmail = email ? email.toLowerCase().trim() : null
+    if (normEmail && s.contactEmail && normEmail === s.contactEmail.toLowerCase().trim()) {
       return {
         isDuplicate: true,
         matchedSupplier: s,
         reason: `Contact email matches existing supplier "${s.name}".`,
+      }
+    }
+    if (normEmail && s.dealerEmail && normEmail === s.dealerEmail.toLowerCase().trim()) {
+      return {
+        isDuplicate: true,
+        matchedSupplier: s,
+        reason: `Dealer email matches existing supplier "${s.name}".`,
       }
     }
   }

@@ -326,16 +326,16 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
           </div>
           <div className={s.editorialStats}>
             <div className={s.statItem}>
-              <span className={s.statNumber}>15</span>
-              <span className={s.statLabel}>Verified Components</span>
+              <span className={s.statNumber}>10+</span>
+              <span className={s.statLabel}>Component Systems</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNumber}>3</span>
-              <span className={s.statLabel}>Chassis Platforms</span>
+              <span className={s.statNumber}>OEM</span>
+              <span className={s.statLabel}>&amp; Option Parts</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNumber}>6</span>
-              <span className={s.statLabel}>Electronics Brands</span>
+              <span className={s.statNumber}>Race</span>
+              <span className={s.statLabel}>Electronics</span>
             </div>
             <div className={s.statItem}>
               <span className={s.statNumber}>100%</span>
@@ -361,40 +361,10 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
                 Our suspension catalogue covers genuine replacement arms, precision titanium pivot balls,
                 and zero-slop CNC aluminium bellcrank assemblies.
               </p>
-              <div className={s.chapterCards}>
-                <Link href="/parts/xray-302040-titanium-pivot-ball-set-x4" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>XRAY · Pivot Balls</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={`${s.cardBadgeSmall} ${s.cardBadgeHalo}`}>★ Halo Option</span>
-                    <span className={s.chapterCardBrand}>XRAY</span>
-                    <h3 className={s.chapterCardName}>X4 Titanium Pivot Ball Set</h3>
-                    <span className={s.chapterCardSpec}>X4 Platform · Unsprung mass reduction</span>
-                  </div>
-                </Link>
-                <Link href="/parts/xray-302000-front-lower-suspension-arm-graphite" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>XRAY · Lower Arm</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.cardBadgeSmall}>Factory Spec</span>
-                    <span className={s.chapterCardBrand}>XRAY</span>
-                    <h3 className={s.chapterCardName}>Front Lower Arm — Graphite</h3>
-                    <span className={s.chapterCardSpec}>X4 Platform · Tuned flex graphite</span>
-                  </div>
-                </Link>
-                <Link href="/parts/yokomo-md008-aluminum-steering-bellcrank-set" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Yokomo · Bellcrank</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.cardBadgeSmall}>Option Part</span>
-                    <span className={s.chapterCardBrand}>Yokomo</span>
-                    <h3 className={s.chapterCardName}>Alu Steering Bellcrank Set</h3>
-                    <span className={s.chapterCardSpec}>MD 2.0 Drift · Zero-deflection steering</span>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for suspension and steering hardware.
+                </p>
               </div>
               <Link href="/parts?view=catalogue&type=SUSPENSION" className={s.chapterCta}>
                 Explore All Suspension &amp; Steering →
@@ -414,29 +384,10 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
                 Heavy-duty steel CV driveshafts and reinforced bellcranks engineered for 8S
                 brushless output without mechanical failure.
               </p>
-              <div className={s.chapterCards}>
-                <Link href="/parts/traxxas-7750x-steel-cv-driveshafts-x-maxx" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Traxxas · Driveshafts</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.cardBadgeSmall}>Heavy-Duty Upgrade</span>
-                    <span className={s.chapterCardBrand}>Traxxas</span>
-                    <h3 className={s.chapterCardName}>Steel Constant-Velocity Driveshafts</h3>
-                    <span className={s.chapterCardSpec}>X-Maxx 8S · Hardened steel spline</span>
-                  </div>
-                </Link>
-                <Link href="/parts/traxxas-7746-heavy-duty-steering-bellcranks" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Traxxas · Bellcranks</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.cardBadgeSmall}>Factory Spec</span>
-                    <span className={s.chapterCardBrand}>Traxxas</span>
-                    <h3 className={s.chapterCardName}>HD Steering Bellcranks</h3>
-                    <span className={s.chapterCardSpec}>X-Maxx 8S · Integrated servo saver</span>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for drivetrain and driveline components.
+                </p>
               </div>
               <Link href="/parts?view=catalogue&type=DRIVETRAIN" className={s.chapterCta}>
                 Explore All Drivetrain Parts →
@@ -456,18 +407,10 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
                 Lightweight polycarbonate shells shaped in Italian wind tunnels for optimal
                 front splitter bite and high-speed rear wing stability.
               </p>
-              <div className={s.chapterCards}>
-                <Link href="/parts/mon-tech-hyper-190mm-touring-car-clear-body" className={s.chapterCard}>
-                  <div className={s.chapterCardImage}>
-                    <div className={s.chapterCardPlaceholder}>Mon-Tech · Hyper</div>
-                  </div>
-                  <div className={s.chapterCardBody}>
-                    <span className={s.cardBadgeSmall}>EFRA / BRCA Homologated</span>
-                    <span className={s.chapterCardBrand}>Mon-Tech</span>
-                    <h3 className={s.chapterCardName}>Hyper 190mm Clear Body Shell</h3>
-                    <span className={s.chapterCardSpec}>1:10 Touring · High-downforce profile</span>
-                  </div>
-                </Link>
+              <div className={s.emptyGrid}>
+                <p className={s.emptyGridText}>
+                  Catalogue developing — we are establishing our specialist supplier network for body shells and aero.
+                </p>
               </div>
               <Link href="/parts?view=catalogue&type=BODY" className={s.chapterCta}>
                 Explore All Body Shells →
@@ -489,81 +432,15 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
               and titanium-geared servos configured for uncompromising competition.
             </p>
           </div>
-          <div className={s.electronicsGrid}>
-
-            <Link href="/parts/sanwa-m17-fh5-4-channel-radio-system" className={`${s.electronicsCard} ${s.electronicsCardHalo}`}>
-              <div className={s.electronicsCardImage}>
-                <div className={s.electronicsPlaceholder}>Sanwa · M17 FH5</div>
-              </div>
-              <div className={s.electronicsCardContent}>
-                <p className={s.electronicsCardTag}>★ Halo / Competition Telemetry</p>
-                <h3 className={s.electronicsCardName}>Sanwa M17 FH5 Radio</h3>
-                <p className={s.electronicsCardDetail}>
-                  Ultra-Response Mode (SUR/SXR) delivers sub-millisecond transmission latency with color telemetry display.
-                </p>
-                <div className={s.electronicsSpecRow}>
-                  <span className={s.electronicsSpecPill}>FH5 Protocol</span>
-                  <span className={s.electronicsSpecPill}>RX-493i Included</span>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/parts/hobbywing-xerun-xr10-pro-g3-competition-esc" className={s.electronicsCard}>
-              <div className={s.electronicsCardImage}>
-                <div className={s.electronicsPlaceholder}>Hobbywing · XR10 Pro</div>
-              </div>
-              <div className={s.electronicsCardContent}>
-                <p className={s.electronicsCardTag}>Competition ESC</p>
-                <h3 className={s.electronicsCardName}>XeRun XR10 Pro G3 ESC</h3>
-                <p className={s.electronicsCardDetail}>
-                  160A continuous output with real-time Bluetooth telemetry logging and frameless cooling fan.
-                </p>
-                <div className={s.electronicsSpecRow}>
-                  <span className={s.electronicsSpecPill}>160A Continuous</span>
-                  <span className={s.electronicsSpecPill}>2S LiPo</span>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/parts/hobbywing-xerun-v10-g4-13-5t-brushless-motor" className={s.electronicsCard}>
-              <div className={s.electronicsCardImage}>
-                <div className={s.electronicsPlaceholder}>Hobbywing · V10 G4</div>
-              </div>
-              <div className={s.electronicsCardContent}>
-                <p className={s.electronicsCardTag}>Competition Motor</p>
-                <h3 className={s.electronicsCardName}>XeRun V10 G4 13.5T Motor</h3>
-                <p className={s.electronicsCardDetail}>
-                  Race-tuned 13.5T sensored brushless motor with dual sensor ports and dynamic mechanical timing.
-                </p>
-                <div className={s.electronicsSpecRow}>
-                  <span className={s.electronicsSpecPill}>13.5T Spec</span>
-                  <span className={s.electronicsSpecPill}>Sensored</span>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/parts/savox-sb-2292sg-high-voltage-monster-torque-servo" className={s.electronicsCard}>
-              <div className={s.electronicsCardImage}>
-                <div className={s.electronicsPlaceholder}>Savox · SB-2292SG</div>
-              </div>
-              <div className={s.electronicsCardContent}>
-                <p className={s.electronicsCardTag}>High-Voltage Servo</p>
-                <h3 className={s.electronicsCardName}>Savox SB-2292SG Servo</h3>
-                <p className={s.electronicsCardDetail}>
-                  Patented brushless motor delivering 31.0 kg-cm of holding torque at 0.07 sec speed with hardened steel gears.
-                </p>
-                <div className={s.electronicsSpecRow}>
-                  <span className={s.electronicsSpecPill}>31.0 kg-cm</span>
-                  <span className={s.electronicsSpecPill}>0.07s Speed</span>
-                </div>
-              </div>
-            </Link>
-
-          </div>
-          <div style={{ marginTop: 'var(--space-8)', textAlign: 'center' }}>
-            <Link href="/parts?view=catalogue&type=ESC" className={s.heroSecondary} style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.3)' }}>
-              Explore All Electronics in Catalogue →
-            </Link>
+          <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <p className={s.emptyGridText} style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Competition electronics catalogue developing. We are actively establishing authorised dealer and distribution relationships with specialist electronics marques.
+            </p>
+            <div style={{ marginTop: 'var(--space-6)', textAlign: 'center' }}>
+              <Link href="/parts?view=catalogue&type=ESC" className={s.heroSecondary} style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.3)' }}>
+                Explore All Electronics in Catalogue →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -574,47 +451,15 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
           <p className={s.sectionEyebrow}>Platform Architecture</p>
           <h2 className={s.platformsHeadline}>Parts for verified platforms.</h2>
           <p className={s.platformsSubline}>
-            Avorria only lists compatibility where it has been verified against confirmed platform geometry.
-            Select a verified platform to view compatible components:
+            Avorria only lists compatibility where it has been verified against confirmed platform geometry and manufacturer documentation. Zero unverified fitment claims.
           </p>
-          <div className={s.platformCards}>
-
-            <Link href="/parts?view=catalogue&platform=plat-xray-x4" className={s.platformCard}>
-              <div className={s.platformCardHeader}>
-                <span className={s.platformBrand}>XRAY</span>
-                <span className={s.platformScale}>1:10 Touring</span>
-              </div>
-              <h3 className={s.platformName}>X4 Touring Platform</h3>
-              <p className={s.platformDesc}>
-                Graphite suspension arms, titanium pivot balls, and competition spec electronics.
-              </p>
-              <span className={s.platformCta}>Browse X4 Parts →</span>
+          <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <p className={s.emptyGridText}>
+              Platform-specific compatibility matrix developing. Component listings are released as supplier relationships and verified CAD/manual specifications are confirmed.
+            </p>
+            <Link href="/parts?view=catalogue" className={s.tabLink}>
+              Browse Technical Catalogue →
             </Link>
-
-            <Link href="/parts?view=catalogue&platform=plat-xmaxx" className={s.platformCard}>
-              <div className={s.platformCardHeader}>
-                <span className={s.platformBrand}>Traxxas</span>
-                <span className={s.platformScale}>1:6 Large Scale</span>
-              </div>
-              <h3 className={s.platformName}>X-Maxx 8S Platform</h3>
-              <p className={s.platformDesc}>
-                Heavy-duty steel CV driveshafts, reinforced steering bellcranks, and driveline upgrades.
-              </p>
-              <span className={s.platformCta}>Browse X-Maxx Parts →</span>
-            </Link>
-
-            <Link href="/parts?view=catalogue&platform=plat-yokomo-md2" className={s.platformCard}>
-              <div className={s.platformCardHeader}>
-                <span className={s.platformBrand}>Yokomo</span>
-                <span className={s.platformScale}>1:10 RWD Drift</span>
-              </div>
-              <h3 className={s.platformName}>Master Drift MD 2.0</h3>
-              <p className={s.platformDesc}>
-                CNC aluminium steering bellcrank assemblies and drift competition electronics.
-              </p>
-              <span className={s.platformCta}>Browse MD 2.0 Parts →</span>
-            </Link>
-
           </div>
         </div>
       </section>

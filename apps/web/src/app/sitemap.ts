@@ -18,16 +18,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/machines/xray-x4-2026-1-10-touring-car-kit`,
+      url: `${baseUrl}/parts`,
       lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/machines/traxxas-x-maxx-8s-brushless-monster-truck`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
+      changeFrequency: 'daily',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/race`,
