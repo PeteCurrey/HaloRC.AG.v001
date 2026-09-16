@@ -344,11 +344,19 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
 
       {/* ── 1. Cinematic Hero ── */}
       <section className={s.showroomHero}>
-        <div
-          className={s.showroomHeroBg}
-          style={{ backgroundImage: 'url(/images/disciplines/large-scale.jpg)' }}
-          aria-hidden="true"
-        />
+        <div className={s.showroomHeroBg} aria-hidden="true">
+          <Image
+            src="/images/disciplines/large-scale.jpg"
+            alt="Large Scale Precision RC Competition Machine"
+            fill
+            priority
+            quality={90}
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+          />
+        </div>
+        <div className={s.showroomHeroScrim} aria-hidden="true" />
+        <div className={s.showroomHeroScrimTop} aria-hidden="true" />
         <div className={s.showroomHeroContent}>
           <p className={s.showroomHeroEyebrow}>The Machines</p>
           <h1 className={s.showroomHeroHeadline}>

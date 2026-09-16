@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import s from './parts.module.css'
 import { getMarketPreference } from '@/actions/market'
@@ -282,11 +283,19 @@ export default async function PartsPage({ searchParams }: PartsPageProps) {
 
       {/* ── 1. Cinematic Hero ── */}
       <section className={s.showroomHero}>
-        <div
-          className={s.showroomHeroBg}
-          style={{ backgroundImage: 'url(/images/brands/hobbywing.jpg)', backgroundPosition: 'center 40%' }}
-          aria-hidden="true"
-        />
+        <div className={s.showroomHeroBg} aria-hidden="true">
+          <Image
+            src="/images/brands/hobbywing.jpg"
+            alt="Precision RC parts and electronics"
+            fill
+            priority
+            quality={90}
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
+          />
+        </div>
+        <div className={s.showroomHeroScrim} aria-hidden="true" />
+        <div className={s.showroomHeroScrimTop} aria-hidden="true" />
         <div className={s.showroomHeroContent}>
           <p className={s.showroomHeroEyebrow}>Parts &amp; Upgrades</p>
           <h1 className={s.showroomHeroHeadline}>

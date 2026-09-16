@@ -8,14 +8,15 @@ interface AuthLayoutGuardProps {
 }
 
 /**
- * Hides GlobalNav and SiteFooter on dedicated full-screen auth pages (/auth/*),
- * allowing the split-screen layout to occupy the viewport edge-to-edge.
+ * Hides GlobalNav and SiteFooter on dedicated full-screen auth pages (/auth/*)
+ * and the operational administrative control center (/admin/*),
+ * allowing both environments to occupy the viewport edge-to-edge.
  */
 export function AuthLayoutGuard({ children }: AuthLayoutGuardProps) {
   const pathname = usePathname()
-  const isAuthPage = pathname.startsWith('/auth')
+  const isExcluded = pathname.startsWith('/auth') || pathname.startsWith('/admin')
 
-  if (isAuthPage) {
+  if (isExcluded) {
     return null
   }
 

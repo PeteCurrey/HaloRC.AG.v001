@@ -2,6 +2,13 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAdminProduct, getProductContent, getProductSeo, getAdminBrands } from '@halo-rc/db'
 import { publishProductAction, unpublishProductAction } from '@/actions/admin'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminAction,
+  AdminStatus,
+  AdminField,
+} from '@/components/admin'
 
 export const revalidate = 0
 
@@ -32,237 +39,173 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div style={{ maxWidth: '1000px' }}>
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-        <Link href="/admin/products" style={{ color: 'var(--colour-ash)', textDecoration: 'none' }}>
-          Products
-        </Link>
-        <span>/</span>
-        <span style={{ color: 'var(--colour-white)' }}>{product.name}</span>
-      </div>
-
+    <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Catalogue', href: '/admin/products' },
+          { label: 'Products', href: '/admin/products' },
+          { label: product.name },
+        ]}
+        title={product.name}
+        description={`Brand: ${brand?.name || product.brandId} · SKU: ${product.sku || 'None'} · /${product.slug}`}
+        status={
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <AdminStatus
+              status={product.published ? 'published' : product.status}
+              label={product.published ? 'PUBLISHED' : product.status}
+            />
             <span
               style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.625rem',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '0.6875rem',
                 padding: '2px 6px',
-                borderRadius: 'var(--radius-xs)',
-                backgroundColor: product.published ? 'rgba(0, 200, 100, 0.15)' : 'rgba(255, 180, 0, 0.15)',
-                color: product.published ? 'var(--colour-verified)' : 'var(--colour-amber)',
-                border: `1px solid ${product.published ? 'var(--colour-verified)' : 'var(--colour-amber)'}`,
-              }}
-            >
-              {product.published ? 'PUBLISHED' : product.status}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.625rem',
-                padding: '2px 6px',
-                borderRadius: 'var(--radius-xs)',
-                backgroundColor: 'var(--colour-graphite)',
-                color: 'var(--colour-smoke)',
+                borderRadius: 'var(--admin-radius-sm, 3px)',
+                backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                border: '1px solid var(--admin-border, #E2E2DE)',
+                color: 'var(--admin-text-secondary, #494D55)',
               }}
             >
               {product.tier}
             </span>
           </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', letterSpacing: 'var(--tracking-tight)' }}>
-            {product.name}
-          </h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', marginTop: 'var(--space-1)' }}>
-            Brand: {brand?.name || product.brandId} &bull; SKU: {product.sku || 'None'} &bull; Slug: /{product.slug}
-          </p>
-        </div>
+        }
+        actions={
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <form action={handleTogglePublish}>
+              <AdminAction
+                type="submit"
+                variant={product.published ? 'subtle' : 'primary'}
+                size="sm"
+              >
+                {product.published ? 'Unpublish to Draft' : 'Publish Product'}
+              </AdminAction>
+            </form>
 
-        <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <form action={handleTogglePublish}>
-            <button
-              type="submit"
-              style={{
-                padding: 'var(--space-2) var(--space-4)',
-                backgroundColor: product.published ? 'transparent' : 'var(--colour-verified)',
-                border: `1px solid ${product.published ? 'var(--colour-amber)' : 'transparent'}`,
-                color: product.published ? 'var(--colour-amber)' : 'var(--colour-void)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+            <AdminAction
+              variant="secondary"
+              size="sm"
+              href={`/admin/products/${product.id}/edit`}
             >
-              {product.published ? 'Unpublish to Draft' : 'Publish Product'}
-            </button>
-          </form>
+              Edit Product &rarr;
+            </AdminAction>
 
-          <Link
-            href={`/admin/products/${product.id}/edit`}
-            style={{
-              padding: 'var(--space-2) var(--space-4)',
-              backgroundColor: 'var(--colour-halo)',
-              color: 'var(--colour-void)',
-              borderRadius: 'var(--radius-sm)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 600,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-            }}
-          >
-            Edit Product &rarr;
-          </Link>
-
-          {product.published && (
-            <Link
-              href={`/machines/${product.slug}`}
-              target="_blank"
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                backgroundColor: 'var(--colour-graphite)',
-                border: '1px solid var(--colour-steel)',
-                color: 'var(--colour-off-white)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-xs)',
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              View on Storefront &nearr;
-            </Link>
-          )}
-        </div>
-      </div>
+            {product.published && (
+              <AdminAction
+                variant="secondary"
+                size="sm"
+                href={`/machines/${product.slug}`}
+                target="_blank"
+                title="View on storefront"
+                icon={
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                }
+              >
+                Storefront
+              </AdminAction>
+            )}
+          </div>
+        }
+      />
 
       {/* Grid Overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-6)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
         {/* Left Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Identity & Technical Specs */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-4)' }}>
-              Technical Identity
-            </h2>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Product Type</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.productType}</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Discipline</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.discipline || 'Unassigned'}</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Scale</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.scale || 'Not set'}</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Power Type</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.powerType || 'Not set'}</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Manufacturer SKU</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.manufacturerSku || 'None'}</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Internal Code</span>
-                <span style={{ color: 'var(--colour-white)', fontFamily: 'var(--font-mono)' }}>{product.internalCode || 'None'}</span>
-              </div>
+          <AdminPanel title="Technical Identity" subtitle="Authoritative specifications" padding="md">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+              <AdminField label="Product Type" value={product.productType} monospace />
+              <AdminField label="Discipline" value={product.discipline || 'Unassigned'} monospace />
+              <AdminField label="Scale" value={product.scale || 'Not set'} monospace />
+              <AdminField label="Power Type" value={product.powerType || 'Not set'} monospace />
+              <AdminField label="Manufacturer SKU" value={product.manufacturerSku || 'None'} monospace />
+              <AdminField label="Internal Code" value={product.internalCode || 'None'} monospace />
             </div>
 
             {product.editorialSummary && (
-              <div style={{ marginTop: 'var(--space-4)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--colour-graphite)' }}>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-1)' }}>Editorial Summary</span>
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)' }}>
-                  {product.editorialSummary}
-                </p>
+              <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--admin-border-subtle, #EBEBE7)' }}>
+                <AdminField label="Editorial Summary">
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--admin-text-secondary, #494D55)', lineHeight: 1.5 }}>
+                    {product.editorialSummary}
+                  </p>
+                </AdminField>
               </div>
             )}
-          </div>
+          </AdminPanel>
 
           {/* Structured Content */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-4)' }}>
-              Editorial Content
-            </h2>
-
+          <AdminPanel title="Editorial Content" subtitle="Storefront descriptions and feature lists" padding="md">
             {content ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', fontSize: 'var(--text-xs)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {content.shortDescription && (
-                  <div>
-                    <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Short Description</span>
-                    <p style={{ color: 'var(--colour-ash)' }}>{content.shortDescription}</p>
-                  </div>
+                  <AdminField label="Short Description">
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--admin-text-secondary, #494D55)', lineHeight: 1.5 }}>
+                      {content.shortDescription}
+                    </p>
+                  </AdminField>
                 )}
+
                 {content.keyFeatures && content.keyFeatures.length > 0 && (
-                  <div>
-                    <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '4px' }}>Key Features ({content.keyFeatures.length})</span>
-                    <ul style={{ paddingLeft: 'var(--space-4)', margin: 0, color: 'var(--colour-ash)' }}>
+                  <AdminField label={`Key Features (${content.keyFeatures.length})`}>
+                    <ul style={{ paddingLeft: '18px', margin: '4px 0 0', color: 'var(--admin-text-secondary, #494D55)', fontSize: '0.75rem', lineHeight: 1.5 }}>
                       {content.keyFeatures.map((f, i) => (
-                        <li key={i} style={{ marginBottom: '2px' }}>{f}</li>
+                        <li key={i} style={{ marginBottom: '3px' }}>{f}</li>
                       ))}
                     </ul>
-                  </div>
+                  </AdminField>
                 )}
               </div>
             ) : (
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-                No structured editorial content configured yet. Edit product to add descriptions and features.
-              </p>
+              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-tertiary, #767A85)' }}>
+                No structured editorial content configured yet. Click Edit Product to add descriptions and features.
+              </div>
             )}
-          </div>
+          </AdminPanel>
         </div>
 
         {/* Right Column: SEO & Governance */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* SEO Status */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-4)' }}>
-              SEO Metadata
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>SEO Title</span>
-                <span style={{ color: seo?.seoTitle ? 'var(--colour-white)' : 'var(--colour-amber)' }}>
-                  {seo?.seoTitle || 'Defaulting to product name'}
-                </span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Meta Description</span>
-                <span style={{ color: seo?.metaDescription ? 'var(--colour-ash)' : 'var(--colour-amber)' }}>
-                  {seo?.metaDescription || 'Missing meta description'}
-                </span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--colour-smoke)', display: 'block', marginBottom: '2px' }}>Index Status</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: seo?.indexPage ? 'var(--colour-verified)' : 'var(--colour-amber)' }}>
-                  {seo?.indexPage ? 'INDEX' : 'NOINDEX'}
-                </span>
-              </div>
+          <AdminPanel title="SEO Metadata" subtitle="Search engine indexing" padding="md">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <AdminField
+                label="SEO Title"
+                value={seo?.seoTitle || 'Defaulting to product name'}
+              />
+              <AdminField
+                label="Meta Description"
+                value={seo?.metaDescription || 'Missing meta description'}
+              />
+              <AdminField label="Index Status">
+                <AdminStatus
+                  status={seo?.indexPage ? 'verified' : 'warning'}
+                  label={seo?.indexPage ? 'INDEX' : 'NOINDEX'}
+                />
+              </AdminField>
             </div>
-          </div>
+          </AdminPanel>
 
-          {/* Audit Details */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-4)' }}>
-              Record Provenance
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)' }}>
-              <div>ID: {product.id}</div>
-              <div>Created: {new Date(product.createdAt).toLocaleDateString()}</div>
-              <div>Updated: {new Date(product.updatedAt).toLocaleDateString()}</div>
+          {/* Record Provenance */}
+          <AdminPanel title="Record Provenance" subtitle="System timestamps" padding="md">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <AdminField label="Database ID" value={product.id} monospace />
+              <AdminField
+                label="Created"
+                value={new Date(product.createdAt).toLocaleDateString('en-GB')}
+                monospace
+              />
+              <AdminField
+                label="Updated"
+                value={new Date(product.updatedAt).toLocaleDateString('en-GB')}
+                monospace
+              />
             </div>
-          </div>
+          </AdminPanel>
         </div>
       </div>
     </div>

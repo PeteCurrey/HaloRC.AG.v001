@@ -4,9 +4,17 @@ import {
   getMarketCompletenessReport,
   getMultiMarketAnalytics,
 } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminSection,
+  AdminTable,
+  AdminTableRow,
+  AdminStatus,
+} from '@/components/admin'
 
 export const metadata = {
-  title: 'Markets & Logistics | Halo RC Operations',
+  title: 'Markets & Logistics | Avorria RC Operations',
   description: 'Multi-market configuration, tax presentation, and international shipping routing.',
 }
 
@@ -18,231 +26,155 @@ export default async function AdminMarketsPage() {
   const ukShipping = getShippingMethodsForMarket('UK')
   const usShipping = getShippingMethodsForMarket('US')
 
+  const completenessColumns = [
+    { header: 'Market', width: '25%' },
+    { header: 'Canonical Products', width: '20%' },
+    { header: 'Commercial Offers', width: '20%' },
+    { header: 'Coverage %', width: '15%' },
+    { header: 'Health Status', width: '20%', align: 'right' as const },
+  ]
+
   return (
-    <div>
-      <div style={{ marginBottom: 'var(--space-8)' }}>
-        <h1
-          style={{
-            fontSize: 'var(--text-2xl)',
-            fontWeight: 600,
-            color: 'var(--colour-white)',
-            marginBottom: 'var(--space-2)',
-          }}
-        >
-          International Markets, Tax & Logistics
-        </h1>
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)' }}>
-          Dual-market commercial architecture (UK &amp; USA). Strict product graph parity with segregated pricing,
-          tax presentation, inventory availability, and courier dispatch routing.
-        </p>
-      </div>
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <AdminPageHeader
+        category="Commerce & Governance"
+        title="International Markets, Tax & Logistics"
+        description="Dual-market commercial architecture (UK & USA). Strict product graph parity with segregated pricing, tax presentation, and courier dispatch routing."
+      />
 
       {/* Section 1: Active Market Configs */}
-      <div style={{ marginBottom: 'var(--space-8)' }}>
-        <h2
-          style={{
-            fontSize: 'var(--text-base)',
-            fontWeight: 600,
-            color: 'var(--colour-off-white)',
-            marginBottom: 'var(--space-4)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          Active Market Configurations
-        </h2>
-
+      <AdminSection title="Active Market Configurations">
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 'var(--space-4)',
+            gap: '14px',
+            marginBottom: '20px',
           }}
         >
           {configs.map((m) => (
-            <div
+            <AdminPanel
               key={m.marketCode}
-              style={{
-                backgroundColor: 'var(--colour-carbon)',
-                border: '1px solid var(--colour-steel)',
-                borderRadius: 'var(--radius-md)',
-                padding: 'var(--space-6)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 'var(--space-4)',
-                }}
-              >
-                <div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      color: '#00f0ff',
-                      letterSpacing: '0.1em',
-                    }}
-                  >
-                    MARKET [{m.marketCode}]
-                  </span>
-                  <h3
-                    style={{
-                      fontSize: 'var(--text-lg)',
-                      fontWeight: 600,
-                      color: 'var(--colour-white)',
-                      margin: '4px 0 0 0',
-                    }}
-                  >
-                    {m.name}
-                  </h3>
-                </div>
+              title={m.name}
+              badge={
                 <span
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
+                    fontFamily: 'var(--font-mono, monospace)',
                     fontSize: '0.6875rem',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-mono)',
-                    backgroundColor: m.enabled ? 'rgba(0, 240, 255, 0.12)' : 'rgba(255, 255, 255, 0.1)',
-                    color: m.enabled ? '#00f0ff' : 'var(--colour-smoke)',
-                    border: `1px solid ${m.enabled ? '#00f0ff40' : 'var(--colour-mist)'}`,
+                    color: 'var(--admin-text-tertiary, #767A85)',
+                    backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                    padding: '1px 5px',
+                    borderRadius: 'var(--admin-radius-sm, 3px)',
                   }}
                 >
-                  {m.enabled ? 'ACTIVE' : 'DISABLED'}
+                  [{m.marketCode}]
                 </span>
-              </div>
-
+              }
+              action={
+                <AdminStatus
+                  status={m.enabled ? 'active' : 'neutral'}
+                  label={m.enabled ? 'ACTIVE' : 'DISABLED'}
+                />
+              }
+              padding="md"
+            >
               <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  gap: 'var(--space-3)',
-                  fontSize: 'var(--text-xs)',
+                  gap: '12px',
+                  fontSize: '0.75rem',
                 }}
               >
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Currency</span>
-                  <strong style={{ color: 'var(--colour-off-white)', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Currency
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)', fontFamily: 'var(--font-mono, monospace)' }}>
                     {m.currency}
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Locale</span>
-                  <strong style={{ color: 'var(--colour-off-white)', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Locale
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)', fontFamily: 'var(--font-mono, monospace)' }}>
                     {m.locale}
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Tax Display</span>
-                  <strong style={{ color: 'var(--colour-off-white)' }}>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Tax Presentation
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)' }}>
                     {m.taxDisplayMode === 'TAX_INCLUDED' ? 'VAT Included (20%)' : 'Tax Excluded'}
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Measurement</span>
-                  <strong style={{ color: 'var(--colour-off-white)' }}>{m.measurementSystem}</strong>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Measurement
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)' }}>
+                    {m.measurementSystem}
+                  </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Shipping Region</span>
-                  <strong style={{ color: 'var(--colour-off-white)' }}>{m.shippingRegion}</strong>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Shipping Region
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)' }}>
+                    {m.shippingRegion}
+                  </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--colour-smoke)', display: 'block' }}>Default Language</span>
-                  <strong style={{ color: 'var(--colour-off-white)' }}>{m.defaultLanguage}</strong>
+                  <span style={{ color: 'var(--admin-text-tertiary, #767A85)', display: 'block', fontSize: '0.6875rem' }}>
+                    Language
+                  </span>
+                  <strong style={{ color: 'var(--admin-text-primary, #111317)' }}>
+                    {m.defaultLanguage}
+                  </strong>
                 </div>
               </div>
-            </div>
+            </AdminPanel>
           ))}
         </div>
-      </div>
+      </AdminSection>
 
-      {/* Section 2: Segregated Multi-Market Analytics */}
-      <div style={{ marginBottom: 'var(--space-8)' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            marginBottom: 'var(--space-4)',
-          }}
-        >
-          <h2
-            style={{
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              color: 'var(--colour-off-white)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              fontFamily: 'var(--font-mono)',
-              margin: 0,
-            }}
-          >
-            Segregated Commercial Analytics
-          </h2>
-          <span style={{ fontSize: '0.6875rem', color: '#ffb000', fontFamily: 'var(--font-mono)' }}>
-            ⚠ Invariant Enforced: Currencies tracked independently (No cross-currency addition)
+      {/* Section 2: Segregated Commercial Analytics */}
+      <AdminSection
+        title="Segregated Commercial Analytics"
+        action={
+          <span style={{ fontSize: '0.6875rem', color: 'var(--admin-dot-warning, #B86818)', fontFamily: 'var(--font-mono, monospace)' }}>
+            Invariant: Currencies tracked independently
           </span>
-        </div>
-
+        }
+      >
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 'var(--space-4)',
+            gap: '14px',
+            marginBottom: '20px',
           }}
         >
           {analytics.markets.map((stat) => (
-            <div
+            <AdminPanel
               key={stat.marketCode}
-              style={{
-                backgroundColor: 'var(--colour-carbon)',
-                border: '1px solid var(--colour-steel)',
-                borderRadius: 'var(--radius-md)',
-                padding: 'var(--space-5)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 'var(--space-3)',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.75rem',
-                    color: 'var(--colour-smoke)',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {stat.marketCode} Performance
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    color: stat.currency === 'GBP' ? '#00f0ff' : '#10b981',
-                  }}
-                >
+              title={`${stat.marketCode} Performance`}
+              badge={
+                <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, fontSize: '0.6875rem', color: 'var(--admin-accent, #B8935A)' }}>
                   {stat.currency}
                 </span>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+              }
+              padding="md"
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)', display: 'block' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', display: 'block' }}>
                     Gross Revenue
                   </span>
-                  <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--colour-white)' }}>
+                  <span style={{ fontSize: '1.125rem', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-primary, #111317)' }}>
                     {stat.currency === 'GBP' ? '£' : '$'}
                     {(stat.grossRevenueMinorUnits / 100).toLocaleString('en-GB', {
                       minimumFractionDigits: 2,
@@ -250,19 +182,21 @@ export default async function AdminMarketsPage() {
                     })}
                   </span>
                 </div>
+
                 <div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)', display: 'block' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', display: 'block' }}>
                     Paid Orders
                   </span>
-                  <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--colour-white)' }}>
+                  <span style={{ fontSize: '1.125rem', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-primary, #111317)' }}>
                     {stat.totalOrders}
                   </span>
                 </div>
+
                 <div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)', display: 'block' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', display: 'block' }}>
                     Average Order Value
                   </span>
-                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-off-white)' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-secondary, #494D55)' }}>
                     {stat.currency === 'GBP' ? '£' : '$'}
                     {(stat.averageOrderValueMinorUnits / 100).toLocaleString('en-GB', {
                       minimumFractionDigits: 2,
@@ -270,229 +204,127 @@ export default async function AdminMarketsPage() {
                     })}
                   </span>
                 </div>
+
                 <div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)', display: 'block' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', display: 'block' }}>
                     Active Baskets
                   </span>
-                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-off-white)' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-secondary, #494D55)' }}>
                     {stat.activeBasketsCount}
                   </span>
                 </div>
               </div>
-            </div>
+            </AdminPanel>
           ))}
         </div>
-      </div>
+      </AdminSection>
 
-      {/* Section 3: Market Completeness Scoring */}
-      <div style={{ marginBottom: 'var(--space-8)' }}>
-        <h2
-          style={{
-            fontSize: 'var(--text-base)',
-            fontWeight: 600,
-            color: 'var(--colour-off-white)',
-            marginBottom: 'var(--space-4)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          Market Completeness &amp; Catalogue Parity
-        </h2>
-
-        <div
-          style={{
-            backgroundColor: 'var(--colour-carbon)',
-            border: '1px solid var(--colour-steel)',
-            borderRadius: 'var(--radius-md)',
-            overflow: 'hidden',
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid var(--colour-steel)' }}>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'left', color: 'var(--colour-smoke)' }}>
-                  Market
-                </th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'left', color: 'var(--colour-smoke)' }}>
-                  Total Canonical Products
-                </th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'left', color: 'var(--colour-smoke)' }}>
-                  Commercial Offers Available
-                </th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'left', color: 'var(--colour-smoke)' }}>
-                  Coverage %
-                </th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right', color: 'var(--colour-smoke)' }}>
-                  Health Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {completeness.map((c) => (
-                <tr key={c.marketCode} style={{ borderBottom: '1px solid var(--colour-mist)' }}>
-                  <td style={{ padding: 'var(--space-4)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                    {c.marketCode === 'UK' ? 'United Kingdom (UK)' : 'United States (US)'}
-                  </td>
-                  <td style={{ padding: 'var(--space-4)', color: 'var(--colour-ash)' }}>
-                    {c.totalProductsCount}
-                  </td>
-                  <td style={{ padding: 'var(--space-4)', color: 'var(--colour-off-white)' }}>
-                    {c.offeredProductsCount}
-                  </td>
-                  <td style={{ padding: 'var(--space-4)', color: 'var(--colour-white)', fontWeight: 600 }}>
-                    {c.coveragePercentage}%
-                  </td>
-                  <td style={{ padding: 'var(--space-4)', textAlign: 'right' }}>
-                    <span
-                      style={{
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.6875rem',
-                        fontWeight: 600,
-                        backgroundColor:
-                          c.status === 'COMPLETE'
-                            ? 'rgba(16, 185, 129, 0.15)'
-                            : c.status === 'PARTIAL'
-                            ? 'rgba(245, 158, 11, 0.15)'
-                            : 'rgba(239, 68, 68, 0.15)',
-                        color:
-                          c.status === 'COMPLETE'
-                            ? '#10b981'
-                            : c.status === 'PARTIAL'
-                            ? '#f59e0b'
-                            : '#ef4444',
-                        border: `1px solid ${
-                          c.status === 'COMPLETE'
-                            ? '#10b98140'
-                            : c.status === 'PARTIAL'
-                            ? '#f59e0b40'
-                            : '#ef444440'
-                        }`,
-                      }}
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Section 3: Market Completeness */}
+      <AdminSection title="Market Completeness & Catalogue Parity">
+        <AdminTable columns={completenessColumns} style={{ marginBottom: '20px' }}>
+          {completeness.map((c) => (
+            <AdminTableRow key={c.marketCode}>
+              <td style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--admin-text-primary, #111317)' }}>
+                {c.marketCode === 'UK' ? 'United Kingdom (UK)' : 'United States (US)'}
+              </td>
+              <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-secondary, #494D55)' }}>
+                {c.totalProductsCount}
+              </td>
+              <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-primary, #111317)' }}>
+                {c.offeredProductsCount}
+              </td>
+              <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, color: 'var(--admin-text-primary, #111317)' }}>
+                {c.coveragePercentage}%
+              </td>
+              <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                <AdminStatus
+                  status={c.status === 'COMPLETE' ? 'verified' : c.status === 'PARTIAL' ? 'warning' : 'alert'}
+                  label={c.status}
+                />
+              </td>
+            </AdminTableRow>
+          ))}
+        </AdminTable>
+      </AdminSection>
 
       {/* Section 4: Configured Shipping Methods */}
-      <div>
-        <h2
-          style={{
-            fontSize: 'var(--text-base)',
-            fontWeight: 600,
-            color: 'var(--colour-off-white)',
-            marginBottom: 'var(--space-4)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          Authoritative Shipping Methods &amp; Free Thresholds
-        </h2>
-
+      <AdminSection title="Authoritative Shipping Methods & Free Thresholds">
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 'var(--space-6)',
+            gap: '16px',
           }}
         >
-          <div>
-            <h3
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: '#00f0ff',
-                marginBottom: 'var(--space-3)',
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              UK DOMESTIC COURIERS
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          {/* UK Couriers */}
+          <AdminPanel title="UK Domestic Couriers" subtitle="Royal Mail & DPD verified channels" padding="md">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {ukShipping.map((ship) => (
                 <div
                   key={ship.id}
                   style={{
-                    backgroundColor: 'var(--colour-carbon)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: 'var(--space-4)',
+                    padding: '10px 12px',
+                    backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                    borderRadius: 'var(--admin-radius-sm, 3px)',
+                    border: '1px solid var(--admin-border-subtle, #EBEBE7)',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
-                    <strong style={{ color: 'var(--colour-white)', fontSize: 'var(--text-xs)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <strong style={{ color: 'var(--admin-text-primary, #111317)', fontSize: '0.75rem' }}>
                       {ship.name}
                     </strong>
-                    <span style={{ fontFamily: 'var(--font-mono)', color: '#00f0ff', fontSize: 'var(--text-xs)' }}>
+                    <span style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-primary, #111317)', fontSize: '0.75rem', fontWeight: 600 }}>
                       £{(ship.costMinorUnits / 100).toFixed(2)}
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)' }}>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)' }}>
                     Carrier: {ship.carrier} · Service: {ship.serviceLevel} · ETA: {ship.estimatedDaysMin}-{ship.estimatedDaysMax}d
                   </div>
                   {ship.freeThresholdMinorUnits && (
-                    <div style={{ fontSize: '0.6875rem', color: '#10b981', marginTop: 'var(--space-1)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--admin-dot-online, #1A6E34)', marginTop: '2px', fontWeight: 500 }}>
                       Free for orders over £{(ship.freeThresholdMinorUnits / 100).toFixed(2)}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          </div>
+          </AdminPanel>
 
-          <div>
-            <h3
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: '#10b981',
-                marginBottom: 'var(--space-3)',
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              US DOMESTIC COURIERS
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          {/* US Couriers */}
+          <AdminPanel title="US Domestic Couriers" subtitle="USPS & FedEx domestic lanes" padding="md">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {usShipping.map((ship) => (
                 <div
                   key={ship.id}
                   style={{
-                    backgroundColor: 'var(--colour-carbon)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: 'var(--space-4)',
+                    padding: '10px 12px',
+                    backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                    borderRadius: 'var(--admin-radius-sm, 3px)',
+                    border: '1px solid var(--admin-border-subtle, #EBEBE7)',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
-                    <strong style={{ color: 'var(--colour-white)', fontSize: 'var(--text-xs)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <strong style={{ color: 'var(--admin-text-primary, #111317)', fontSize: '0.75rem' }}>
                       {ship.name}
                     </strong>
-                    <span style={{ fontFamily: 'var(--font-mono)', color: '#10b981', fontSize: 'var(--text-xs)' }}>
+                    <span style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-primary, #111317)', fontSize: '0.75rem', fontWeight: 600 }}>
                       ${(ship.costMinorUnits / 100).toFixed(2)}
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--colour-smoke)' }}>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)' }}>
                     Carrier: {ship.carrier} · Service: {ship.serviceLevel} · ETA: {ship.estimatedDaysMin}-{ship.estimatedDaysMax}d
                   </div>
                   {ship.freeThresholdMinorUnits && (
-                    <div style={{ fontSize: '0.6875rem', color: '#10b981', marginTop: 'var(--space-1)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--admin-dot-online, #1A6E34)', marginTop: '2px', fontWeight: 500 }}>
                       Free for orders over ${(ship.freeThresholdMinorUnits / 100).toFixed(2)}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          </div>
+          </AdminPanel>
         </div>
-      </div>
+      </AdminSection>
     </div>
   )
 }

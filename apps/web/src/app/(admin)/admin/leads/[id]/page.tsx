@@ -3,6 +3,13 @@ import { notFound } from 'next/navigation'
 import { getAdminLead } from '@halo-rc/db'
 import { updateLeadStatusAction, addLeadNoteAction } from '@/actions/admin'
 import type { LeadStatus } from '@halo-rc/types'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminAction,
+  AdminStatus,
+  AdminField,
+} from '@/components/admin'
 
 export const revalidate = 0
 
@@ -31,186 +38,170 @@ export default async function AdminLeadDetailPage({ params }: PageProps) {
     }
   }
 
-  return (
-    <div style={{ maxWidth: '1000px' }}>
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-        <Link href="/admin/leads" style={{ color: 'var(--colour-ash)', textDecoration: 'none' }}>
-          Leads
-        </Link>
-        <span>/</span>
-        <span style={{ color: 'var(--colour-white)' }}>{lead.name}</span>
-      </div>
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    height: '32px',
+    padding: '0 10px',
+    backgroundColor: 'var(--admin-surface, #FFFFFF)',
+    border: '1px solid var(--admin-border, #E2E2DE)',
+    borderRadius: 'var(--admin-radius-sm, 3px)',
+    color: 'var(--admin-text-primary, #111317)',
+    fontSize: '0.8125rem',
+    outline: 'none',
+    boxSizing: 'border-box',
+  }
 
+  return (
+    <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-xs)',
-              backgroundColor: 'var(--colour-graphite)',
-              color: 'var(--colour-halo)',
-              border: '1px solid var(--colour-halo)',
-            }}>
-              {lead.status}
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-xs)',
-              backgroundColor: 'var(--colour-graphite)',
-              color: lead.priority === 'URGENT' ? '#ef4444' : 'var(--colour-smoke)',
-            }}>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Leads & Enquiries', href: '/admin/leads' },
+          { label: 'Enquiries', href: '/admin/leads' },
+          { label: lead.name },
+        ]}
+        title={lead.name}
+        description={`${lead.email} ${lead.phone ? `· ${lead.phone}` : ''} ${lead.company ? `· ${lead.company}` : ''}`}
+        status={
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <AdminStatus status={lead.status.toLowerCase()} label={lead.status} />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '0.6875rem',
+                padding: '2px 6px',
+                borderRadius: 'var(--admin-radius-sm, 3px)',
+                backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                border: '1px solid var(--admin-border, #E2E2DE)',
+                color:
+                  lead.priority === 'URGENT'
+                    ? 'var(--admin-dot-alert, #C8001A)'
+                    : lead.priority === 'HIGH'
+                    ? 'var(--admin-dot-warning, #B86818)'
+                    : 'var(--admin-text-secondary, #494D55)',
+                fontWeight: 600,
+              }}
+            >
               {lead.priority} PRIORITY
             </span>
           </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', letterSpacing: 'var(--tracking-tight)' }}>
-            {lead.name}
-          </h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', marginTop: 'var(--space-1)' }}>
-            {lead.email} {lead.phone ? `• ${lead.phone}` : ''} {lead.company ? `• ${lead.company}` : ''}
-          </p>
-        </div>
+        }
+        actions={
+          <AdminAction variant="subtle" size="sm" href="/admin/leads">
+            &larr; Back to Leads
+          </AdminAction>
+        }
+      />
 
-        <Link
-          href="/admin/leads"
-          style={{
-            padding: 'var(--space-2) var(--space-4)',
-            backgroundColor: 'var(--colour-graphite)',
-            border: '1px solid var(--colour-steel)',
-            color: 'var(--colour-off-white)',
-            borderRadius: 'var(--radius-sm)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-xs)',
-            textDecoration: 'none',
-          }}
-        >
-          &larr; Back to Leads
-        </Link>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-6)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
         {/* Main Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Message Content */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Enquiry Message
-            </h2>
-            <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-graphite)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-sm)', color: 'var(--colour-off-white)', lineHeight: 'var(--leading-relaxed)', whiteSpace: 'pre-wrap' }}>
+          <AdminPanel title="Enquiry Message" subtitle="Direct customer consultation message" padding="md">
+            <div
+              style={{
+                padding: '14px 16px',
+                backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                borderRadius: 'var(--admin-radius-sm, 3px)',
+                fontSize: '0.8125rem',
+                color: 'var(--admin-text-primary, #111317)',
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap',
+              }}
+            >
               {lead.message}
             </div>
 
             {lead.productInterestName && (
-              <div style={{ marginTop: 'var(--space-4)', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--colour-graphite)', fontSize: 'var(--text-xs)' }}>
-                <span style={{ color: 'var(--colour-smoke)' }}>Product Interest: </span>
-                <Link href={`/admin/products/${lead.productInterestId}`} style={{ color: 'var(--colour-halo)', textDecoration: 'none', fontWeight: 600 }}>
+              <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--admin-border-subtle, #EBEBE7)', fontSize: '0.75rem' }}>
+                <span style={{ color: 'var(--admin-text-tertiary, #767A85)' }}>Product Interest: </span>
+                <Link
+                  href={`/admin/products/${lead.productInterestId}`}
+                  style={{ color: 'var(--admin-accent, #B8935A)', textDecoration: 'none', fontWeight: 600 }}
+                >
                   {lead.productInterestName} &rarr;
                 </Link>
               </div>
             )}
-          </div>
+          </AdminPanel>
 
           {/* Activity Log & Staff Notes */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-4)' }}>
-              Activity History &amp; Staff Notes
-            </h2>
-
-            {/* Note Input */}
-            <form action={handleAddNote} style={{ marginBottom: 'var(--space-6)' }}>
+          <AdminPanel title="Activity History & Staff Notes" subtitle="Internal consultations and touchpoints" padding="md">
+            {/* Note Input Form */}
+            <form action={handleAddNote} style={{ marginBottom: '20px' }}>
               <textarea
                 name="note"
                 required
                 rows={3}
-                placeholder="Log a call, technical consultation result, or quotation notes..."
+                placeholder="Log a phone call, technical build discussion, or quotation notes..."
                 style={{
                   width: '100%',
-                  padding: 'var(--space-3)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-steel)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--colour-white)',
-                  fontSize: 'var(--text-xs)',
-                  fontFamily: 'var(--font-sans)',
-                  marginBottom: 'var(--space-2)',
+                  padding: '8px 10px',
+                  backgroundColor: 'var(--admin-surface, #FFFFFF)',
+                  border: '1px solid var(--admin-border, #E2E2DE)',
+                  borderRadius: 'var(--admin-radius-sm, 3px)',
+                  color: 'var(--admin-text-primary, #111317)',
+                  fontSize: '0.75rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  marginBottom: '8px',
                 }}
               />
-              <button
-                type="submit"
-                style={{
-                  padding: 'var(--space-2) var(--space-4)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-halo)',
-                  color: 'var(--colour-halo)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  cursor: 'pointer',
-                }}
-              >
-                + Add Staff Note
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <AdminAction type="submit" variant="secondary" size="sm">
+                  + Add Staff Note
+                </AdminAction>
+              </div>
             </form>
 
             {/* Timeline */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {lead.activities.length === 0 ? (
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>No activity logged yet.</p>
+                <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-tertiary, #767A85)' }}>
+                  No activity logged yet.
+                </div>
               ) : (
                 lead.activities.map((act: any) => (
-                  <div key={act.id} style={{ padding: 'var(--space-3)', backgroundColor: 'var(--colour-graphite)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--colour-white)' }}>{act.action}</span>
-                      <span>{new Date(act.createdAt).toLocaleString()}</span>
+                  <div
+                    key={act.id}
+                    style={{
+                      padding: '10px 12px',
+                      backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                      borderRadius: 'var(--admin-radius-sm, 3px)',
+                      fontSize: '0.75rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--admin-text-tertiary, #767A85)', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--admin-text-primary, #111317)' }}>{act.action}</span>
+                      <span>{new Date(act.createdAt).toLocaleString('en-GB')}</span>
                     </div>
                     {act.details ? (
-                      <p style={{ color: 'var(--colour-ash)', margin: 0 }}>
+                      <p style={{ color: 'var(--admin-text-secondary, #494D55)', margin: 0, lineHeight: 1.4 }}>
                         {String((act.details as Record<string, unknown>).note ?? JSON.stringify(act.details))}
                       </p>
                     ) : null}
                     {act.userEmail && (
-                      <span style={{ display: 'block', fontSize: '0.625rem', color: 'var(--colour-smoke)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
-                        By: {act.userEmail}
+                      <span style={{ display: 'block', fontSize: '0.625rem', color: 'var(--admin-text-tertiary, #767A85)', marginTop: '4px', fontFamily: 'var(--font-mono, monospace)' }}>
+                        Operator: {act.userEmail}
                       </span>
                     )}
                   </div>
                 ))
               )}
             </div>
-          </div>
+          </AdminPanel>
         </div>
 
         {/* Sidebar Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Status Transition Control */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Update Pipeline Status
-            </h2>
-
-            <form action={handleStatusChange} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <AdminPanel title="Pipeline Status" subtitle="Update lead stage" padding="md">
+            <form action={handleStatusChange} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-smoke)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
-                  Status
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>
+                  Pipeline Stage
                 </label>
-                <select
-                  name="status"
-                  defaultValue={lead.status}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    backgroundColor: 'var(--colour-graphite)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--colour-white)',
-                    fontSize: 'var(--text-xs)',
-                  }}
-                >
+                <select name="status" defaultValue={lead.status} style={inputStyle}>
                   <option value="NEW">New</option>
                   <option value="CONTACTED">Contacted</option>
                   <option value="QUALIFIED">Qualified</option>
@@ -222,57 +213,32 @@ export default async function AdminLeadDetailPage({ params }: PageProps) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-smoke)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
-                  Reason / Note
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>
+                  Reason / Transition Note
                 </label>
                 <input
                   type="text"
                   name="note"
-                  placeholder="e.g. Discussed setup requirements via email"
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    backgroundColor: 'var(--colour-graphite)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--colour-white)',
-                    fontSize: 'var(--text-xs)',
-                  }}
+                  placeholder="e.g. Discussed spec and sent quote"
+                  style={inputStyle}
                 />
               </div>
 
-              <button
-                type="submit"
-                style={{
-                  padding: 'var(--space-2)',
-                  backgroundColor: 'var(--colour-halo)',
-                  color: 'var(--colour-void)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  marginTop: 'var(--space-1)',
-                }}
-              >
-                Update Status
-              </button>
+              <AdminAction type="submit" variant="primary" size="sm" style={{ width: '100%' }}>
+                Update Pipeline Status
+              </AdminAction>
             </form>
-          </div>
+          </AdminPanel>
 
           {/* Lead Meta */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Provenance
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)' }}>
-              <div>Source: {lead.source}</div>
-              <div>Created: {new Date(lead.createdAt).toLocaleString()}</div>
-              <div>Updated: {new Date(lead.updatedAt).toLocaleString()}</div>
-              <div>ID: {lead.id}</div>
+          <AdminPanel title="Provenance" subtitle="Source & timestamps" padding="md">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <AdminField label="Channel Source" value={lead.source} monospace />
+              <AdminField label="Created" value={new Date(lead.createdAt).toLocaleString('en-GB')} monospace />
+              <AdminField label="Updated" value={new Date(lead.updatedAt).toLocaleString('en-GB')} monospace />
+              <AdminField label="Lead ID" value={lead.id} monospace />
             </div>
-          </div>
+          </AdminPanel>
         </div>
       </div>
     </div>

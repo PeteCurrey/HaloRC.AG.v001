@@ -1,5 +1,5 @@
 /**
- * Halo RC — Design Token System
+ * Avorria RC — Design Token System
  * CSS Custom Properties
  *
  * Import order matters: tokens → base → components → pages
@@ -51,41 +51,71 @@
   --colour-caution:   #B86818;   /* Inferred data indicator */
   --colour-error:     #C82020;   /* Error state */
   --colour-ignition:        #F2540B;   /* Primary interactive accent */
-  --colour-ignition-bright: #FF6A1A; /* Hover/active state */
-  --colour-ignition-dim:    #7A2A0A;   /* Low-emphasis / border use */
+  --colour-ignition-bright: #FF6A1A;  /* Hover/active state */
+  --colour-ignition-dim:    #7A2A0A;  /* Low-emphasis / border use */
 
   /* Transparent variants */
-  --colour-halo-10:   rgba(184, 147, 90, 0.10);
-  --colour-halo-20:   rgba(184, 147, 90, 0.20);
-  --colour-race-10:   rgba(200, 0, 26, 0.10);
+  --colour-halo-10:    rgba(184, 147, 90, 0.10);
+  --colour-halo-20:    rgba(184, 147, 90, 0.20);
+  --colour-race-10:    rgba(200, 0, 26, 0.10);
   --colour-ignition-10: rgba(242, 84, 11, 0.10);
   --colour-ignition-20: rgba(242, 84, 11, 0.20);
   --colour-ignition-40: rgba(242, 84, 11, 0.40);
-  --colour-white-05:  rgba(248, 248, 248, 0.05);
-  --colour-white-08:  rgba(248, 248, 248, 0.08);
-  --colour-white-12:  rgba(248, 248, 248, 0.12);
+  --colour-white-05:   rgba(248, 248, 248, 0.05);
+  --colour-white-08:   rgba(248, 248, 248, 0.08);
+  --colour-white-12:   rgba(248, 248, 248, 0.12);
   --colour-dark-scrim: rgba(11, 12, 14, 0.75);
+
+  /* ─── Clean Operational Admin Design Tokens ───────────────────────────── */
+  --admin-canvas:           #F5F5F3;
+  --admin-canvas-tint:      #ECECE9;
+  --admin-surface:          #FFFFFF;
+  --admin-surface-subtle:   #FAFAF9;
+  --admin-surface-well:     #EFEFED;
+  --admin-surface-hover:    #F5F5F2;
+  --admin-surface-active:   #EDEDE9;
+  --admin-border:           #E2E2DE;
+  --admin-border-subtle:    #EBEBE7;
+  --admin-border-strong:    #C8C8C2;
+  --admin-text-primary:     #111317;
+  --admin-text-secondary:   #494D55;
+  --admin-text-tertiary:    #767A85;
+  --admin-text-muted:       #9EA2AB;
+  --admin-accent:           #B8935A;
+  --admin-accent-soft:      rgba(184, 147, 90, 0.08);
+  --admin-accent-border:    rgba(184, 147, 90, 0.28);
+  --admin-dot-online:       #1A6E34;
+  --admin-dot-alert:        #C8001A;
+  --admin-dot-warning:      #B86818;
+  --admin-dot-neutral:      #8E939E;
+  --admin-dot-ignition:     #F2540B;
+  --admin-radius-sm:        3px;
+  --admin-radius-md:        5px;
+  --admin-radius-lg:        8px;
+  --admin-shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.03);
+  --admin-shadow-card:      0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --admin-shadow-dropdown:  0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* ─── Typography ─────────────────────────────────────────────────────────── */
 :root {
   /* Font families — loaded via next/font, referenced here */
-  --font-primary:     var(--font-work-sans), 'Work Sans', system-ui, sans-serif;
-  --font-mono:        var(--font-jetbrains-mono), 'JetBrains Mono', 'Courier New', monospace;
-  --font-condensed:   var(--font-barlow-condensed), 'Barlow Condensed', system-ui, sans-serif;
+  --font-primary:   var(--font-work-sans), 'Work Sans', system-ui, sans-serif;
+  --font-mono:      var(--font-jetbrains-mono), 'JetBrains Mono', 'Courier New', monospace;
+  --font-condensed: var(--font-barlow-condensed), 'Barlow Condensed', system-ui, sans-serif;
 
   /* Scale */
-  --text-xs:    0.6875rem;   /* 11px */
-  --text-sm:    0.8125rem;   /* 13px */
-  --text-base:  0.9375rem;   /* 15px */
-  --text-md:    1.0625rem;   /* 17px */
-  --text-lg:    1.25rem;     /* 20px */
-  --text-xl:    1.5rem;      /* 24px */
-  --text-2xl:   2rem;        /* 32px */
-  --text-3xl:   2.5rem;      /* 40px */
-  --text-4xl:   3.5rem;      /* 56px */
-  --text-5xl:   5rem;        /* 80px */
-  --text-6xl:   7rem;        /* 112px */
+  --text-xs:   0.6875rem;   /* 11px */
+  --text-sm:   0.8125rem;   /* 13px */
+  --text-base: 0.9375rem;   /* 15px */
+  --text-md:   1.0625rem;   /* 17px */
+  --text-lg:   1.25rem;     /* 20px */
+  --text-xl:   1.5rem;      /* 24px */
+  --text-2xl:  2rem;        /* 32px */
+  --text-3xl:  2.5rem;      /* 40px */
+  --text-4xl:  3.5rem;      /* 56px */
+  --text-5xl:  5rem;        /* 80px */
+  --text-6xl:  7rem;        /* 112px */
 
   /* Weight */
   --weight-extralight: 200;
@@ -126,6 +156,15 @@
   --space-10: 8rem;      /* 128px */
   --space-11: 12rem;     /* 192px */
   --space-12: 16rem;     /* 256px */
+
+  /*
+   * These tokens are defined to prevent silent CSS failures.
+   * For section-level vertical rhythm, prefer the named --section-space-*
+   * tokens in the Layout block. These fixed values are safe fallbacks only.
+   */
+  --space-16: 4rem;   /* 64px  — prefer --section-space-standard for sections */
+  --space-20: 5rem;   /* 80px  — prefer --section-space-standard for sections */
+  --space-24: 6rem;   /* 96px  — prefer --section-space-editorial for sections */
 }
 
 /* ─── Border Radius ──────────────────────────────────────────────────────── */
@@ -139,7 +178,7 @@
 
 /* ─── Shadows ────────────────────────────────────────────────────────────── */
 :root {
-  /* Light-first elevation (grounded, disciplined, low-contrast multi-layer diffusion) */
+  /* Light-first elevation */
   --shadow-subtle:      0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 1px rgba(0, 0, 0, 0.02);
   --shadow-card:        0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-card-hover:  0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
@@ -156,10 +195,10 @@
 
 /* ─── Motion (Quiet, physical, precision engineering) ─────────────────────── */
 :root {
-  --ease-standard:      cubic-bezier(0.16, 1, 0.3, 1);     /* Smooth exponential decelerate */
-  --ease-enter:         cubic-bezier(0, 0, 0.2, 1);
-  --ease-exit:          cubic-bezier(0.4, 0, 1, 1);
-  --ease-spring:        cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-enter:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --duration-instant:   80ms;
   --duration-micro:     180ms;
@@ -168,48 +207,60 @@
   --duration-slow:      450ms;
   --duration-cinematic: 800ms;
 
-  --transition-hover:   all 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-card:    transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease;
+  --transition-hover: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-card:  transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease;
 }
 
 /* ─── Layout ─────────────────────────────────────────────────────────────── */
 :root {
-  --nav-height:       64px;
-  --nav-height-md:    72px;
+  --nav-height:    64px;
+  --nav-height-md: 72px;
 
   /* Container width hierarchy */
-  --container-editorial: 840px;    /* Deep technical notes, manifesto prose */
+  --container-editorial: 840px;
   --container-sm:        640px;
   --container-md:        768px;
   --container-lg:        1024px;
-  --container-standard:  1240px;   /* Standard readable showroom & catalogue container */
+  --container-standard:  1240px;
   --container-xl:        1280px;
-  --container-wide:      1360px;   /* Wide showcase, hero splits, asymmetric rails */
+  --container-wide:      1360px;
   --container-2xl:       1440px;
   --container-3xl:       1680px;
   --container-full:      100%;
 
-  /* Fluid responsive gutters — prevents edge crowding on both mobile and ultrawide */
-  --gutter-sm:   clamp(16px, 3.5vw, 20px);
-  --gutter-md:   clamp(24px, 4vw, 36px);
-  --gutter-lg:   clamp(36px, 5vw, 56px);
-  --gutter-xl:   clamp(48px, 6.5vw, 80px);
+  /* Fluid responsive gutters */
+  --gutter-sm: clamp(16px, 3.5vw, 20px);
+  --gutter-md: clamp(24px, 4vw, 36px);
+  --gutter-lg: clamp(36px, 5vw, 56px);
+  --gutter-xl: clamp(48px, 6.5vw, 80px);
 
-  /* Section vertical rhythm tokens */
-  --section-space-hero:     clamp(112px, 12vw, 176px);
-  --section-space-standard: clamp(80px, 8vw, 128px);
-  --section-space-tight:    clamp(40px, 4vw, 56px);
-  --section-space-compact:  clamp(24px, 2.5vw, 36px);
+  /*
+   * Section vertical rhythm tokens
+   * ─────────────────────────────────────────────────────────────────────────
+   * These are the canonical values for section-level padding.
+   * Always prefer these over raw --space-* tokens for section blocks.
+   *
+   *   hero:       112–176px  (full-bleed hero panels)
+   *   editorial:   96–160px  (dark chapters, large editorial feature sections)
+   *   standard:    80–128px  (default section rhythm — most sections)
+   *   tight:       40–56px   (compact utility sections, section envelopes)
+   *   compact:     24–36px   (tight bands, marquees, inline separators)
+   */
+  --section-space-hero:      clamp(112px, 12vw, 176px);
+  --section-space-editorial: clamp(96px, 10vw, 160px);
+  --section-space-standard:  clamp(80px, 8vw, 128px);
+  --section-space-tight:     clamp(40px, 4vw, 56px);
+  --section-space-compact:   clamp(24px, 2.5vw, 36px);
 }
 
 /* ─── Z-index ────────────────────────────────────────────────────────────── */
 :root {
-  --z-below:    -1;
-  --z-base:      0;
-  --z-raised:   10;
-  --z-overlay:  20;
-  --z-sticky:   30;
-  --z-nav:      40;
-  --z-modal:    50;
-  --z-toast:    60;
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:  10;
+  --z-overlay: 20;
+  --z-sticky:  30;
+  --z-nav:     40;
+  --z-modal:   50;
+  --z-toast:   60;
 }

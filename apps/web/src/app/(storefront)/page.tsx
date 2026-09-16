@@ -88,23 +88,17 @@ export default function HomePage() {
               </Link>
             </div>
           </ScrollReveal>
-        </div>
 
-        {/* Full-width 2 rows of 3 edge-to-edge discipline grid */}
-        <div className={s.disciplineFullWidthContainer}>
+          {/* Discipline card grid with uniform margins */}
           <div className={s.disciplineGrid}>
-            {SHOP_DISCIPLINES.map((item, idx) => (
+            {SHOP_DISCIPLINES.map((item) => (
               <Link key={item.id} href={item.href} className={s.disciplineCard}>
                 {item.image && (
-                  <div className={s.disciplineCardBg} aria-hidden="true">
-                    <Image
-                      src={item.image}
-                      alt={item.label}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.33vw"
-                      style={{ objectFit: 'cover', objectPosition: 'center' }}
-                    />
-                  </div>
+                  <div
+                    className={s.disciplineCardBg}
+                    style={{ backgroundImage: `url(${item.image})` }}
+                    aria-hidden="true"
+                  />
                 )}
                 <div className={s.disciplineCardScrim} aria-hidden="true" />
                 <div className={s.disciplineCardContent}>
@@ -113,7 +107,7 @@ export default function HomePage() {
                   )}
                   <h3 className={s.disciplineCardTitle}>{item.label}</h3>
                   <p className={s.disciplineCardSub}>{item.sub}</p>
-                  <span className={s.disciplineCardCta}>VIEW MORE</span>
+                  <span className={s.disciplineCardCta}>Explore Platforms →</span>
                 </div>
               </Link>
             ))}
@@ -315,34 +309,31 @@ export default function HomePage() {
               </Link>
             </div>
           </ScrollReveal>
-        </div>
 
-        {/* Full-width card grid — mirrors discipline grid layout */}
-        <div className={s.engineeringBrandsGrid}>
-          {FEATURED_ENGINEERING_BRANDS.map((brand) => (
-            <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
-              {brand.image && (
-                <div className={s.engineeringBrandBg} aria-hidden="true">
-                  <Image
-                    src={brand.image}
-                    alt=""
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+          {/* Engineering Brands card grid with uniform margins */}
+          <div className={s.engineeringBrandsGrid}>
+            {FEATURED_ENGINEERING_BRANDS.map((brand) => (
+              <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
+                {brand.image && (
+                  <div
+                    className={s.engineeringBrandBg}
+                    style={{ backgroundImage: `url(${brand.image})` }}
+                    aria-hidden="true"
                   />
+                )}
+                <div className={s.engineeringBrandScrim} aria-hidden="true" />
+                <div className={s.engineeringBrandContent}>
+                  <div className={s.engineeringBrandTop}>
+                    <span className={s.engineeringBrandOrigin}>{brand.country}</span>
+                    <span className={s.engineeringBrandStatus}>{brand.status}</span>
+                  </div>
+                  <h3 className={s.engineeringBrandName}>{brand.name}</h3>
+                  <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
+                  <span className={s.engineeringBrandArrow}>Explore Brand Universe →</span>
                 </div>
-              )}
-              <div className={s.engineeringBrandScrim} aria-hidden="true" />
-              <div className={s.engineeringBrandContent}>
-                <div className={s.engineeringBrandTop}>
-                  <span className={s.engineeringBrandOrigin}>{brand.country}</span>
-                </div>
-                <h3 className={s.engineeringBrandName}>{brand.name}</h3>
-                <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
-                <span className={s.engineeringBrandArrow}>Explore Brand →</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
   getSupplierById,
@@ -9,6 +8,17 @@ import {
   getSupplierSyncRuns,
   getSupplierChangeEvents,
 } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminTable,
+  AdminTableRow,
+  AdminStatus,
+  AdminSection,
+  AdminAction,
+  AdminTabs,
+  AdminEmptyState,
+} from '@/components/admin'
 
 interface PageProps {
   params: Promise<{ supplier: string }>
@@ -23,13 +33,12 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
   const supplier = await getSupplierById(supplierSlugOrId)
   if (!supplier) notFound()
 
-  const [feeds, products, mappings, exceptions, syncRuns, changeEvents] = await Promise.all([
+  const [feeds, products, mappings, exceptions, syncRuns] = await Promise.all([
     getSupplierFeeds(supplier.id),
     getSupplierProducts(supplier.id),
     getSupplierMappings(supplier.id),
     getSupplierImportExceptions(supplier.id),
     getSupplierSyncRuns(supplier.id),
-    getSupplierChangeEvents(supplier.id, 25),
   ])
 
   const openExceptions = exceptions.filter((e) => e.resolutionStatus === 'OPEN')
@@ -37,469 +46,263 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
   const matchedMappings = mappings.filter((m) => m.status === 'MATCHED')
 
   const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'feeds', label: `Feeds (${feeds.length})` },
-    { id: 'products', label: `Products Ingested (${products.length})` },
-    { id: 'mapping', label: `Mapping (${unmappedMappings.length} unmapped)` },
-    { id: 'exceptions', label: `Exceptions (${openExceptions.length})`, badge: openExceptions.length > 0 ? String(openExceptions.length) : undefined },
-    { id: 'history', label: `Sync History (${syncRuns.length})` },
+    { id: 'overview', label: 'Overview', href: `/admin/suppliers/${supplier.slug}?tab=overview` },
+    { id: 'feeds', label: `Feeds (${feeds.length})`, href: `/admin/suppliers/${supplier.slug}?tab=feeds` },
+    { id: 'products', label: `Products (${products.length})`, href: `/admin/suppliers/${supplier.slug}?tab=products` },
+    { id: 'mapping', label: `Mapping (${unmappedMappings.length} unmapped)`, href: `/admin/suppliers/${supplier.slug}?tab=mapping` },
+    { id: 'exceptions', label: `Exceptions (${openExceptions.length})`, href: `/admin/suppliers/${supplier.slug}?tab=exceptions`, badge: openExceptions.length > 0 ? String(openExceptions.length) : undefined },
+    { id: 'history', label: `Sync History (${syncRuns.length})`, href: `/admin/suppliers/${supplier.slug}?tab=history` },
   ]
 
   return (
-    <div>
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)' }}>
-        <Link href="/admin/suppliers" style={{ color: 'var(--colour-ash)', textDecoration: 'none' }}>
-          &larr; Supplier Directory
-        </Link>
-        <span style={{ color: 'var(--colour-smoke)' }}>/</span>
-        <span style={{ color: 'var(--colour-halo)' }}>{supplier.name}</span>
-      </div>
+    <>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Supplier Directory', href: '/admin/suppliers' },
+          { label: supplier.name },
+        ]}
+        title={supplier.name}
+        description={`Account: ${supplier.accountReference || 'None'} · ${supplier.country} · ${supplier.currency} · ${supplier.integrationType}`}
+        status={<AdminStatus status={supplier.relationshipStatus === 'ACTIVE' ? 'active' : 'inactive'} label={supplier.relationshipStatus} />}
+        actions={
+          <AdminAction href="/admin/procurement/import" variant="primary">
+            Trigger Import →
+          </AdminAction>
+        }
+      />
 
-      {/* Supplier Profile Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-            <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              {supplier.name}
-            </h1>
-            <span
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.6875rem',
-                padding: '2px 8px',
-                borderRadius: '2px',
-                backgroundColor: supplier.relationshipStatus === 'ACTIVE' ? 'var(--colour-halo-10)' : 'var(--colour-race-10)',
-                color: supplier.relationshipStatus === 'ACTIVE' ? 'var(--colour-halo)' : 'var(--colour-race)',
-                border: `1px solid ${supplier.relationshipStatus === 'ACTIVE' ? 'var(--colour-halo)' : 'var(--colour-race)'}`,
-              }}
-            >
-              {supplier.relationshipStatus}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
-            <span>Account: <strong style={{ color: 'var(--colour-white)' }}>{supplier.accountReference || 'None'}</strong></span>
-            <span>&bull;</span>
-            <span>Country: <strong style={{ color: 'var(--colour-white)' }}>{supplier.country}</strong></span>
-            <span>&bull;</span>
-            <span>Currency: <strong style={{ color: 'var(--colour-white)' }}>{supplier.currency}</strong></span>
-            <span>&bull;</span>
-            <span>Integration: <strong style={{ color: 'var(--colour-white)' }}>{supplier.integrationType}</strong></span>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <Link
-            href="/admin/procurement/import"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: 'var(--space-2) var(--space-4)',
-              backgroundColor: 'var(--colour-halo)',
-              color: 'var(--colour-charcoal)',
-              borderRadius: 'var(--radius-sm)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 700,
-              textDecoration: 'none',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Trigger Import &rarr;
-          </Link>
-        </div>
-      </div>
-
-      {/* Tabs Navigation */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--colour-slate)', marginBottom: 'var(--space-6)', gap: 'var(--space-2)' }}>
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id
-          return (
-            <Link
-              key={tab.id}
-              href={`/admin/suppliers/${supplier.slug}?tab=${tab.id}`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-4)',
-                borderBottom: isActive ? '2px solid var(--colour-halo)' : '2px solid transparent',
-                color: isActive ? 'var(--colour-white)' : 'var(--colour-ash)',
-                textDecoration: 'none',
-                fontSize: 'var(--text-xs)',
-                fontWeight: isActive ? 600 : 400,
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              <span>{tab.label}</span>
-              {tab.badge && (
-                <span style={{ padding: '1px 5px', borderRadius: '10px', fontSize: '0.625rem', backgroundColor: 'var(--colour-race)', color: 'var(--colour-white)' }}>
-                  {tab.badge}
-                </span>
-              )}
-            </Link>
-          )
-        })}
-      </div>
+      <AdminSection>
+        <AdminTabs
+          tabs={tabs}
+          activeId={activeTab}
+        />
+      </AdminSection>
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
-            <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-4)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-ash)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
+        <AdminSection>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+            <AdminPanel padding="md">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: '#767A85', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
                 Configured Feeds
-              </div>
-              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--colour-white)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: '#111317', display: 'block', marginBottom: 4 }}>
                 {feeds.length}
-              </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-halo)', marginTop: 'var(--space-1)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-xs)', color: '#B8935A' }}>
                 {feeds.filter((f) => f.isActive).length} active schedules
-              </div>
-            </div>
+              </span>
+            </AdminPanel>
 
-            <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-4)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-ash)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
+            <AdminPanel padding="md">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: '#767A85', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
                 Product Mapping Rate
-              </div>
-              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--colour-white)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: '#111317', display: 'block', marginBottom: 4 }}>
                 {products.length > 0 ? Math.round((matchedMappings.length / products.length) * 100) : 0}%
-              </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', marginTop: 'var(--space-1)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-xs)', color: '#767A85' }}>
                 {matchedMappings.length} of {products.length} mapped to master
-              </div>
-            </div>
+              </span>
+            </AdminPanel>
 
-            <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-4)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-ash)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
+            <AdminPanel padding="md">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: '#767A85', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
                 Open Exceptions
-              </div>
-              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: openExceptions.length > 0 ? 'var(--colour-race)' : 'var(--colour-halo)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: openExceptions.length > 0 ? '#C8001A' : '#111317', display: 'block', marginBottom: 4 }}>
                 {openExceptions.length}
-              </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', marginTop: 'var(--space-1)' }}>
+              </span>
+              <span style={{ fontSize: 'var(--text-xs)', color: '#767A85' }}>
                 Requires cataloguer review
-              </div>
-            </div>
+              </span>
+            </AdminPanel>
           </div>
 
-          {/* Supplier Details Card */}
-          <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-6)' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-4)' }}>
-              Connection &amp; Supplier Profile
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4)', fontSize: 'var(--text-xs)' }}>
+          <AdminPanel title="Connection & Supplier Profile" padding="lg">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, fontSize: 'var(--text-xs)' }}>
               <div>
-                <span style={{ color: 'var(--colour-ash)' }}>Legal Entity:</span>
-                <div style={{ color: 'var(--colour-white)', fontWeight: 600, marginTop: '2px' }}>{supplier.legalName || supplier.name}</div>
+                <span style={{ color: '#767A85' }}>Legal Entity:</span>
+                <div style={{ color: '#111317', fontWeight: 600, marginTop: 2 }}>{supplier.legalName || supplier.name}</div>
               </div>
               <div>
-                <span style={{ color: 'var(--colour-ash)' }}>Official Website:</span>
-                <div style={{ marginTop: '2px' }}>
+                <span style={{ color: '#767A85' }}>Official Website:</span>
+                <div style={{ marginTop: 2 }}>
                   {supplier.website ? (
-                    <a href={supplier.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--colour-halo)' }}>
+                    <a href={supplier.website} target="_blank" rel="noopener noreferrer" style={{ color: '#B8935A' }}>
                       {supplier.website}
                     </a>
                   ) : (
-                    <span style={{ color: 'var(--colour-smoke)' }}>None listed</span>
+                    <span style={{ color: '#767A85' }}>None listed</span>
                   )}
                 </div>
               </div>
               <div>
-                <span style={{ color: 'var(--colour-ash)' }}>Order / Trade Email:</span>
-                <div style={{ color: 'var(--colour-white)', marginTop: '2px' }}>{supplier.contactEmail || 'None'}</div>
+                <span style={{ color: '#767A85' }}>Order / Trade Email:</span>
+                <div style={{ color: '#111317', marginTop: 2 }}>{supplier.contactEmail || 'None'}</div>
               </div>
               <div>
-                <span style={{ color: 'var(--colour-ash)' }}>VAT / Tax ID:</span>
-                <div style={{ color: 'var(--colour-white)', marginTop: '2px' }}>{supplier.vatStatus || 'Unregistered / Exempt'}</div>
+                <span style={{ color: '#767A85' }}>VAT / Tax ID:</span>
+                <div style={{ color: '#111317', marginTop: 2 }}>{supplier.vatStatus || 'Unregistered / Exempt'}</div>
               </div>
               <div style={{ gridColumn: 'span 2' }}>
-                <span style={{ color: 'var(--colour-ash)' }}>Operational Notes:</span>
-                <p style={{ color: 'var(--colour-off-white)', marginTop: '2px', lineHeight: 'var(--leading-relaxed)' }}>
+                <span style={{ color: '#767A85' }}>Operational Notes:</span>
+                <p style={{ color: '#494D55', marginTop: 2, lineHeight: 'var(--leading-relaxed)', marginBottom: 0 }}>
                   {supplier.notes || 'No supplier notes recorded.'}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </AdminPanel>
+        </AdminSection>
       )}
 
       {/* TAB 2: FEEDS */}
       {activeTab === 'feeds' && (
-        <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-slate)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              Configured Ingestion Feeds
-            </h2>
-          </div>
-          {feeds.length === 0 ? (
-            <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--colour-ash)' }}>
-              No automated feeds configured yet for this supplier.
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--colour-graphite)', borderBottom: '1px solid var(--colour-slate)', textAlign: 'left' }}>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Feed Name</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Type</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Format</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Schedule</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Auth</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Status</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Last Run</th>
-                </tr>
-              </thead>
-              <tbody>
+        <AdminSection>
+          <AdminPanel title={`Configured Ingestion Feeds (${feeds.length})`} padding="none">
+            {feeds.length === 0 ? (
+              <div style={{ padding: 32 }}>
+                <AdminEmptyState title="No feeds configured" description="No automated feeds configured yet for this supplier." />
+              </div>
+            ) : (
+              <AdminTable columns={['Feed Name', 'Type', 'Format', 'Schedule', 'Auth', 'Status', 'Last Run']}>
                 {feeds.map((feed) => (
-                  <tr key={feed.id} style={{ borderBottom: '1px solid var(--colour-slate)' }}>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                      {feed.feedName}
+                  <AdminTableRow key={feed.id} cells={[
+                    <div key="name">
+                      <div style={{ fontWeight: 600, color: '#111317' }}>{feed.feedName}</div>
                       {feed.sourceUrl && (
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)' }}>
-                          {feed.sourceUrl}
-                        </div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: '#767A85' }}>{feed.sourceUrl}</div>
                       )}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>{feed.feedType}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{feed.format}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{feed.scheduleCron || 'Manual'}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{feed.authType}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{ padding: '2px 6px', borderRadius: '2px', backgroundColor: feed.isActive ? 'var(--colour-halo-10)' : 'var(--colour-steel)', color: feed.isActive ? 'var(--colour-halo)' : 'var(--colour-ash)' }}>
-                        {feed.isActive ? 'ACTIVE' : 'PAUSED'}
-                      </span>
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)' }}>
+                    </div>,
+                    <span key="type" style={{ color: '#494D55' }}>{feed.feedType}</span>,
+                    <span key="fmt" style={{ fontFamily: 'var(--font-mono)' }}>{feed.format}</span>,
+                    <span key="sched" style={{ fontFamily: 'var(--font-mono)' }}>{feed.scheduleCron || 'Manual'}</span>,
+                    <span key="auth" style={{ fontFamily: 'var(--font-mono)' }}>{feed.authType}</span>,
+                    <AdminStatus key="status" status={feed.isActive ? 'active' : 'inactive'} />,
+                    <span key="last" style={{ fontFamily: 'var(--font-mono)', color: '#767A85', fontSize: '0.6875rem' }}>
                       {feed.lastSuccessfulRun ? new Date(feed.lastSuccessfulRun).toLocaleDateString('en-GB') : 'Never'}
-                    </td>
-                  </tr>
+                    </span>,
+                  ]} />
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </AdminTable>
+            )}
+          </AdminPanel>
+        </AdminSection>
       )}
 
       {/* TAB 3: PRODUCTS */}
       {activeTab === 'products' && (
-        <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-slate)' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              Raw Ingested Supplier Catalogue ({products.length} items)
-            </h2>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', margin: '4px 0 0 0' }}>
-              Separate staging records preserving exact source provenance without overwriting canonical Avorria editorial content.
-            </p>
-          </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--colour-graphite)', borderBottom: '1px solid var(--colour-slate)', textAlign: 'left' }}>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Supplier SKU</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Product Name</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Brand / Category</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Wholesale Cost</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Supplier Stock</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Availability</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+        <AdminSection>
+          <AdminPanel
+            title={`Raw Ingested Supplier Catalogue (${products.length} items)`}
+            subtitle="Separate staging records preserving exact source provenance without overwriting canonical Avorria editorial content."
+            padding="none"
+          >
+            <AdminTable columns={['Supplier SKU', 'Product Name', 'Brand / Category', 'Wholesale Cost', 'Supplier Stock', 'Availability', 'Status']}>
               {products.map((p) => (
-                <tr key={p.id} style={{ borderBottom: '1px solid var(--colour-slate)' }}>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                    {p.supplierSku}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>{p.supplierProductName}</td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-ash)' }}>
-                    {p.supplierBrand || 'Unknown'} {p.supplierCategory ? `(${p.supplierCategory})` : ''}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-halo)' }}>
-                    {p.currency} {(p.rawCostMinorUnits / 100).toFixed(2)}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>
-                    {p.rawStockQuantity !== null ? `${p.rawStockQuantity} units` : 'Unknown'}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: p.rawAvailability === 'IN_STOCK' ? 'var(--colour-halo)' : 'var(--colour-smoke)' }}>
-                      {p.rawAvailability}
-                    </span>
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <span style={{ padding: '2px 6px', borderRadius: '2px', fontSize: '0.625rem', backgroundColor: p.isDiscontinued ? 'var(--colour-race-10)' : 'var(--colour-slate)', color: p.isDiscontinued ? 'var(--colour-race)' : 'var(--colour-off-white)' }}>
-                      {p.importStatus}
-                    </span>
-                  </td>
-                </tr>
+                <AdminTableRow key={p.id} cells={[
+                  <span key="sku" style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#111317' }}>{p.supplierSku}</span>,
+                  <span key="name" style={{ color: '#494D55' }}>{p.supplierProductName}</span>,
+                  <span key="brand" style={{ color: '#767A85' }}>{p.supplierBrand || 'Unknown'}{p.supplierCategory ? ` (${p.supplierCategory})` : ''}</span>,
+                  <span key="cost" style={{ fontFamily: 'var(--font-mono)', color: '#B8935A' }}>{p.currency} {(p.rawCostMinorUnits / 100).toFixed(2)}</span>,
+                  <span key="stock" style={{ fontFamily: 'var(--font-mono)' }}>{p.rawStockQuantity !== null ? `${p.rawStockQuantity} units` : 'Unknown'}</span>,
+                  <span key="avail" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: p.rawAvailability === 'IN_STOCK' ? '#1A6E34' : '#767A85' }}>{p.rawAvailability}</span>,
+                  <span key="status" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', padding: '2px 6px', borderRadius: 2, backgroundColor: p.isDiscontinued ? 'rgba(200,0,26,0.08)' : '#EFEFED', color: p.isDiscontinued ? '#C8001A' : '#494D55' }}>{p.importStatus}</span>,
+                ]} />
               ))}
-            </tbody>
-          </table>
-        </div>
+            </AdminTable>
+          </AdminPanel>
+        </AdminSection>
       )}
 
       {/* TAB 4: MAPPING */}
       {activeTab === 'mapping' && (
-        <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-slate)' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              Deterministic Mapping Registry ({mappings.length} mappings)
-            </h2>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', margin: '4px 0 0 0' }}>
-              Maps external supplier SKUs to internal canonical Avorria products and variants with verified confidence.
-            </p>
-          </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--colour-graphite)', borderBottom: '1px solid var(--colour-slate)', textAlign: 'left' }}>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Supplier SKU</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Canonical Product</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Match Method</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Confidence</th>
-                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+        <AdminSection>
+          <AdminPanel
+            title={`Deterministic Mapping Registry (${mappings.length} mappings)`}
+            subtitle="Maps external supplier SKUs to internal canonical Avorria products and variants with verified confidence."
+            padding="none"
+          >
+            <AdminTable columns={['Supplier SKU', 'Canonical Product', 'Match Method', 'Confidence', 'Status']}>
               {mappings.map((m) => (
-                <tr key={m.id} style={{ borderBottom: '1px solid var(--colour-slate)' }}>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                    {m.supplierSku}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>
+                <AdminTableRow key={m.id} cells={[
+                  <span key="sku" style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#111317' }}>{m.supplierSku}</span>,
+                  <div key="prod">
                     {m.canonicalProductName ? (
-                      <div>
-                        <strong>{m.canonicalProductName}</strong>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-halo)' }}>
-                          {m.canonicalProductSku}
-                        </div>
-                      </div>
+                      <>
+                        <strong style={{ color: '#111317' }}>{m.canonicalProductName}</strong>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: '#B8935A' }}>{m.canonicalProductSku}</div>
+                      </>
                     ) : (
-                      <span style={{ color: 'var(--colour-race)' }}>Unmapped (No canonical product)</span>
+                      <span style={{ color: '#C8001A' }}>Unmapped (No canonical product)</span>
                     )}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>
-                    {m.matchMethod || 'NONE'}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>
-                    <span style={{ color: m.matchConfidenceCategory === 'EXACT_MATCH' ? 'var(--colour-halo)' : 'var(--colour-smoke)' }}>
-                      {m.matchConfidenceCategory}
-                    </span>
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <span style={{ padding: '2px 6px', borderRadius: '2px', fontSize: '0.625rem', backgroundColor: m.status === 'MATCHED' ? 'var(--colour-halo-10)' : 'var(--colour-race-10)', color: m.status === 'MATCHED' ? 'var(--colour-halo)' : 'var(--colour-race)' }}>
-                      {m.status}
-                    </span>
-                  </td>
-                </tr>
+                  </div>,
+                  <span key="method" style={{ fontFamily: 'var(--font-mono)' }}>{m.matchMethod || 'NONE'}</span>,
+                  <span key="conf" style={{ fontFamily: 'var(--font-mono)', color: m.matchConfidenceCategory === 'EXACT_MATCH' ? '#B8935A' : '#767A85' }}>{m.matchConfidenceCategory}</span>,
+                  <AdminStatus key="status" status={m.status === 'MATCHED' ? 'verified' : 'warning'} label={m.status} />,
+                ]} />
               ))}
-            </tbody>
-          </table>
-        </div>
+            </AdminTable>
+          </AdminPanel>
+        </AdminSection>
       )}
 
       {/* TAB 5: EXCEPTIONS */}
       {activeTab === 'exceptions' && (
-        <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-slate)' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              Exception &amp; Validation Queue ({exceptions.length} total)
-            </h2>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', margin: '4px 0 0 0' }}>
-              Structured ingestion errors (missing SKU, price out of bounds, unmapped items, duplicate SKUs).
-            </p>
-          </div>
-          {exceptions.length === 0 ? (
-            <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--colour-halo)' }}>
-              &check; Clean feed! No validation exceptions or quarantined records.
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--colour-graphite)', borderBottom: '1px solid var(--colour-slate)', textAlign: 'left' }}>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>SKU</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Exception Code</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Severity</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Message</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
+        <AdminSection>
+          <AdminPanel
+            title={`Exception & Validation Queue (${exceptions.length} total)`}
+            subtitle="Structured ingestion errors (missing SKU, price out of bounds, unmapped items, duplicate SKUs)."
+            padding="none"
+          >
+            {exceptions.length === 0 ? (
+              <div style={{ padding: 32 }}>
+                <AdminEmptyState title="Clean feed!" description="No validation exceptions or quarantined records." />
+              </div>
+            ) : (
+              <AdminTable columns={['SKU', 'Exception Code', 'Severity', 'Message', 'Status']}>
                 {exceptions.map((ex) => (
-                  <tr key={ex.id} style={{ borderBottom: '1px solid var(--colour-slate)' }}>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                      {ex.supplierSku || 'N/A'}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{ex.exceptionCode}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{ padding: '2px 6px', borderRadius: '2px', fontSize: '0.625rem', backgroundColor: ex.severity === 'CRITICAL' || ex.severity === 'ERROR' ? 'var(--colour-race-10)' : 'var(--colour-steel)', color: ex.severity === 'CRITICAL' || ex.severity === 'ERROR' ? 'var(--colour-race)' : 'var(--colour-off-white)' }}>
-                        {ex.severity}
-                      </span>
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>{ex.message}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{ padding: '2px 6px', borderRadius: '2px', fontSize: '0.625rem', backgroundColor: ex.resolutionStatus === 'OPEN' ? 'var(--colour-race-10)' : 'var(--colour-halo-10)', color: ex.resolutionStatus === 'OPEN' ? 'var(--colour-race)' : 'var(--colour-halo)' }}>
-                        {ex.resolutionStatus}
-                      </span>
-                    </td>
-                  </tr>
+                  <AdminTableRow key={ex.id} cells={[
+                    <span key="sku" style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#111317' }}>{ex.supplierSku || 'N/A'}</span>,
+                    <span key="code" style={{ fontFamily: 'var(--font-mono)' }}>{ex.exceptionCode}</span>,
+                    <AdminStatus key="sev" status={ex.severity === 'CRITICAL' || ex.severity === 'ERROR' ? 'alert' : 'warning'} label={ex.severity} />,
+                    <span key="msg" style={{ color: '#494D55' }}>{ex.message}</span>,
+                    <AdminStatus key="res" status={ex.resolutionStatus === 'OPEN' ? 'alert' : 'verified'} label={ex.resolutionStatus} />,
+                  ]} />
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </AdminTable>
+            )}
+          </AdminPanel>
+        </AdminSection>
       )}
 
       {/* TAB 6: SYNC HISTORY */}
       {activeTab === 'history' && (
-        <div style={{ backgroundColor: 'var(--colour-charcoal)', border: '1px solid var(--colour-slate)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-slate)' }}>
-            <h2 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--colour-white)', margin: 0 }}>
-              Import Run Ledger ({syncRuns.length} executions)
-            </h2>
-          </div>
-          {syncRuns.length === 0 ? (
-            <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--colour-ash)' }}>
-              No sync runs recorded yet.
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--colour-graphite)', borderBottom: '1px solid var(--colour-slate)', textAlign: 'left' }}>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Run ID</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Timestamp</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Status</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Received</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Processed</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Matched</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Changed</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>Rejected</th>
-                </tr>
-              </thead>
-              <tbody>
+        <AdminSection>
+          <AdminPanel title={`Import Run Ledger (${syncRuns.length} executions)`} padding="none">
+            {syncRuns.length === 0 ? (
+              <div style={{ padding: 32 }}>
+                <AdminEmptyState title="No sync runs" description="No sync runs recorded yet." />
+              </div>
+            ) : (
+              <AdminTable columns={['Run ID', 'Timestamp', 'Status', 'Received', 'Processed', 'Matched', 'Changed', 'Rejected']}>
                 {syncRuns.map((run) => (
-                  <tr key={run.runId} style={{ borderBottom: '1px solid var(--colour-slate)' }}>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-halo)' }}>
-                      {run.runId}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)' }}>
-                      {new Date(run.startedAt).toLocaleString('en-GB')}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{ padding: '2px 6px', borderRadius: '2px', fontSize: '0.625rem', backgroundColor: run.status === 'COMPLETED' ? 'var(--colour-halo-10)' : 'var(--colour-race-10)', color: run.status === 'COMPLETED' ? 'var(--colour-halo)' : 'var(--colour-race)' }}>
-                        {run.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{run.recordsReceived}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{run.recordsProcessed}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-halo)' }}>{run.recordsMatched}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-race)' }}>{run.recordsChanged}</td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)' }}>{run.recordsRejected}</td>
-                  </tr>
+                  <AdminTableRow key={run.runId} cells={[
+                    <span key="id" style={{ fontFamily: 'var(--font-mono)', color: '#B8935A', fontSize: '0.6875rem' }}>{run.runId}</span>,
+                    <span key="ts" style={{ fontFamily: 'var(--font-mono)', color: '#767A85', fontSize: '0.6875rem' }}>{new Date(run.startedAt).toLocaleString('en-GB')}</span>,
+                    <AdminStatus key="status" status={run.status === 'COMPLETED' ? 'verified' : 'alert'} label={run.status} />,
+                    <span key="recv" style={{ fontFamily: 'var(--font-mono)' }}>{run.recordsReceived}</span>,
+                    <span key="proc" style={{ fontFamily: 'var(--font-mono)' }}>{run.recordsProcessed}</span>,
+                    <span key="matched" style={{ fontFamily: 'var(--font-mono)', color: '#1A6E34' }}>{run.recordsMatched}</span>,
+                    <span key="changed" style={{ fontFamily: 'var(--font-mono)', color: '#B8935A' }}>{run.recordsChanged}</span>,
+                    <span key="rej" style={{ fontFamily: 'var(--font-mono)' }}>{run.recordsRejected}</span>,
+                  ]} />
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </AdminTable>
+            )}
+          </AdminPanel>
+        </AdminSection>
       )}
-    </div>
+    </>
   )
 }

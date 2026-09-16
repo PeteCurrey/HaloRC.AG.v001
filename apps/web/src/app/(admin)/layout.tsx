@@ -3,10 +3,10 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { getSessionUser, STAFF_ROLES, hasRequiredRole } from '@/lib/auth'
-import { AdminSidebarNav } from './admin-nav'
+import { AdminShell } from '@/components/admin'
 
 export const metadata: Metadata = {
-  title: 'Halo RC Operations | Administration',
+  title: 'Avorria RC Operations | Administration',
   robots: {
     index: false,
     follow: false,
@@ -35,37 +35,38 @@ export default async function AdminLayout({
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: 'var(--colour-void)',
-          paddingTop: 'calc(var(--nav-height) + var(--space-10))',
-          paddingInline: 'var(--gutter-md)',
+          backgroundColor: 'var(--admin-canvas, #F5F5F3)',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'flex-start',
+          alignItems: 'center',
+          padding: '24px',
+          fontFamily: 'var(--font-primary, system-ui, sans-serif)',
         }}
       >
         <div
           style={{
-            maxWidth: '480px',
+            maxWidth: '460px',
             width: '100%',
-            backgroundColor: 'var(--colour-carbon)',
-            border: '1px solid var(--colour-steel)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--space-8)',
+            backgroundColor: 'var(--admin-surface, #FFFFFF)',
+            border: '1px solid var(--admin-border, #E2E2DE)',
+            borderRadius: 'var(--admin-radius-md, 5px)',
+            padding: '32px 28px',
             textAlign: 'center',
+            boxShadow: 'var(--admin-shadow-card)',
           }}
         >
           <div
             style={{
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               borderRadius: '50%',
-              backgroundColor: 'var(--colour-race-10)',
-              border: '1px solid var(--colour-race)',
-              color: 'var(--colour-race)',
+              backgroundColor: 'rgba(200, 0, 26, 0.08)',
+              border: '1px solid rgba(200, 0, 26, 0.25)',
+              color: 'var(--admin-dot-alert, #C8001A)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto var(--space-4)',
+              margin: '0 auto 16px',
               fontSize: '1.25rem',
               fontWeight: 700,
             }}
@@ -75,22 +76,23 @@ export default async function AdminLayout({
 
           <span
             style={{
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-mono, monospace)',
               fontSize: '0.6875rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: 'var(--colour-race)',
+              color: 'var(--admin-dot-alert, #C8001A)',
+              fontWeight: 600,
             }}
           >
-            403 Forbidden — Access Denied
+            403 Forbidden — Authorization Required
           </span>
 
           <h1
             style={{
-              fontSize: 'var(--text-lg)',
+              fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--colour-white)',
-              margin: 'var(--space-2) 0 var(--space-3)',
+              color: 'var(--admin-text-primary, #111317)',
+              margin: '8px 0 10px',
             }}
           >
             Staff & Engineering Authorization Required
@@ -98,28 +100,28 @@ export default async function AdminLayout({
 
           <p
             style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--colour-ash)',
-              lineHeight: 'var(--leading-relaxed)',
-              marginBottom: 'var(--space-6)',
+              fontSize: '0.8125rem',
+              color: 'var(--admin-text-secondary, #494D55)',
+              lineHeight: 1.5,
+              marginBottom: '24px',
             }}
           >
-            This administrative area manages verified commercial contracts, supplier terms, and product graph provenance.
-            Access is restricted to authorized roles.
+            This administrative area governs verified commercial contracts, supplier terms, and product graph provenance.
+            Access is restricted to verified administrative roles.
           </p>
 
           <Link
             href="/"
             style={{
               display: 'inline-block',
-              padding: 'var(--space-3) var(--space-6)',
-              backgroundColor: 'var(--colour-off-white)',
-              color: 'var(--colour-void)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: 'var(--text-xs)',
+              padding: '8px 18px',
+              backgroundColor: 'var(--admin-text-primary, #111317)',
+              color: '#FFFFFF',
+              borderRadius: 'var(--admin-radius-sm, 3px)',
+              fontSize: '0.75rem',
               fontWeight: 600,
               textDecoration: 'none',
-              letterSpacing: '0.04em',
+              letterSpacing: '0.02em',
             }}
           >
             Return to Storefront
@@ -130,46 +132,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        backgroundColor: 'var(--colour-void)',
-        paddingTop: 'var(--nav-height)',
-      }}
-    >
-      {/* Sidebar */}
-      <aside
-        style={{
-          width: '260px',
-          borderRight: '1px solid var(--colour-steel)',
-          backgroundColor: 'var(--colour-carbon)',
-          padding: 'var(--space-6) var(--space-4)',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ marginBottom: 'var(--space-6)', paddingLeft: 'var(--space-2)' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', letterSpacing: '0.12em', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-            System Architecture
-          </span>
-          <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-off-white)', marginTop: 'var(--space-1)' }}>
-            Halo RC Admin
-          </h2>
-          <div style={{ marginTop: 'var(--space-1)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--colour-verified)' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-ash)' }}>
-              {user.role} ({user.email})
-            </span>
-          </div>
-        </div>
-
-        <AdminSidebarNav />
-      </aside>
-
-      {/* Main Content Area */}
-      <main style={{ flex: 1, padding: 'var(--space-8) var(--gutter-md)' }}>
-        {children}
-      </main>
-    </div>
+    <AdminShell userRole={user.role} userEmail={user.email ?? ''}>
+      {children}
+    </AdminShell>
   )
 }

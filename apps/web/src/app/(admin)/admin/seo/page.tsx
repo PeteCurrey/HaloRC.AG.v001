@@ -1,5 +1,13 @@
 import Link from 'next/link'
 import { getAdminSeoStats, getAdminProducts } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminTable,
+  AdminTableRow,
+  AdminStatus,
+  AdminAction,
+} from '@/components/admin'
 
 export const revalidate = 0
 
@@ -9,146 +17,194 @@ export default async function AdminSeoAuditPage() {
     getAdminProducts({ published: true }, { page: 1, perPage: 50 }),
   ])
 
+  const columns = [
+    { header: 'Product', width: '35%' },
+    { header: 'Brand', width: '20%' },
+    { header: 'Tier', width: '15%' },
+    { header: 'Markets', width: '15%' },
+    { header: 'Actions', width: '15%', align: 'right' as const },
+  ]
+
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ marginBottom: 'var(--space-6)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', letterSpacing: '0.12em', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-            Intelligence &amp; Search Governance
-          </span>
-        </div>
-        <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', letterSpacing: 'var(--tracking-tight)' }}>
-          SEO &amp; Discoverability Audit
-        </h1>
-        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', marginTop: '2px' }}>
-          Halo RC non-negotiable: every published product must have verified metadata before indexation.
-        </p>
-      </div>
+      <AdminPageHeader
+        category="Intelligence & Search Governance"
+        title="SEO & Discoverability Audit"
+        description="Avorria RC authoritative policy: every published product must have verified metadata before indexation."
+      />
 
       {/* KPI Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-        <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>Published Products</p>
-          <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--colour-white)', marginTop: 'var(--space-1)', fontFamily: 'var(--font-mono)' }}>{stats.totalPublishedProducts}</p>
-        </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px',
+          marginBottom: '16px',
+        }}
+      >
+        <AdminPanel padding="sm">
+          <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase' }}>
+            Published Products
+          </div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--admin-text-primary, #111317)', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
+            {stats.totalPublishedProducts}
+          </div>
+        </AdminPanel>
 
-        <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>Missing Meta Description</p>
-          <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: stats.missingDescriptionCount > 0 ? 'var(--colour-amber)' : 'var(--colour-verified)', marginTop: 'var(--space-1)', fontFamily: 'var(--font-mono)' }}>
+        <AdminPanel padding="sm">
+          <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase' }}>
+            Missing Meta Description
+          </div>
+          <div
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              color: stats.missingDescriptionCount > 0 ? 'var(--admin-dot-warning, #B86818)' : 'var(--admin-dot-online, #1A6E34)',
+              fontFamily: 'var(--font-mono, monospace)',
+              marginTop: '2px',
+            }}
+          >
             {stats.missingDescriptionCount}
-          </p>
-        </div>
+          </div>
+        </AdminPanel>
 
-        <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>Missing Custom SEO Title</p>
-          <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: stats.missingTitleCount > 0 ? 'var(--colour-amber)' : 'var(--colour-verified)', marginTop: 'var(--space-1)', fontFamily: 'var(--font-mono)' }}>
+        <AdminPanel padding="sm">
+          <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase' }}>
+            Missing Custom SEO Title
+          </div>
+          <div
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              color: stats.missingTitleCount > 0 ? 'var(--admin-dot-warning, #B86818)' : 'var(--admin-dot-online, #1A6E34)',
+              fontFamily: 'var(--font-mono, monospace)',
+              marginTop: '2px',
+            }}
+          >
             {stats.missingTitleCount}
-          </p>
-        </div>
+          </div>
+        </AdminPanel>
 
-        <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>No SEO Record Initialized</p>
-          <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: stats.noSeoRecordCount > 0 ? '#ef4444' : 'var(--colour-verified)', marginTop: 'var(--space-1)', fontFamily: 'var(--font-mono)' }}>
+        <AdminPanel padding="sm">
+          <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase' }}>
+            No SEO Record Initialized
+          </div>
+          <div
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              color: stats.noSeoRecordCount > 0 ? 'var(--admin-dot-alert, #C8001A)' : 'var(--admin-dot-online, #1A6E34)',
+              fontFamily: 'var(--font-mono, monospace)',
+              marginTop: '2px',
+            }}
+          >
             {stats.noSeoRecordCount}
-          </p>
-        </div>
+          </div>
+        </AdminPanel>
 
-        <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>NOINDEX Exclusions</p>
-          <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--colour-ash)', marginTop: 'var(--space-1)', fontFamily: 'var(--font-mono)' }}>
+        <AdminPanel padding="sm">
+          <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase' }}>
+            NOINDEX Exclusions
+          </div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--admin-text-secondary, #494D55)', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
             {stats.noIndexCount}
-          </p>
-        </div>
+          </div>
+        </AdminPanel>
       </div>
 
       {/* Published Products SEO Roster */}
-      <div style={{ backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-steel)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', margin: 0 }}>
-            Published Products Roster
-          </h2>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>
-            Showing {productsData.items.length} of {productsData.total} published products
-          </span>
-        </div>
+      <AdminTable
+        columns={columns}
+        emptyMessage="No published products currently in registry."
+      >
+        {productsData.items.map((prod) => (
+          <AdminTableRow key={prod.id}>
+            <td style={{ padding: '10px 14px' }}>
+              <Link
+                href={`/admin/products/${prod.id}/edit?tab=seo`}
+                style={{ color: 'var(--admin-text-primary, #111317)', fontWeight: 600, textDecoration: 'none' }}
+              >
+                {prod.name}
+              </Link>
+              <div style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-tertiary, #767A85)', fontSize: '0.6875rem', marginTop: '2px' }}>
+                /{prod.slug}
+              </div>
+            </td>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 'var(--text-xs)' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--colour-steel)', backgroundColor: 'var(--colour-graphite)' }}>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontWeight: 600 }}>Product</th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontWeight: 600 }}>Brand</th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontWeight: 600 }}>Tier</th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontWeight: 600 }}>Markets</th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontWeight: 600, textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productsData.items.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--colour-ash)' }}>
-                  No published products currently in registry.
-                </td>
-              </tr>
-            ) : (
-              productsData.items.map((prod) => (
-                <tr key={prod.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <Link href={`/admin/products/${prod.id}/edit?tab=seo`} style={{ color: 'var(--colour-white)', fontWeight: 600, textDecoration: 'none' }}>
-                      {prod.name}
-                    </Link>
-                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)', fontSize: '0.6875rem', marginTop: '2px' }}>
-                      /{prod.slug}
-                    </div>
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-off-white)' }}>
-                    {prod.brandName}
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <span style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.625rem',
-                      padding: '2px 6px',
-                      borderRadius: 'var(--radius-xs)',
-                      backgroundColor: 'var(--colour-graphite)',
-                      color: prod.tier === 'HALO' ? 'var(--colour-halo)' : 'var(--colour-ash)',
-                    }}>
-                      {prod.tier}
-                    </span>
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', padding: '1px 4px', borderRadius: '2px', backgroundColor: prod.hasUkOffer ? 'rgba(0,200,100,0.1)' : 'var(--colour-graphite)', color: prod.hasUkOffer ? 'var(--colour-verified)' : 'var(--colour-smoke)' }}>
-                        UK
-                      </span>
-                      <span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', padding: '1px 4px', borderRadius: '2px', backgroundColor: prod.hasUsOffer ? 'rgba(0,200,100,0.1)' : 'var(--colour-graphite)', color: prod.hasUsOffer ? 'var(--colour-verified)' : 'var(--colour-smoke)' }}>
-                        US
-                      </span>
-                    </div>
-                  </td>
-                  <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
-                    <Link
-                      href={`/admin/products/${prod.id}/edit?tab=seo`}
-                      style={{
-                        padding: 'var(--space-1) var(--space-2)',
-                        backgroundColor: 'var(--colour-graphite)',
-                        color: 'var(--colour-halo)',
-                        border: '1px solid var(--colour-steel)',
-                        borderRadius: 'var(--radius-xs)',
-                        textDecoration: 'none',
-                        fontSize: '0.6875rem',
-                        fontFamily: 'var(--font-mono)',
-                      }}
-                    >
-                      Audit SEO &rarr;
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            <td style={{ padding: '10px 14px', color: 'var(--admin-text-secondary, #494D55)' }}>
+              {prod.brandName}
+            </td>
+
+            <td style={{ padding: '10px 14px' }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontSize: '0.6875rem',
+                  padding: '2px 6px',
+                  borderRadius: 'var(--admin-radius-sm, 3px)',
+                  backgroundColor:
+                    prod.tier === 'HALO'
+                      ? 'rgba(184, 147, 90, 0.1)'
+                      : 'var(--admin-surface-well, #EFEFED)',
+                  color:
+                    prod.tier === 'HALO'
+                      ? 'var(--admin-accent, #B8935A)'
+                      : 'var(--admin-text-secondary, #494D55)',
+                  border: `1px solid ${
+                    prod.tier === 'HALO'
+                      ? 'var(--admin-accent-border, rgba(184, 147, 90, 0.28))'
+                      : 'var(--admin-border, #E2E2DE)'
+                  }`,
+                }}
+              >
+                {prod.tier}
+              </span>
+            </td>
+
+            <td style={{ padding: '10px 14px' }}>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    fontFamily: 'var(--font-mono, monospace)',
+                    padding: '1px 5px',
+                    borderRadius: '2px',
+                    backgroundColor: prod.hasUkOffer ? 'rgba(26, 110, 52, 0.08)' : 'var(--admin-surface-well, #EFEFED)',
+                    color: prod.hasUkOffer ? 'var(--admin-dot-online, #1A6E34)' : 'var(--admin-text-muted, #9EA2AB)',
+                    border: `1px solid ${prod.hasUkOffer ? 'rgba(26, 110, 52, 0.2)' : 'transparent'}`,
+                  }}
+                >
+                  UK
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    fontFamily: 'var(--font-mono, monospace)',
+                    padding: '1px 5px',
+                    borderRadius: '2px',
+                    backgroundColor: prod.hasUsOffer ? 'rgba(26, 110, 52, 0.08)' : 'var(--admin-surface-well, #EFEFED)',
+                    color: prod.hasUsOffer ? 'var(--admin-dot-online, #1A6E34)' : 'var(--admin-text-muted, #9EA2AB)',
+                    border: `1px solid ${prod.hasUsOffer ? 'rgba(26, 110, 52, 0.2)' : 'transparent'}`,
+                  }}
+                >
+                  US
+                </span>
+              </div>
+            </td>
+
+            <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+              <AdminAction
+                variant="subtle"
+                size="sm"
+                href={`/admin/products/${prod.id}/edit?tab=seo`}
+              >
+                Audit SEO &rarr;
+              </AdminAction>
+            </td>
+          </AdminTableRow>
+        ))}
+      </AdminTable>
     </div>
   )
 }

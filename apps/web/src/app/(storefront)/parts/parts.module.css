@@ -412,7 +412,8 @@
 }
 
 .emptyGrid {
-  padding: var(--space-10) var(--space-6);
+  padding: clamp(48px, 6vw, 72px) var(--space-6);
+  margin-block: var(--space-6) var(--space-4);
   background-color: var(--bg-surface);
   border: 1px dashed var(--border-medium);
   border-radius: var(--radius-md);
@@ -446,24 +447,71 @@
   /* Pull hero up behind the fixed nav so the background fills behind it */
   margin-top: calc(-1 * var(--nav-height));
   padding-top: var(--nav-height);
+  isolation: isolate;
 }
 
 .showroomHeroBg {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center 30%;
-  opacity: 0.35;
-  transition: opacity 1.2s var(--ease-standard);
+  z-index: 1;
 }
 
-.showroomHero:hover .showroomHeroBg {
-  opacity: 0.42;
+.showroomHeroBg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  will-change: transform;
+}
+
+@supports (animation-timeline: scroll()) {
+  .showroomHeroBg img {
+    animation: heroParallax linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 60vh;
+  }
+}
+
+.showroomHeroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 30% 50%,
+      rgba(8, 8, 8, 0.05) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      to top,
+      rgba(8, 8, 8, 0.92) 0%,
+      rgba(8, 8, 8, 0.55) 45%,
+      rgba(8, 8, 8, 0.2) 75%,
+      transparent 100%
+    );
+}
+
+.showroomHeroScrimTop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(8, 8, 8, 0.5) 0%,
+      transparent 30%
+    );
+}
+
+.showroomHero:hover .showroomHeroBg img {
+  opacity: 1;
 }
 
 .showroomHeroContent {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   padding-block: var(--section-space-hero);
   padding-inline: var(--gutter-lg);
   max-width: var(--container-wide);
@@ -556,7 +604,7 @@
 /* ─── Editorial Spread ────────────────────────────────────────────────────── */
 
 .editorialSpread {
-  padding: var(--space-16) 0;
+  padding-block: var(--section-space-standard);
   background-color: var(--bg-canvas);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -622,6 +670,7 @@
 
 .systemChapters {
   background-color: var(--bg-canvas);
+  padding-block: var(--section-space-tight);
 }
 
 .systemChaptersInner {
@@ -640,8 +689,12 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-8);
-  padding: var(--space-16) 0;
+  padding-block: var(--section-space-standard);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.systemChapter:last-child {
+  border-bottom: none;
 }
 
 @media (min-width: 900px) {
@@ -799,6 +852,7 @@
   text-decoration: none;
   border-bottom: 1px solid var(--border-medium);
   padding-bottom: 2px;
+  margin-top: var(--space-5);
   transition:
     border-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard);
@@ -814,7 +868,7 @@
 
 .darkElectronicsChapter {
   background-color: var(--colour-void);
-  padding: var(--space-20) 0;
+  padding-block: var(--section-space-editorial);
 }
 
 .darkElectronicsInner {
@@ -978,7 +1032,7 @@
 /* ─── Platform Architecture Section ───────────────────────────────────────── */
 
 .platformsSection {
-  padding: var(--space-16) 0;
+  padding-block: var(--section-space-standard);
   background-color: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
@@ -1028,7 +1082,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-6);
+  padding: var(--space-7);
   background-color: var(--bg-canvas);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -1100,7 +1154,7 @@
 /* ─── Catalogue Gateway ──────────────────────────────────────────────────── */
 
 .catalogueGateway {
-  padding: var(--space-20) 0;
+  padding-block: var(--section-space-editorial);
   background-color: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
 }

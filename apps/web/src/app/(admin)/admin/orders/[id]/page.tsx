@@ -7,6 +7,15 @@ import {
   addOrderNoteAction,
 } from '@/actions/admin'
 import type { OrderFulfilmentStatus, OrderPaymentStatus } from '@halo-rc/types'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminAction,
+  AdminStatus,
+  AdminTable,
+  AdminTableRow,
+  AdminField,
+} from '@/components/admin'
 
 export const revalidate = 0
 
@@ -48,217 +57,197 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   }
 
   const shippingAddr = order.shippingAddress as Record<string, string> | null
-  const billingAddr = order.billingAddress as Record<string, string> | null
+
+  const itemColumns = [
+    { header: 'Item', width: '40%' },
+    { header: 'SKU', width: '20%' },
+    { header: 'Qty', width: '10%' },
+    { header: 'Unit Price', width: '15%' },
+    { header: 'Line Total', width: '15%', align: 'right' as const },
+  ]
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    height: '32px',
+    padding: '0 10px',
+    backgroundColor: 'var(--admin-surface, #FFFFFF)',
+    border: '1px solid var(--admin-border, #E2E2DE)',
+    borderRadius: 'var(--admin-radius-sm, 3px)',
+    color: 'var(--admin-text-primary, #111317)',
+    fontSize: '0.8125rem',
+    outline: 'none',
+    boxSizing: 'border-box',
+  }
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-        <Link href="/admin/orders" style={{ color: 'var(--colour-ash)', textDecoration: 'none' }}>
-          Orders
-        </Link>
-        <span>/</span>
-        <span style={{ color: 'var(--colour-white)' }}>{order.orderReference || order.id}</span>
-      </div>
-
+    <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-xs)',
-              backgroundColor: 'var(--colour-graphite)',
-              color: 'var(--colour-verified)',
-              border: '1px solid var(--colour-verified)',
-            }}>
-              {order.paymentStatus}
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-xs)',
-              backgroundColor: 'var(--colour-graphite)',
-              color: 'var(--colour-halo)',
-            }}>
-              {order.fulfilmentStatus}
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.625rem',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-xs)',
-              backgroundColor: 'var(--colour-graphite)',
-              color: 'var(--colour-smoke)',
-            }}>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Commerce', href: '/admin/orders' },
+          { label: 'Orders', href: '/admin/orders' },
+          { label: order.orderReference || order.id },
+        ]}
+        title={`Order ${order.orderReference || order.id.slice(0, 8)}`}
+        description={`Placed on ${new Date(order.createdAt).toLocaleString('en-GB')} · Customer: ${order.userName || 'Guest'} (${order.userEmail || 'No email'})`}
+        status={
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <AdminStatus status={order.paymentStatus} label={order.paymentStatus} />
+            <AdminStatus status={order.fulfilmentStatus} label={order.fulfilmentStatus} />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '0.6875rem',
+                padding: '2px 5px',
+                borderRadius: 'var(--admin-radius-sm, 3px)',
+                backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                border: '1px solid var(--admin-border, #E2E2DE)',
+                color: 'var(--admin-text-secondary, #494D55)',
+              }}
+            >
               {order.marketCode} MARKET
             </span>
           </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', letterSpacing: 'var(--tracking-tight)' }}>
-            Order {order.orderReference || order.id}
-          </h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', marginTop: 'var(--space-1)' }}>
-            Placed {new Date(order.createdAt).toLocaleString()} &bull; Customer: {order.userName || 'Guest'} ({order.userEmail || 'No email recorded'})
-          </p>
-        </div>
+        }
+        actions={
+          <AdminAction variant="subtle" size="sm" href="/admin/orders">
+            &larr; Back to Orders
+          </AdminAction>
+        }
+      />
 
-        <Link
-          href="/admin/orders"
-          style={{
-            padding: 'var(--space-2) var(--space-4)',
-            backgroundColor: 'var(--colour-graphite)',
-            border: '1px solid var(--colour-steel)',
-            color: 'var(--colour-off-white)',
-            borderRadius: 'var(--radius-sm)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-xs)',
-            textDecoration: 'none',
-          }}
-        >
-          &larr; Back to Orders
-        </Link>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-6)' }}>
-        {/* Main: Line Items */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+        {/* Main Column: Line Items & Notes */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Order Items Table */}
-          <div style={{ backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-            <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--colour-steel)' }}>
-              <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', margin: 0 }}>
-                Purchased Line Items ({order.items.length})
-              </h2>
-            </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 'var(--text-xs)' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--colour-steel)', backgroundColor: 'var(--colour-graphite)' }}>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>Item</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>SKU</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>Qty</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>Unit Price</th>
-                  <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)', textAlign: 'right' }}>Line Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((item) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--colour-white)', fontWeight: 600 }}>
-                      {item.productName}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-smoke)' }}>
-                      {item.sku || '—'}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-ash)' }}>
-                      {item.quantity}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-ash)' }}>
-                      {formatPrice(item.unitPriceMinorUnits, item.currency)}
-                    </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', color: 'var(--colour-white)', fontWeight: 600, textAlign: 'right' }}>
-                      {formatPrice(item.lineTotalMinorUnits, item.currency)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <AdminPanel
+            title={`Purchased Line Items (${order.items.length})`}
+            subtitle="Verified order basket inventory"
+            padding="none"
+          >
+            <AdminTable columns={itemColumns} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}>
+              {order.items.map((item) => (
+                <AdminTableRow key={item.id}>
+                  <td style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--admin-text-primary, #111317)' }}>
+                    {item.productName}
+                  </td>
+                  <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-tertiary, #767A85)' }}>
+                    {item.sku || '—'}
+                  </td>
+                  <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-secondary, #494D55)' }}>
+                    {item.quantity}
+                  </td>
+                  <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--admin-text-secondary, #494D55)' }}>
+                    {formatPrice(item.unitPriceMinorUnits, item.currency)}
+                  </td>
+                  <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, color: 'var(--admin-text-primary, #111317)', textAlign: 'right' }}>
+                    {formatPrice(item.lineTotalMinorUnits, item.currency)}
+                  </td>
+                </AdminTableRow>
+              ))}
+            </AdminTable>
 
             {/* Financial Summary */}
-            <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--colour-steel)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', alignItems: 'flex-end', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)' }}>
-              <div style={{ display: 'flex', gap: 'var(--space-6)', color: 'var(--colour-ash)' }}>
+            <div
+              style={{
+                padding: '14px 20px',
+                borderTop: '1px solid var(--admin-border, #E2E2DE)',
+                backgroundColor: 'var(--admin-surface-subtle, #FAFAF9)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+                alignItems: 'flex-end',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-mono, monospace)',
+              }}
+            >
+              <div style={{ display: 'flex', gap: '24px', color: 'var(--admin-text-secondary, #494D55)' }}>
                 <span>Subtotal:</span>
                 <span>{formatPrice(order.subtotalMinorUnits, order.currency)}</span>
               </div>
-              <div style={{ display: 'flex', gap: 'var(--space-6)', color: 'var(--colour-ash)' }}>
+              <div style={{ display: 'flex', gap: '24px', color: 'var(--admin-text-secondary, #494D55)' }}>
                 <span>Tax ({order.taxMode}):</span>
                 <span>{formatPrice(order.taxMinorUnits, order.currency)}</span>
               </div>
-              <div style={{ display: 'flex', gap: 'var(--space-6)', color: 'var(--colour-white)', fontWeight: 700, fontSize: 'var(--text-sm)', borderTop: '1px solid var(--colour-steel)', paddingTop: 'var(--space-2)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '24px',
+                  color: 'var(--admin-text-primary, #111317)',
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  borderTop: '1px solid var(--admin-border, #E2E2DE)',
+                  paddingTop: '6px',
+                  marginTop: '4px',
+                }}
+              >
                 <span>Total:</span>
                 <span>{formatPrice(order.totalMinorUnits, order.currency)}</span>
               </div>
             </div>
-          </div>
+          </AdminPanel>
 
           {/* Internal Notes */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Internal Staff Notes
-            </h2>
-
+          <AdminPanel title="Internal Staff Notes" subtitle="Dispatch and customer operations history" padding="md">
             {order.internalNotes ? (
-              <div style={{ padding: 'var(--space-4)', backgroundColor: 'var(--colour-graphite)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)', whiteSpace: 'pre-wrap', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-mono)' }}>
+              <div
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: 'var(--admin-surface-well, #EFEFED)',
+                  borderRadius: 'var(--admin-radius-sm, 3px)',
+                  fontSize: '0.75rem',
+                  color: 'var(--admin-text-secondary, #494D55)',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: '14px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                }}
+              >
                 {order.internalNotes}
               </div>
             ) : (
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', marginBottom: 'var(--space-4)' }}>No internal notes recorded.</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-tertiary, #767A85)', marginBottom: '14px' }}>
+                No internal notes recorded.
+              </p>
             )}
 
-            <form action={handleAddNote}>
+            <form action={handleAddNote} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <textarea
                 name="note"
                 required
                 rows={3}
-                placeholder="Add dispatch tracking, stock reserve note, or customer support memo..."
+                placeholder="Add dispatch tracking number, stock reserve note, or customer support memo..."
                 style={{
                   width: '100%',
-                  padding: 'var(--space-3)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-steel)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--colour-white)',
-                  fontSize: 'var(--text-xs)',
-                  fontFamily: 'var(--font-sans)',
-                  marginBottom: 'var(--space-2)',
+                  padding: '8px 10px',
+                  backgroundColor: 'var(--admin-surface, #FFFFFF)',
+                  border: '1px solid var(--admin-border, #E2E2DE)',
+                  borderRadius: 'var(--admin-radius-sm, 3px)',
+                  color: 'var(--admin-text-primary, #111317)',
+                  fontSize: '0.75rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
-              <button
-                type="submit"
-                style={{
-                  padding: 'var(--space-2) var(--space-4)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-halo)',
-                  color: 'var(--colour-halo)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  cursor: 'pointer',
-                }}
-              >
-                + Append Note
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <AdminAction type="submit" variant="secondary" size="sm">
+                  + Append Note
+                </AdminAction>
+              </div>
             </form>
-          </div>
+          </AdminPanel>
         </div>
 
-        {/* Sidebar Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        {/* Sidebar Controls: Fulfilment & Payment */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Fulfilment State Machine */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Fulfilment Dispatch
-            </h2>
-
-            <form action={handleFulfilmentUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <AdminPanel title="Fulfilment Dispatch" subtitle="Warehouse & logistics workflow" padding="md">
+            <form action={handleFulfilmentUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-smoke)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
-                  State
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>
+                  Dispatch Status
                 </label>
-                <select
-                  name="fulfilmentStatus"
-                  defaultValue={order.fulfilmentStatus}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    backgroundColor: 'var(--colour-graphite)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--colour-white)',
-                    fontSize: 'var(--text-xs)',
-                  }}
-                >
+                <select name="fulfilmentStatus" defaultValue={order.fulfilmentStatus} style={inputStyle}>
                   <option value="UNFULFILLED">Unfulfilled</option>
                   <option value="PROCESSING">Processing (Picking)</option>
                   <option value="PACKED">Packed (Awaiting Courier)</option>
@@ -269,64 +258,27 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--colour-smoke)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
-                  Dispatch Note / Courier Tracking
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--admin-text-tertiary, #767A85)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>
+                  Courier Tracking # / Memo
                 </label>
                 <input
                   type="text"
                   name="note"
                   placeholder="e.g. DPD Tracking # 12345678"
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    backgroundColor: 'var(--colour-graphite)',
-                    border: '1px solid var(--colour-steel)',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--colour-white)',
-                    fontSize: 'var(--text-xs)',
-                  }}
+                  style={inputStyle}
                 />
               </div>
 
-              <button
-                type="submit"
-                style={{
-                  padding: 'var(--space-2)',
-                  backgroundColor: 'var(--colour-halo)',
-                  color: 'var(--colour-void)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
+              <AdminAction type="submit" variant="primary" size="sm" style={{ width: '100%' }}>
                 Update Fulfilment
-              </button>
+              </AdminAction>
             </form>
-          </div>
+          </AdminPanel>
 
           {/* Payment Status State Machine */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Payment State
-            </h2>
-
-            <form action={handlePaymentUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              <select
-                name="paymentStatus"
-                defaultValue={order.paymentStatus}
-                style={{
-                  width: '100%',
-                  padding: 'var(--space-2)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-steel)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--colour-white)',
-                  fontSize: 'var(--text-xs)',
-                }}
-              >
+          <AdminPanel title="Payment State" subtitle="Transactional clearance" padding="md">
+            <form action={handlePaymentUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <select name="paymentStatus" defaultValue={order.paymentStatus} style={inputStyle}>
                 <option value="PAID">Paid</option>
                 <option value="AUTHORIZED">Authorized</option>
                 <option value="PENDING_PAYMENT">Pending Payment</option>
@@ -335,39 +287,26 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 <option value="CANCELLED">Cancelled</option>
               </select>
 
-              <button
-                type="submit"
-                style={{
-                  padding: 'var(--space-2)',
-                  backgroundColor: 'var(--colour-graphite)',
-                  border: '1px solid var(--colour-steel)',
-                  color: 'var(--colour-off-white)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  cursor: 'pointer',
-                }}
-              >
+              <AdminAction type="submit" variant="secondary" size="sm" style={{ width: '100%' }}>
                 Update Payment Status
-              </button>
+              </AdminAction>
             </form>
-          </div>
+          </AdminPanel>
 
-          {/* Shipping & Billing Address */}
-          <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--colour-white)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-3)' }}>
-              Shipping Address
-            </h2>
+          {/* Shipping Address */}
+          <AdminPanel title="Shipping Address" subtitle="Delivery destination" padding="md">
             {shippingAddr ? (
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', lineHeight: 'var(--leading-relaxed)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-secondary, #494D55)', lineHeight: 1.6 }}>
                 {Object.entries(shippingAddr).map(([k, v]) => (
                   <div key={k}>{v}</div>
                 ))}
               </div>
             ) : (
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>No shipping address captured.</p>
+              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-tertiary, #767A85)' }}>
+                No shipping address captured.
+              </div>
             )}
-          </div>
+          </AdminPanel>
         </div>
       </div>
     </div>
