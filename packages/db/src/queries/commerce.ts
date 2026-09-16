@@ -21,7 +21,7 @@ import {
   STORE_OFFERS as SEED_OFFERS,
 } from './catalogue-store'
 import { db, isDbConfigured } from '../client'
-import { orders, orderItems } from '../schema'
+import { orders, orderItems, paymentEvents } from '../schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { getMarketConfig, getShippingMethodsForMarket } from './markets'
 
@@ -894,6 +894,11 @@ export async function markOrderPaid(params: {
     if (whereCond) {
       const dbRows = await db.select().from(orders).where(whereCond).limit(1)
       if (dbRows[0]) {
+        // Enforce state machine: terminal states
+        if (dbRows[0].paymentStatus === 'PAYMENT_CANCELLED') {
+          throw new Error(`Cannot mark cancelled order ${dbRows[0].id} as PAID`)
+        }
+
         if (dbRows[0].paymentStatus !== 'PAID') {
           await db
             .update(orders)
@@ -939,6 +944,10 @@ export async function markOrderPaid(params: {
     return enrichOrder(order)
   }
 
+  if (order.paymentStatus === 'PAYMENT_CANCELLED') {
+    throw new Error(`Cannot mark cancelled order ${order.id} as PAID`)
+  }
+
   order.paymentStatus = 'PAID'
   if (params.stripePaymentIntentId) {
     order.stripePaymentIntentId = params.stripePaymentIntentId
@@ -962,6 +971,17 @@ export async function markOrderPaymentFailed(params: {
     if (whereCond) {
       const dbRows = await db.select().from(orders).where(whereCond).limit(1)
       if (dbRows[0]) {
+        // State Machine Guard: PAID orders can NEVER regress to PAYMENT_FAILED
+        if (dbRows[0].paymentStatus === 'PAID') {
+          const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+          return mapDbOrderToRecord(dbRows[0], itemRows)
+        }
+
+        if (dbRows[0].paymentStatus === 'PAYMENT_CANCELLED') {
+          const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+          return mapDbOrderToRecord(dbRows[0], itemRows)
+        }
+
         await db
           .update(orders)
           .set({
@@ -998,7 +1018,157 @@ export async function markOrderPaymentFailed(params: {
     throw new Error('Order not found for payment failure update')
   }
 
+  // Guard: PAID orders can NEVER regress to PAYMENT_FAILED
+  if (order.paymentStatus === 'PAID') {
+    return enrichOrder(order)
+  }
+
+  if (order.paymentStatus === 'PAYMENT_CANCELLED') {
+    return enrichOrder(order)
+  }
+
   order.paymentStatus = 'PAYMENT_FAILED'
+  order.updatedAt = new Date().toISOString()
+
+  return enrichOrder(order)
+}
+
+/**
+ * Explicit cancellation / authoritative expiry of an order.
+ * Transitions PENDING_PAYMENT or PAYMENT_FAILED -> PAYMENT_CANCELLED.
+ * Terminal state: cannot regress from PAID or be paid after cancellation.
+ */
+export async function cancelOrder(params: {
+  orderId?: string | null
+  stripeSessionId?: string | null
+  reason?: string
+}): Promise<OrderRecord> {
+  if (isDbConfigured) {
+    const whereCond = params.orderId
+      ? eq(orders.id, params.orderId)
+      : params.stripeSessionId
+        ? eq(orders.stripeCheckoutSessionId, params.stripeSessionId)
+        : undefined
+
+    if (whereCond) {
+      const dbRows = await db.select().from(orders).where(whereCond).limit(1)
+      if (dbRows[0]) {
+        if (dbRows[0].paymentStatus === 'PAID') {
+          throw new Error(`Cannot cancel an already PAID order: ${dbRows[0].id}`)
+        }
+
+        if (dbRows[0].paymentStatus === 'PAYMENT_CANCELLED') {
+          const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+          return mapDbOrderToRecord(dbRows[0], itemRows)
+        }
+
+        await db
+          .update(orders)
+          .set({
+            paymentStatus: 'PAYMENT_CANCELLED',
+            internalNotes: params.reason ? `Cancelled: ${params.reason}` : dbRows[0].internalNotes,
+            updatedAt: new Date(),
+          })
+          .where(whereCond)
+
+        const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+        const updatedRow = {
+          ...dbRows[0],
+          paymentStatus: 'PAYMENT_CANCELLED' as const,
+          updatedAt: new Date(),
+        }
+
+        const mem = ORDERS.find((o) => o.id === dbRows[0]!.id)
+        if (mem) {
+          mem.paymentStatus = 'PAYMENT_CANCELLED'
+          mem.updatedAt = new Date().toISOString()
+        }
+
+        return mapDbOrderToRecord(updatedRow, itemRows)
+      }
+    }
+  }
+
+  const order = ORDERS.find((o) => {
+    if (params.orderId && o.id === params.orderId) return true
+    if (params.stripeSessionId && o.stripeCheckoutSessionId === params.stripeSessionId) return true
+    return false
+  })
+
+  if (!order) {
+    throw new Error('Order not found for cancellation')
+  }
+
+  if (order.paymentStatus === 'PAID') {
+    throw new Error(`Cannot cancel an already PAID order: ${order.id}`)
+  }
+
+  if (order.paymentStatus === 'PAYMENT_CANCELLED') {
+    return enrichOrder(order)
+  }
+
+  order.paymentStatus = 'PAYMENT_CANCELLED'
+  order.updatedAt = new Date().toISOString()
+
+  return enrichOrder(order)
+}
+
+/**
+ * Explicit retry transition: PAYMENT_FAILED -> PENDING_PAYMENT
+ * Resets the order for a fresh checkout/payment attempt.
+ */
+export async function retryOrderPayment(params: {
+  orderId: string
+  newStripeSessionId?: string | null
+}): Promise<OrderRecord> {
+  if (isDbConfigured) {
+    const dbRows = await db.select().from(orders).where(eq(orders.id, params.orderId)).limit(1)
+    if (dbRows[0]) {
+      if (dbRows[0].paymentStatus !== 'PAYMENT_FAILED') {
+        throw new Error(`Cannot retry order ${params.orderId} from state ${dbRows[0].paymentStatus} (must be PAYMENT_FAILED)`)
+      }
+
+      await db
+        .update(orders)
+        .set({
+          paymentStatus: 'PENDING_PAYMENT',
+          ...(params.newStripeSessionId ? { stripeCheckoutSessionId: params.newStripeSessionId } : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, params.orderId))
+
+      const itemRows = await db.select().from(orderItems).where(eq(orderItems.orderId, dbRows[0].id))
+      const updatedRow = {
+        ...dbRows[0],
+        paymentStatus: 'PENDING_PAYMENT' as const,
+        stripeCheckoutSessionId: params.newStripeSessionId ?? dbRows[0].stripeCheckoutSessionId,
+        updatedAt: new Date(),
+      }
+
+      const mem = ORDERS.find((o) => o.id === params.orderId)
+      if (mem) {
+        mem.paymentStatus = 'PENDING_PAYMENT'
+        if (params.newStripeSessionId) mem.stripeCheckoutSessionId = params.newStripeSessionId
+        mem.updatedAt = new Date().toISOString()
+      }
+
+      return mapDbOrderToRecord(updatedRow, itemRows)
+    }
+  }
+
+  const order = ORDERS.find((o) => o.id === params.orderId)
+  if (!order) {
+    throw new Error(`Order not found for retry: ${params.orderId}`)
+  }
+
+  if (order.paymentStatus !== 'PAYMENT_FAILED') {
+    throw new Error(`Cannot retry order ${params.orderId} from state ${order.paymentStatus} (must be PAYMENT_FAILED)`)
+  }
+
+  order.paymentStatus = 'PENDING_PAYMENT'
+  if (params.newStripeSessionId) {
+    order.stripeCheckoutSessionId = params.newStripeSessionId
+  }
   order.updatedAt = new Date().toISOString()
 
   return enrichOrder(order)
@@ -1116,6 +1286,86 @@ export async function recordPaymentEvent(event: {
   status: string
   payload: Record<string, unknown>
 }): Promise<PaymentEventRecord> {
+  if (isDbConfigured) {
+    try {
+      const existing = await db
+        .select()
+        .from(paymentEvents)
+        .where(eq(paymentEvents.stripeEventId, event.stripeEventId))
+        .limit(1)
+
+      if (existing[0]) {
+        return {
+          id: existing[0].id,
+          stripeEventId: existing[0].stripeEventId,
+          eventType: existing[0].eventType,
+          orderId: existing[0].orderId,
+          status: existing[0].status,
+          payload: (existing[0].payload || {}) as Record<string, unknown>,
+          createdAt: existing[0].createdAt.toISOString(),
+        }
+      }
+
+      const inserted = await db
+        .insert(paymentEvents)
+        .values({
+          stripeEventId: event.stripeEventId,
+          eventType: event.eventType,
+          orderId: event.orderId ?? null,
+          status: event.status,
+          payload: event.payload,
+        })
+        .returning()
+
+      if (inserted[0]) {
+        const rec: PaymentEventRecord = {
+          id: inserted[0].id,
+          stripeEventId: inserted[0].stripeEventId,
+          eventType: inserted[0].eventType,
+          orderId: inserted[0].orderId,
+          status: inserted[0].status,
+          payload: (inserted[0].payload || {}) as Record<string, unknown>,
+          createdAt: inserted[0].createdAt.toISOString(),
+        }
+        // Mirror in memory for fast local lookup
+        if (!PAYMENT_EVENTS.some((e) => e.stripeEventId === event.stripeEventId)) {
+          PAYMENT_EVENTS.push({
+            id: rec.id,
+            stripeEventId: rec.stripeEventId,
+            eventType: rec.eventType,
+            orderId: rec.orderId ?? null,
+            status: rec.status,
+            payload: rec.payload,
+            createdAt: rec.createdAt,
+          })
+        }
+        return rec
+      }
+    } catch (err) {
+      // In case of conflict, fetch and return the existing record
+      try {
+        const rows = await db
+          .select()
+          .from(paymentEvents)
+          .where(eq(paymentEvents.stripeEventId, event.stripeEventId))
+          .limit(1)
+        if (rows[0]) {
+          return {
+            id: rows[0].id,
+            stripeEventId: rows[0].stripeEventId,
+            eventType: rows[0].eventType,
+            orderId: rows[0].orderId,
+            status: rows[0].status,
+            payload: (rows[0].payload || {}) as Record<string, unknown>,
+            createdAt: rows[0].createdAt.toISOString(),
+          }
+        }
+      } catch {
+        // Fallback to in-memory below
+      }
+    }
+  }
+
   const existing = PAYMENT_EVENTS.find((e) => e.stripeEventId === event.stripeEventId)
   if (existing) {
     return existing
@@ -1136,6 +1386,19 @@ export async function recordPaymentEvent(event: {
 }
 
 export async function isPaymentEventProcessed(stripeEventId: string): Promise<boolean> {
+  if (isDbConfigured) {
+    try {
+      const rows = await db
+        .select({ id: paymentEvents.id })
+        .from(paymentEvents)
+        .where(eq(paymentEvents.stripeEventId, stripeEventId))
+        .limit(1)
+      if (rows.length > 0) return true
+    } catch {
+      // Fall through to memory store
+    }
+  }
+
   return PAYMENT_EVENTS.some((e) => e.stripeEventId === stripeEventId)
 }
 

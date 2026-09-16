@@ -275,6 +275,7 @@ export const orderPaymentStatusEnum = pgEnum('order_payment_status', [
   'FAILED',
   'PAYMENT_FAILED',
   'CANCELLED',
+  'PAYMENT_CANCELLED',
   'REFUNDED',
   'PARTIALLY_REFUNDED',
 ])

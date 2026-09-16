@@ -345,10 +345,19 @@ export async function updateOrderPaymentStatus(
 ) {
   let prevStatus: string | undefined
 
-  try {
+  if (isDbConfigured) {
     const current = await db.select().from(orders).where(eq(orders.id, id)).limit(1)
     if (current[0]) {
       prevStatus = current[0].paymentStatus
+
+      // Terminal State Protection: PAID and PAYMENT_CANCELLED cannot be regressed
+      if (prevStatus === 'PAID' && paymentStatus !== 'PAID') {
+        throw new Error(`State machine invariant: Order ${id} is already PAID. Payment status cannot regress to ${paymentStatus}.`)
+      }
+      if (prevStatus === 'PAYMENT_CANCELLED' && paymentStatus !== 'PAYMENT_CANCELLED') {
+        throw new Error(`State machine invariant: Order ${id} is CANCELLED. Payment status cannot transition to ${paymentStatus}.`)
+      }
+
       await db
         .update(orders)
         .set({
@@ -357,14 +366,20 @@ export async function updateOrderPaymentStatus(
         })
         .where(eq(orders.id, id))
     }
-  } catch {
-    // Continue to memory sync
   }
 
   const { orders: rawOrders } = __getRawOrdersAndBaskets()
   const memOrder = rawOrders.find((o) => o.id === id || o.orderReference === id)
   if (memOrder) {
     prevStatus = prevStatus ?? memOrder.paymentStatus
+
+    if (prevStatus === 'PAID' && paymentStatus !== 'PAID') {
+      throw new Error(`State machine invariant: Order ${id} is already PAID. Payment status cannot regress to ${paymentStatus}.`)
+    }
+    if (prevStatus === 'PAYMENT_CANCELLED' && paymentStatus !== 'PAYMENT_CANCELLED') {
+      throw new Error(`State machine invariant: Order ${id} is CANCELLED. Payment status cannot transition to ${paymentStatus}.`)
+    }
+
     memOrder.paymentStatus = paymentStatus
     memOrder.updatedAt = new Date().toISOString()
   }

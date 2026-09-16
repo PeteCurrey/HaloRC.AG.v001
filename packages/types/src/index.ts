@@ -726,15 +726,28 @@ export type BasketStatus =
   | 'ABANDONED'
   | 'EXPIRED'
 
+/**
+ * Authoritative Halo RC payment state machine.
+ *
+ * PENDING_PAYMENT  — Order created, awaiting successful payment
+ * PAID             — Stripe has confirmed payment (terminal, cannot regress)
+ * PAYMENT_FAILED   — A payment attempt failed; order may be retried
+ * PAYMENT_CANCELLED — Payment process explicitly cancelled or authoritatively expired (terminal)
+ *
+ * Permitted transitions:
+ *   PENDING_PAYMENT → PAID
+ *   PENDING_PAYMENT → PAYMENT_FAILED
+ *   PENDING_PAYMENT → PAYMENT_CANCELLED
+ *   PAYMENT_FAILED  → PENDING_PAYMENT   (retry)
+ *   PAYMENT_FAILED  → PAYMENT_CANCELLED
+ *
+ * PAID and PAYMENT_CANCELLED are terminal — they cannot transition to any other state.
+ */
 export type OrderPaymentStatus =
-  | 'PENDING'
   | 'PENDING_PAYMENT'
   | 'PAID'
-  | 'FAILED'
   | 'PAYMENT_FAILED'
-  | 'CANCELLED'
-  | 'REFUNDED'
-  | 'PARTIALLY_REFUNDED'
+  | 'PAYMENT_CANCELLED'
 
 export interface BasketItemRecord {
   id: string
