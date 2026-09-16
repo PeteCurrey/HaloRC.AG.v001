@@ -29,6 +29,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/parts" className={s.footerLink}>
+                Parts &amp; Upgrades
+              </Link>
+            </li>
+            <li>
               <Link href="/race" className={s.footerLink}>
                 The Race Department
               </Link>

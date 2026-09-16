@@ -21,60 +21,39 @@
   overflow: visible;
 }
 
-/* Ambient glow breathing in sync */
+/* Ambient glow breathing in sync — very quiet subtle warmth */
 .ambientGlow {
   transform-origin: 250px 250px;
-  animation: pulseGlow 7s var(--ease-standard) infinite;
-  will-change: transform, opacity;
+  opacity: 0.35;
 }
 
-/* Outer ring breathing pulse */
+/* Outer ring assembly — steady architectural boundary */
 .outerRingGroup {
   transform-origin: 250px 250px;
-  animation: pulseOuter 7s var(--ease-standard) infinite;
-  will-change: transform;
+  opacity: 0.4;
 }
 
-/* Inner counter-rotating ring */
+/* Inner ring assembly — very slow, smooth technical sweep */
 .innerRingGroup {
   transform-origin: 250px 250px;
-  animation: counterRotateInner 48s linear infinite;
+  animation: counterRotateInner 72s linear infinite;
   will-change: transform;
+  opacity: 0.5;
 }
 
-/* Crosshairs subtle pulse */
+/* Crosshairs quiet resting state */
 .crosshairs {
   transform-origin: 250px 250px;
-  animation: pulseCrosshair 7s var(--ease-standard) infinite;
+  opacity: 0.35;
 }
 
 /* Centre beacon point */
 .centerPoint {
   transform-origin: 250px 250px;
-  animation: pulseCenter 7s var(--ease-standard) infinite;
+  opacity: 0.6;
 }
 
 /* ─── Keyframe Animations ─────────────────────────────────────────────── */
-
-@keyframes pulseOuter {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.04);
-  }
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.04);
-    opacity: 0.95;
-  }
-}
 
 @keyframes counterRotateInner {
   from {
@@ -82,28 +61,6 @@
   }
   to {
     transform: rotate(-360deg);
-  }
-}
-
-@keyframes pulseCrosshair {
-  0%, 100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes pulseCenter {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.15);
-    opacity: 1;
   }
 }
 

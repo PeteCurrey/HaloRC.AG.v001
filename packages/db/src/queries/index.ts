@@ -190,6 +190,77 @@ export interface MachineDetail {
   pedigree?: Array<{ event: string; result: string; year: string }> | null | undefined
 }
 
+export interface PartPlatformCompatibility {
+  platformId: string
+  platformSlug: string
+  platformName: string
+  brandName: string
+  ruleType: CompatibilityRuleType
+  verified: boolean
+}
+
+export interface PartListItem {
+  id: string
+  slug: string
+  sku: string
+  name: string
+  shortName: string
+  brand: {
+    id: string
+    slug: string
+    name: string
+  }
+  productType: string
+  tier: ProductTier
+  haloClassification?: string | null | undefined
+  scale?: string | null | undefined
+  powerType?: string | null | undefined
+  discipline?: Discipline | string | undefined
+  editorialSummary: string
+  offer: ResolvedMarketOffer | null
+}
+
+export interface PartDetail {
+  id: string
+  slug: string
+  sku: string
+  name: string
+  shortName: string
+  brand: SeedBrand
+  platform: SeedPlatform | null
+  productType: string
+  tier: ProductTier
+  haloClassification?: string | null | undefined
+  scale?: string | null | undefined
+  powerType?: string | null | undefined
+  discipline?: Discipline | string | undefined
+  editorialSummary: string
+  lifecycle: LifecycleStatus
+  offer: ResolvedMarketOffer | null
+  dna: SpecificationRecord[]
+  documents: Array<{
+    id: string
+    title: string
+    documentType: DocumentType
+    version?: string | null | undefined
+    sourceUrl?: string | null | undefined
+  }>
+  fitsPlatforms: PartPlatformCompatibility[]
+  relatedProducts: Array<{
+    relationType: CompatibilityRuleType
+    product: {
+      id: string
+      slug: string
+      name: string
+      sku: string
+      tier: ProductTier
+      productType: string
+      offer: ResolvedMarketOffer | null
+    }
+  }>
+  replacementLineage: ReplacementLineage | null
+}
+
 export interface SearchResultItem {
   id: string
   slug: string
@@ -1052,6 +1123,748 @@ export async function getMachineDetail(
     replacementLineage,
     haloSpecs: haloSpecs ?? null,
     pedigree: pedigree ?? null,
+  }
+}
+
+/**
+ * Query parts list with type, platform, brand, tier filtering and market offer resolution.
+ * In production (isDbConfigured): executes PostgreSQL queries via Drizzle ORM.
+ * In dev/hermetic tests (!isDbConfigured): queries the mutable catalogue store.
+ */
+export async function getPartsList(params?: {
+  type?: string | undefined
+  brand?: string | undefined
+  tier?: ProductTier | undefined
+  platformId?: string | undefined
+  sort?: string | undefined
+  marketCode?: MarketCode | undefined
+  limit?: number | undefined
+  offset?: number | undefined
+}): Promise<PartListItem[]> {
+  const market = params?.marketCode ?? 'UK'
+
+  if (isDbConfigured) {
+    const conditions = [
+      eq(products.published, true),
+      eq(products.status, 'PUBLISHED'),
+      sql`${products.productType} NOT IN ('RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE')`,
+    ]
+
+    if (params?.type && params.type !== 'all') {
+      const typeUpper = params.type.toUpperCase()
+      conditions.push(
+        or(
+          sql`UPPER(${products.productType}) = ${typeUpper}`,
+          ilike(categories.slug, `%${params.type}%`),
+          ilike(products.categoryId, `%${params.type}%`)
+        )!
+      )
+    }
+
+    if (params?.brand && params.brand !== 'all') {
+      const brandSlug = params.brand.toLowerCase()
+      conditions.push(
+        or(
+          eq(brands.slug, brandSlug),
+          eq(brands.id, params.brand)
+        )!
+      )
+    }
+
+    if (params?.tier) {
+      conditions.push(eq(products.tier, params.tier))
+    }
+
+    if (params?.platformId && params.platformId !== 'all') {
+      conditions.push(
+        or(
+          eq(products.platformId, params.platformId),
+          sql`${products.id} IN (
+            SELECT ${compatibilityRules.sourceEntityId}
+            FROM ${compatibilityRules}
+            WHERE ${compatibilityRules.targetEntityId} = ${params.platformId}
+               OR ${compatibilityRules.targetEntityId} IN (
+                  SELECT ${products.id} FROM ${products} WHERE ${products.platformId} = ${params.platformId}
+               )
+          )`
+        )!
+      )
+    }
+
+    const whereClause = and(...conditions)
+
+    const rows = await db
+      .select({
+        product: products,
+        brand: brands,
+      })
+      .from(products)
+      .innerJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(whereClause)
+      .limit(params?.limit ?? 100)
+      .offset(params?.offset ?? 0)
+
+    const productIds = rows.map((r) => r.product.id)
+    const offerMap = new Map<string, ResolvedMarketOffer>()
+
+    if (productIds.length > 0) {
+      const offerRows = await db
+        .select({
+          productId: productVariants.productId,
+          offer: marketOffers,
+        })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(
+          and(
+            inArray(productVariants.productId, productIds),
+            eq(productVariants.published, true),
+            eq(marketOffers.marketCode, market)
+          )
+        )
+
+      for (const row of offerRows) {
+        if (!offerMap.has(row.productId)) {
+          offerMap.set(row.productId, {
+            id: row.offer.id,
+            productVariantId: row.offer.productVariantId,
+            marketCode: row.offer.marketCode as MarketCode,
+            retailPriceMinorUnits: row.offer.retailPrice,
+            currency: row.offer.currency as Currency,
+            taxMode: row.offer.taxMode as TaxMode,
+            availability: row.offer.availability as AvailabilityStatus,
+            leadTimeDays: row.offer.leadTimeDays ?? null,
+            supplyRoute: (row.offer.supplyRoute as any) ?? null,
+            notes: row.offer.notes ?? null,
+          })
+        }
+      }
+    }
+
+    const list: PartListItem[] = rows.map((r) => ({
+      id: r.product.id,
+      slug: r.product.slug,
+      sku: r.product.sku ?? '',
+      name: r.product.name,
+      shortName: r.product.shortName ?? r.product.name,
+      brand: {
+        id: r.brand.id,
+        slug: r.brand.slug,
+        name: r.brand.name,
+      },
+      productType: r.product.productType,
+      tier: r.product.tier as ProductTier,
+      haloClassification: r.product.haloClassification ?? null,
+      scale: r.product.scale ?? null,
+      powerType: r.product.powerType ?? null,
+      discipline: ((r.product.tags?.[0] as Discipline) || undefined),
+      editorialSummary: r.product.editorialSummary ?? '',
+      offer: offerMap.get(r.product.id) ?? null,
+    }))
+
+    // Sorting
+    if (params?.sort === 'price_asc') {
+      list.sort((a, b) => (a.offer?.retailPriceMinorUnits ?? 0) - (b.offer?.retailPriceMinorUnits ?? 0))
+    } else if (params?.sort === 'price_desc') {
+      list.sort((a, b) => (b.offer?.retailPriceMinorUnits ?? 0) - (a.offer?.retailPriceMinorUnits ?? 0))
+    } else if (params?.sort === 'brand') {
+      list.sort((a, b) => a.brand.name.localeCompare(b.brand.name))
+    } else {
+      list.sort((a, b) => {
+        if (a.tier === 'HALO' && b.tier !== 'HALO') return -1
+        if (b.tier === 'HALO' && a.tier !== 'HALO') return 1
+        return a.name.localeCompare(b.name)
+      })
+    }
+
+    return list
+  }
+
+  // Development & Hermetic Test Fallback Store
+  let filtered = STORE_PRODUCTS.filter(
+    (p) =>
+      p.published &&
+      !['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE'].includes(p.productType)
+  )
+
+  if (params?.type && params.type !== 'all') {
+    const typeUpper = params.type.toUpperCase()
+    filtered = filtered.filter(
+      (p) =>
+        p.productType.toUpperCase() === typeUpper ||
+        p.categoryId.toLowerCase().includes(params.type!.toLowerCase())
+    )
+  }
+
+  if (params?.brand && params.brand !== 'all') {
+    const brandSlug = params.brand.toLowerCase()
+    const brand = STORE_BRANDS.find((b) => b.slug === brandSlug || b.id === params.brand)
+    if (brand) {
+      filtered = filtered.filter((p) => p.brandId === brand.id)
+    }
+  }
+
+  if (params?.tier) {
+    filtered = filtered.filter((p) => p.tier === params.tier)
+  }
+
+  if (params?.platformId && params.platformId !== 'all') {
+    const platformId = params.platformId
+    const matchingMachineIds = STORE_PRODUCTS.filter(m => m.platformId === platformId).map(m => m.id)
+    const matchingSourceIds = new Set(
+      STORE_COMPATIBILITY_RULES.filter(
+        r => r.verified && (r.targetEntityId === platformId || matchingMachineIds.includes(r.targetEntityId))
+      ).map(r => r.sourceEntityId)
+    )
+    filtered = filtered.filter(
+      (p) => p.platformId === platformId || matchingSourceIds.has(p.id)
+    )
+  }
+
+  const list: PartListItem[] = filtered.map((prod) => {
+    const brand = STORE_BRANDS.find((b) => b.id === prod.brandId)!
+    const offers = getOffersForProduct(prod.id)
+    const offer = resolveMarketOffer(offers, market)
+
+    return {
+      id: prod.id,
+      slug: prod.slug,
+      sku: prod.sku,
+      name: prod.name,
+      shortName: prod.shortName ?? prod.name,
+      brand: {
+        id: brand ? brand.id : prod.brandId,
+        slug: brand ? brand.slug : 'unknown',
+        name: brand ? brand.name : 'Unknown',
+      },
+      productType: prod.productType,
+      tier: prod.tier,
+      haloClassification: prod.haloClassification ?? null,
+      scale: prod.scale ?? null,
+      powerType: prod.powerType ?? null,
+      discipline: prod.discipline,
+      editorialSummary: prod.editorialSummary,
+      offer,
+    }
+  })
+
+  // Sorting
+  if (params?.sort === 'price_asc') {
+    list.sort((a, b) => (a.offer?.retailPriceMinorUnits ?? 0) - (b.offer?.retailPriceMinorUnits ?? 0))
+  } else if (params?.sort === 'price_desc') {
+    list.sort((a, b) => (b.offer?.retailPriceMinorUnits ?? 0) - (a.offer?.retailPriceMinorUnits ?? 0))
+  } else if (params?.sort === 'brand') {
+    list.sort((a, b) => a.brand.name.localeCompare(b.brand.name))
+  } else {
+    list.sort((a, b) => {
+      if (a.tier === 'HALO' && b.tier !== 'HALO') return -1
+      if (b.tier === 'HALO' && a.tier !== 'HALO') return 1
+      return a.name.localeCompare(b.name)
+    })
+  }
+
+  return list
+}
+
+/**
+ * Hydrates complete product graph for a part detail view:
+ * Brand -> Platform(s) it fits -> Variants -> Market Offer -> DNA -> Documents -> Related/Option Parts -> Replacement
+ * In production (isDbConfigured): executes PostgreSQL queries via Drizzle ORM.
+ * In dev/hermetic tests (!isDbConfigured): queries the mutable catalogue store.
+ */
+export async function getPartDetail(
+  slug: string,
+  targetMarket: MarketCode
+): Promise<PartDetail | null> {
+  if (isDbConfigured) {
+    const rows = await db
+      .select({
+        product: products,
+        brand: brands,
+        platform: vehiclePlatforms,
+      })
+      .from(products)
+      .innerJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(vehiclePlatforms, eq(products.platformId, vehiclePlatforms.id))
+      .where(
+        and(
+          eq(products.slug, slug),
+          eq(products.published, true),
+          sql`${products.productType} NOT IN ('RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE')`
+        )
+      )
+      .limit(1)
+
+    const match = rows[0]
+    if (!match) return null
+
+    const prod = match.product
+    const brand = match.brand
+    const platform = match.platform
+
+    // Retrieve market offer for primary variant
+    const offerRows = await db
+      .select({
+        offer: marketOffers,
+      })
+      .from(marketOffers)
+      .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+      .where(
+        and(
+          eq(productVariants.productId, prod.id),
+          eq(productVariants.published, true),
+          eq(marketOffers.marketCode, targetMarket)
+        )
+      )
+      .limit(1)
+
+    const rawOffer = offerRows[0]?.offer
+    const offer: ResolvedMarketOffer | null = rawOffer
+      ? {
+          id: rawOffer.id,
+          productVariantId: rawOffer.productVariantId,
+          marketCode: rawOffer.marketCode as MarketCode,
+          retailPriceMinorUnits: rawOffer.retailPrice,
+          currency: rawOffer.currency as Currency,
+          taxMode: rawOffer.taxMode as TaxMode,
+          availability: rawOffer.availability as AvailabilityStatus,
+          leadTimeDays: rawOffer.leadTimeDays ?? null,
+          supplyRoute: (rawOffer.supplyRoute as any) ?? null,
+          notes: rawOffer.notes ?? null,
+        }
+      : null
+
+    // Specifications sanitized of UNKNOWN
+    const specRows = await db
+      .select()
+      .from(specifications)
+      .where(and(eq(specifications.entityId, prod.id), ne(specifications.confidence, 'UNKNOWN')))
+
+    const dna: SpecificationRecord[] = specRows.map((s) => ({
+      key: s.key,
+      value: s.value,
+      unit: s.unit ?? null,
+      confidence: s.confidence,
+      sourceType: s.sourceType ?? null,
+      sourceUrl: s.sourceUrl ?? null,
+      sourceDocument: s.sourceDocument ?? null,
+      verifiedAt: s.verifiedAt ? new Date(s.verifiedAt) : null,
+    }))
+
+    // Documents
+    const entityIds = [prod.id, ...(platform?.id ? [platform.id] : [])]
+    const docRows = await db
+      .select()
+      .from(documents)
+      .where(
+        and(
+          inArray(documents.entityId, entityIds),
+          eq(documents.published, true),
+          eq(documents.approvedForUse, true)
+        )
+      )
+
+    const docs = docRows.map((d) => ({
+      id: d.id,
+      title: d.title,
+      documentType: d.documentType,
+      version: d.version ?? null,
+      sourceUrl: d.sourceUrl ?? null,
+    }))
+
+    // Platforms and vehicles this part fits (where sourceEntityId is this part)
+    const fitRules = await db
+      .select()
+      .from(compatibilityRules)
+      .where(
+        and(
+          eq(compatibilityRules.sourceEntityId, prod.id),
+          eq(compatibilityRules.verified, true)
+        )
+      )
+
+    const fitsPlatforms: PartPlatformCompatibility[] = []
+    const seenPlatformIds = new Set<string>()
+
+    for (const rule of fitRules) {
+      // Check if target is a vehiclePlatform
+      const platRows = await db
+        .select({ platform: vehiclePlatforms, brand: brands })
+        .from(vehiclePlatforms)
+        .innerJoin(brands, eq(vehiclePlatforms.brandId, brands.id))
+        .where(eq(vehiclePlatforms.id, rule.targetEntityId))
+        .limit(1)
+
+      if (platRows[0]) {
+        const p = platRows[0].platform
+        const b = platRows[0].brand
+        if (!seenPlatformIds.has(p.id)) {
+          seenPlatformIds.add(p.id)
+          fitsPlatforms.push({
+            platformId: p.id,
+            platformSlug: p.slug,
+            platformName: p.name,
+            brandName: b.name,
+            ruleType: rule.ruleType,
+            verified: rule.verified,
+          })
+        }
+        continue
+      }
+
+      // Check if target is a machine product
+      const targetProdRows = await db
+        .select({ product: products, brand: brands })
+        .from(products)
+        .innerJoin(brands, eq(products.brandId, brands.id))
+        .where(eq(products.id, rule.targetEntityId))
+        .limit(1)
+
+      if (targetProdRows[0]) {
+        const tp = targetProdRows[0].product
+        const tb = targetProdRows[0].brand
+        if (!seenPlatformIds.has(tp.id)) {
+          seenPlatformIds.add(tp.id)
+          fitsPlatforms.push({
+            platformId: tp.id,
+            platformSlug: tp.slug,
+            platformName: tp.name,
+            brandName: tb.name,
+            ruleType: rule.ruleType,
+            verified: rule.verified,
+          })
+        }
+      }
+    }
+
+    // If part has explicit platformId and wasn't in rules
+    if (platform && !seenPlatformIds.has(platform.id)) {
+      fitsPlatforms.push({
+        platformId: platform.id,
+        platformSlug: platform.slug,
+        platformName: platform.name,
+        brandName: brand.name,
+        ruleType: 'FITS' as CompatibilityRuleType,
+        verified: true,
+      })
+    }
+
+    // Related products (same platform or related options)
+    const relatedProducts: PartDetail['relatedProducts'] = []
+    if (platform) {
+      const otherPartRows = await db
+        .select({ product: products })
+        .from(products)
+        .where(
+          and(
+            eq(products.platformId, platform.id),
+            ne(products.id, prod.id),
+            eq(products.published, true),
+            sql`${products.productType} NOT IN ('RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE')`
+          )
+        )
+        .limit(4)
+
+      for (const op of otherPartRows) {
+        const opOfferRow = await db
+          .select({ offer: marketOffers })
+          .from(marketOffers)
+          .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+          .where(
+            and(
+              eq(productVariants.productId, op.product.id),
+              eq(productVariants.published, true),
+              eq(marketOffers.marketCode, targetMarket)
+            )
+          )
+          .limit(1)
+
+        const opOff = opOfferRow[0]?.offer
+        relatedProducts.push({
+          relationType: (op.product.productType === 'OPTION_PART' ? 'OPTION' : 'RECOMMENDED') as CompatibilityRuleType,
+          product: {
+            id: op.product.id,
+            slug: op.product.slug,
+            name: op.product.name,
+            sku: op.product.sku ?? '',
+            tier: op.product.tier as ProductTier,
+            productType: op.product.productType,
+            offer: opOff
+              ? {
+                  id: opOff.id,
+                  productVariantId: opOff.productVariantId,
+                  marketCode: opOff.marketCode as MarketCode,
+                  retailPriceMinorUnits: opOff.retailPrice,
+                  currency: opOff.currency as Currency,
+                  taxMode: opOff.taxMode as TaxMode,
+                  availability: opOff.availability as AvailabilityStatus,
+                  leadTimeDays: opOff.leadTimeDays ?? null,
+                  supplyRoute: (opOff.supplyRoute as any) ?? null,
+                  notes: opOff.notes ?? null,
+                }
+              : null,
+          },
+        })
+      }
+    }
+
+    // Replacement lineage
+    let replacementLineage: ReplacementLineage | null = null
+    if (prod.lifecycle === 'REPLACED' && prod.replacementProductId) {
+      const replRow = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, prod.replacementProductId))
+        .limit(1)
+
+      const repl = replRow[0]
+      if (repl) {
+        replacementLineage = {
+          originalProductId: prod.id,
+          originalName: prod.name,
+          originalSku: prod.sku,
+          lifecycle: 'REPLACED',
+          replacementProductId: repl.id,
+          replacementName: repl.name,
+          replacementSku: repl.sku ?? '',
+          replacementSlug: repl.slug,
+        }
+      }
+    }
+
+    return {
+      id: prod.id,
+      slug: prod.slug,
+      sku: prod.sku ?? '',
+      name: prod.name,
+      shortName: prod.shortName ?? prod.name,
+      brand: {
+        id: brand.id,
+        slug: brand.slug,
+        name: brand.name,
+        tier: (brand.tier as any) || 'FLAGSHIP',
+        status: (brand.status as any) || 'ACTIVE',
+        countryOfOrigin: brand.countryOfOrigin ?? 'Unknown',
+        foundedYear: brand.foundedYear,
+        description: brand.description ?? '',
+        website: brand.website,
+        commercialRelationship: 'OFFICIAL_DEALER' as const,
+        specialisms: [],
+        disciplines: [],
+      },
+      platform: platform
+        ? {
+            id: platform.id,
+            slug: platform.slug,
+            name: platform.name,
+            brandId: platform.brandId,
+            chassisMaterial: platform.chassisMaterial ?? '',
+            driveConfig: (platform.driveConfig as any) || '4WD',
+            wheelbaseMm: platform.wheelbaseMm ?? 0,
+            description: platform.description ?? '',
+            status: platform.status as any,
+            published: platform.published,
+          }
+        : null,
+      productType: prod.productType,
+      tier: prod.tier as ProductTier,
+      haloClassification: prod.haloClassification ?? null,
+      scale: prod.scale ?? null,
+      powerType: prod.powerType ?? null,
+      discipline: ((prod.tags?.[0] as Discipline) || undefined),
+      editorialSummary: prod.editorialSummary ?? '',
+      lifecycle: prod.lifecycle as LifecycleStatus,
+      offer,
+      dna,
+      documents: docs,
+      fitsPlatforms,
+      relatedProducts,
+      replacementLineage,
+    }
+  }
+
+  // Development & Hermetic Test Fallback Store
+  const product = STORE_PRODUCTS.find(
+    (p) =>
+      p.slug === slug &&
+      p.published &&
+      !['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE'].includes(p.productType)
+  )
+  if (!product) return null
+
+  const brand = STORE_BRANDS.find((b) => b.id === product.brandId) ?? {
+    id: product.brandId,
+    slug: 'unknown-brand',
+    name: 'Unknown Brand',
+    tier: 'FLAGSHIP' as const,
+    status: 'ACTIVE' as const,
+    countryOfOrigin: 'Unknown',
+    foundedYear: 2026,
+    description: '',
+    website: null,
+    commercialRelationship: 'OFFICIAL_DEALER' as const,
+    specialisms: [],
+    disciplines: [],
+  }
+  const platform = product.platformId
+    ? STORE_PLATFORMS.find((p) => p.id === product.platformId) ?? null
+    : null
+
+  const offers = getOffersForProduct(product.id)
+  const offer = resolveMarketOffer(offers, targetMarket)
+
+  // Retrieve raw specifications and sanitize out UNKNOWN
+  const rawSpecs: SpecificationRecord[] = STORE_SPECIFICATIONS.filter(
+    (s) => s.entityId === product.id
+  ).map((s) => ({
+    key: s.key,
+    value: s.value,
+    unit: s.unit ?? null,
+    confidence: s.confidence,
+    sourceType: s.sourceType ?? null,
+    sourceUrl: s.sourceUrl ?? null,
+    sourceDocument: s.sourceDocument ?? null,
+    verifiedAt: s.verifiedAt ? new Date(s.verifiedAt) : null,
+  }))
+
+  const sanitizedDna = sanitizeSpecifications(rawSpecs)
+
+  // Documents
+  const entityIds = [product.id, ...(platform ? [platform.id] : [])]
+  const docs = STORE_DOCUMENTS.filter(
+    (d) => entityIds.includes(d.entityId) && d.published && d.approvedForUse
+  ).map((d) => ({
+    id: d.id,
+    title: d.title,
+    documentType: d.documentType,
+    version: d.version ?? null,
+    sourceUrl: d.sourceUrl ?? null,
+  }))
+
+  // Fits platforms
+  const fitRules = STORE_COMPATIBILITY_RULES.filter(
+    (r) => r.sourceEntityId === product.id && r.verified
+  )
+  const fitsPlatforms: PartPlatformCompatibility[] = []
+  const seenIds = new Set<string>()
+
+  for (const rule of fitRules) {
+    const plat = STORE_PLATFORMS.find((p) => p.id === rule.targetEntityId)
+    if (plat) {
+      const platBrand = STORE_BRANDS.find((b) => b.id === plat.brandId)
+      if (!seenIds.has(plat.id)) {
+        seenIds.add(plat.id)
+        fitsPlatforms.push({
+          platformId: plat.id,
+          platformSlug: plat.slug,
+          platformName: plat.name,
+          brandName: platBrand?.name ?? '',
+          ruleType: rule.ruleType,
+          verified: rule.verified,
+        })
+      }
+      continue
+    }
+
+    const machine = STORE_PRODUCTS.find((p) => p.id === rule.targetEntityId)
+    if (machine) {
+      const mBrand = STORE_BRANDS.find((b) => b.id === machine.brandId)
+      if (!seenIds.has(machine.id)) {
+        seenIds.add(machine.id)
+        fitsPlatforms.push({
+          platformId: machine.platformId ?? machine.id,
+          platformSlug: machine.slug,
+          platformName: machine.name,
+          brandName: mBrand?.name ?? '',
+          ruleType: rule.ruleType,
+          verified: rule.verified,
+        })
+      }
+    }
+  }
+
+  if (platform && !seenIds.has(platform.id)) {
+    fitsPlatforms.push({
+      platformId: platform.id,
+      platformSlug: platform.slug,
+      platformName: platform.name,
+      brandName: brand.name,
+      ruleType: 'FITS' as CompatibilityRuleType,
+      verified: true,
+    })
+  }
+
+  // Related parts (e.g. other parts for same platform)
+  const relatedProducts: PartDetail['relatedProducts'] = []
+  if (platform) {
+    const otherParts = STORE_PRODUCTS.filter(
+      (p) =>
+        p.platformId === platform.id &&
+        p.id !== product.id &&
+        p.published &&
+        !['RTR_MACHINE', 'KIT', 'CHASSIS', 'VEHICLE'].includes(p.productType)
+    ).slice(0, 4)
+
+    for (const op of otherParts) {
+      const opOffers = getOffersForProduct(op.id)
+      relatedProducts.push({
+        relationType: (op.productType === 'OPTION_PART' ? 'OPTION' : 'RECOMMENDED') as CompatibilityRuleType,
+        product: {
+          id: op.id,
+          slug: op.slug,
+          name: op.name,
+          sku: op.sku,
+          tier: op.tier,
+          productType: op.productType,
+          offer: resolveMarketOffer(opOffers, targetMarket),
+        },
+      })
+    }
+  }
+
+  // Replacement lineage check
+  let replacementLineage: ReplacementLineage | null = null
+  if (product.lifecycle === 'REPLACED' && product.replacementProductId) {
+    const replacementProd = STORE_PRODUCTS.find(
+      (p) => p.id === product.replacementProductId
+    )
+    if (replacementProd) {
+      replacementLineage = {
+        originalProductId: product.id,
+        originalName: product.name,
+        originalSku: product.sku,
+        lifecycle: 'REPLACED',
+        replacementProductId: replacementProd.id,
+        replacementName: replacementProd.name,
+        replacementSku: replacementProd.sku,
+        replacementSlug: replacementProd.slug,
+      }
+    }
+  }
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    sku: product.sku,
+    name: product.name,
+    shortName: product.shortName,
+    brand,
+    platform,
+    productType: product.productType,
+    tier: product.tier,
+    haloClassification: product.haloClassification ?? null,
+    scale: product.scale ?? null,
+    powerType: product.powerType ?? null,
+    discipline: product.discipline,
+    editorialSummary: product.editorialSummary,
+    lifecycle: product.lifecycle,
+    offer,
+    dna: sanitizedDna,
+    documents: docs,
+    fitsPlatforms,
+    relatedProducts,
+    replacementLineage,
   }
 }
 

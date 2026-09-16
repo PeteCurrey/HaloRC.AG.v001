@@ -56,7 +56,20 @@ import type {
   BrandSourcingView,
   ProductSourcingView,
   HaloCompanyProfile,
+  SupplierFeed,
+  SupplierFeedType,
+  SupplierFeedFormat,
+  SupplierProduct,
+  SupplierImportException,
+  SupplierExceptionCode,
+  SupplierExceptionStatus,
+  SupplierExceptionSeverity,
+  ImportPreviewSummary,
+  ProductDataLineage,
 } from '@halo-rc/types'
+import {
+  computeSourceHash,
+} from '../utils/hash'
 import {
   SEED_PRODUCTS,
   SEED_VARIANTS,
@@ -187,7 +200,114 @@ const INITIAL_SUPPLIERS: SupplierRecord[] = [
   },
 ]
 
+const INITIAL_FEEDS: SupplierFeed[] = [
+  {
+    id: 'feed-cml-cat',
+    supplierId: 'sup-cml',
+    feedName: 'CML Standard Catalogue (CSV)',
+    feedType: 'CATALOGUE',
+    format: 'CSV',
+    sourceUrl: 'https://cmldistribution.co.uk/feeds/catalogue.csv',
+    authType: 'API_KEY',
+    scheduleCron: '0 4 * * *',
+    isActive: true,
+    lastAttemptedRun: '2026-03-01T09:55:00Z',
+    lastSuccessfulRun: '2026-03-01T10:00:00Z',
+    createdAt: '2026-01-01T09:00:00Z',
+    updatedAt: '2026-03-01T10:00:00Z',
+  },
+  {
+    id: 'feed-cml-stock',
+    supplierId: 'sup-cml',
+    feedName: 'CML Rapid Stock Delta (CSV)',
+    feedType: 'STOCK',
+    format: 'CSV',
+    sourceUrl: 'https://cmldistribution.co.uk/feeds/stock_delta.csv',
+    authType: 'API_KEY',
+    scheduleCron: '*/15 * * * *',
+    isActive: true,
+    lastAttemptedRun: '2026-03-01T11:45:00Z',
+    lastSuccessfulRun: '2026-03-01T11:45:00Z',
+    createdAt: '2026-01-01T09:00:00Z',
+    updatedAt: '2026-03-01T11:45:00Z',
+  },
+  {
+    id: 'feed-hw-api',
+    supplierId: 'sup-hobbywing-uk',
+    feedName: 'Hobbywing Inventory REST API',
+    feedType: 'CATALOGUE',
+    format: 'REST_API',
+    sourceUrl: 'https://api.hobbywing.co.uk/v1/stock',
+    authType: 'BEARER_TOKEN',
+    scheduleCron: '0 */2 * * *',
+    isActive: true,
+    lastAttemptedRun: '2026-03-02T08:15:00Z',
+    lastSuccessfulRun: '2026-03-02T08:15:00Z',
+    createdAt: '2026-01-10T12:00:00Z',
+    updatedAt: '2026-03-02T08:15:00Z',
+  },
+]
+
+const INITIAL_SUPPLIER_PRODUCTS: SupplierProduct[] = [
+  {
+    id: 'sp-cml-xray-01',
+    supplierId: 'sup-cml',
+    supplierFeedId: 'feed-cml-cat',
+    supplierSku: 'XRAY-300040',
+    manufacturerSku: '300040',
+    eanGtin: '8581703000402',
+    supplierProductName: "XRAY X4 2026 1/10 Touring Car Kit",
+    supplierDescription: '1/10 competition electric touring car chassis with all-carbon lower suspension.',
+    supplierBrand: 'XRAY',
+    supplierCategory: 'Touring Cars',
+    supplierProductUrl: 'https://cmldistribution.co.uk/products/xray-300040',
+    rawCostMinorUnits: 49500,
+    rawRrpMinorUnits: 72900,
+    currency: 'GBP',
+    rawStockQuantity: 14,
+    rawAvailability: 'IN_STOCK',
+    isDiscontinued: false,
+    sourcePayload: { supplierSku: 'XRAY-300040', title: "XRAY X4 2026 1/10 Touring Car Kit", cost: 49500 },
+    sourceHash: 'hash-cml-xray-01',
+    firstSeenAt: '2026-01-02T10:00:00Z',
+    lastSeenAt: '2026-03-01T10:00:00Z',
+    importStatus: 'VALID',
+    createdAt: '2026-01-02T10:00:00Z',
+    updatedAt: '2026-03-01T10:00:00Z',
+  },
+  {
+    id: 'sp-hw-motor-01',
+    supplierId: 'sup-hobbywing-uk',
+    supplierFeedId: 'feed-hw-api',
+    supplierSku: 'HW-30401140',
+    manufacturerSku: '30401140',
+    eanGtin: '6938994411401',
+    supplierProductName: 'XeRun V10 G4 Sensored Motor 13.5T Roar/EFRA',
+    supplierDescription: 'Competition sensored brushless motor.',
+    supplierBrand: 'Hobbywing',
+    supplierCategory: 'Brushless Motors',
+    supplierProductUrl: 'https://hobbywing.co.uk/products/30401140',
+    rawCostMinorUnits: 6500,
+    rawRrpMinorUnits: 9900,
+    currency: 'GBP',
+    rawStockQuantity: 45,
+    rawAvailability: 'IN_STOCK',
+    isDiscontinued: false,
+    sourcePayload: { supplierSku: 'HW-30401140', title: 'XeRun V10 G4 Sensored Motor 13.5T', cost: 6500 },
+    sourceHash: 'hash-hw-motor-01',
+    firstSeenAt: '2026-01-11T09:00:00Z',
+    lastSeenAt: '2026-03-02T08:15:00Z',
+    importStatus: 'VALID',
+    createdAt: '2026-01-11T09:00:00Z',
+    updatedAt: '2026-03-02T08:15:00Z',
+  },
+]
+
 let SUPPLIERS_STORE: SupplierRecord[] = [...INITIAL_SUPPLIERS]
+let SUPPLIER_FEEDS_STORE: SupplierFeed[] = [...INITIAL_FEEDS]
+let SUPPLIER_PRODUCTS_STORE: SupplierProduct[] = [...INITIAL_SUPPLIER_PRODUCTS]
+let SUPPLIER_EXCEPTIONS_STORE: SupplierImportException[] = []
+
 let SUPPLIER_MAPPINGS_STORE: SupplierProductMapping[] = [
   {
     id: 'map-cml-xray-01',
@@ -481,16 +601,22 @@ export function __resetProcurementStoreForTesting(): void {
   ]
   SUPPLIER_SYNC_RUNS_STORE = []
   SUPPLIER_CHANGE_EVENTS_STORE = []
+  SUPPLIER_FEEDS_STORE = [...INITIAL_FEEDS]
+  SUPPLIER_PRODUCTS_STORE = [...INITIAL_SUPPLIER_PRODUCTS]
+  SUPPLIER_EXCEPTIONS_STORE = []
   __resetProcurementPhase11StoreForTesting()
 }
 
 export function __getRawProcurementCounts() {
   return {
     suppliers: SUPPLIERS_STORE.length,
+    feeds: SUPPLIER_FEEDS_STORE.length,
+    supplierProducts: SUPPLIER_PRODUCTS_STORE.length,
     mappings: SUPPLIER_MAPPINGS_STORE.length,
     offers: SUPPLIER_OFFERS_STORE.length,
     syncRuns: SUPPLIER_SYNC_RUNS_STORE.length,
     changeEvents: SUPPLIER_CHANGE_EVENTS_STORE.length,
+    exceptions: SUPPLIER_EXCEPTIONS_STORE.length,
   }
 }
 
@@ -742,10 +868,180 @@ export async function matchSupplierProduct(
  * Performs normalization, deterministic matching, diff tracking, and audit logging.
  * Idempotent, failure-safe, and rate-limited.
  */
+// ── Ingestion Boundary & Sync Jobs ─────────────────────────────────────────────
+
+/**
+ * Validate a normalised supplier item against catalogue data-quality rules.
+ */
+export function validateSupplierFeedItem(item: NormalizedSupplierItem): { isValid: boolean; issues: Array<{ field?: string; code: SupplierExceptionCode; severity: SupplierExceptionSeverity; message: string }> } {
+  const issues: Array<{ field?: string; code: SupplierExceptionCode; severity: SupplierExceptionSeverity; message: string }> = []
+
+  if (!item.normalizedSku) {
+    issues.push({
+      field: 'supplierSku',
+      code: 'MISSING_SKU',
+      severity: 'CRITICAL',
+      message: 'Supplier record is missing a mandatory supplier SKU identifier.',
+    })
+  }
+
+  if (item.costMinorUnits <= 0) {
+    issues.push({
+      field: 'cost',
+      code: 'INVALID_PRICE',
+      severity: 'ERROR',
+      message: `Invalid wholesale cost (${item.costMinorUnits} minor units). Wholesale cost must be greater than zero.`,
+    })
+  }
+
+  if (item.rrpMinorUnits != null && item.rrpMinorUnits <= 0) {
+    issues.push({
+      field: 'rrp',
+      code: 'INVALID_PRICE',
+      severity: 'WARNING',
+      message: `Supplier RRP is zero or negative (${item.rrpMinorUnits}).`,
+    })
+  }
+
+  if (!['GBP', 'USD', 'EUR', 'AUD'].includes(item.currency)) {
+    issues.push({
+      field: 'currency',
+      code: 'INVALID_CURRENCY',
+      severity: 'ERROR',
+      message: `Unsupported currency code "${item.currency}".`,
+    })
+  }
+
+  if (item.quantity != null && item.quantity < 0) {
+    issues.push({
+      field: 'quantity',
+      code: 'INVALID_STOCK',
+      severity: 'ERROR',
+      message: `Supplier stock quantity cannot be negative (${item.quantity}).`,
+    })
+  }
+
+  if (item.rawPayload.eanGtin && !item.eanGtin) {
+    issues.push({
+      field: 'eanGtin',
+      code: 'CONFLICTING_EAN',
+      severity: 'WARNING',
+      message: `EAN/GTIN "${item.rawPayload.eanGtin}" is not a valid 8, 12, 13, or 14-digit GTIN.`,
+    })
+  }
+
+  const rawAvail = String(item.rawPayload.availability || '').toLowerCase()
+  if (rawAvail.includes('discontinued') || item.rawPayload.isDiscontinued === true) {
+    issues.push({
+      field: 'availability',
+      code: 'DISCONTINUED_PRODUCT',
+      severity: 'WARNING',
+      message: 'Product is flagged as discontinued by supplier.',
+    })
+  }
+
+  return {
+    isValid: !issues.some((i) => i.severity === 'CRITICAL' || i.severity === 'ERROR'),
+    issues,
+  }
+}
+
+/**
+ * Preview a supplier feed import without mutating live data or offers.
+ * Provides upfront visibility into discovered, valid, unmapped, and exception counts.
+ */
+export async function previewFeedImport(
+  supplierId: string,
+  rawItems: RawSupplierFeedItem[],
+  feedId?: string
+): Promise<ImportPreviewSummary> {
+  const supplier = SUPPLIERS_STORE.find((s) => s.id === supplierId)
+  if (!supplier) throw new Error(`Supplier with ID "${supplierId}" not found.`)
+
+  let validRecords = 0
+  let newProducts = 0
+  let existingProductsUpdated = 0
+  let unchangedProducts = 0
+  let requireMapping = 0
+  const exceptions: ImportPreviewSummary['exceptions'] = []
+  const seenSkus = new Set<string>()
+
+  for (const raw of rawItems) {
+    const rawSku = (raw.supplierSku || '').trim().toUpperCase()
+
+    if (seenSkus.has(rawSku)) {
+      exceptions.push({
+        supplierSku: raw.supplierSku,
+        code: 'DUPLICATE_SKU',
+        severity: 'WARNING',
+        message: `Duplicate SKU "${raw.supplierSku}" encountered in same feed.`,
+      })
+    } else if (rawSku) {
+      seenSkus.add(rawSku)
+    }
+
+    const normalized = normalizeSupplierItem(raw)
+    const validation = validateSupplierFeedItem(normalized)
+
+    for (const issue of validation.issues) {
+      exceptions.push({
+        supplierSku: raw.supplierSku || 'UNKNOWN',
+        code: issue.code,
+        severity: issue.severity,
+        message: issue.message,
+      })
+    }
+
+    if (!validation.isValid) {
+      continue
+    }
+
+    validRecords++
+
+    const existingProduct = SUPPLIER_PRODUCTS_STORE.find(
+      (p) => p.supplierId === supplierId && p.supplierSku.toUpperCase() === normalized.normalizedSku
+    )
+
+    const sourceHash = computeSourceHash(raw)
+    if (!existingProduct) {
+      newProducts++
+    } else if (existingProduct.sourceHash === sourceHash) {
+      unchangedProducts++
+    } else {
+      existingProductsUpdated++
+    }
+
+    const mapping = await matchSupplierProduct(supplierId, normalized)
+    if (mapping.status !== 'MATCHED' || !mapping.canonicalProductId) {
+      requireMapping++
+    }
+  }
+
+  return {
+    supplierId,
+    feedId: feedId ?? null,
+    totalDiscovered: rawItems.length,
+    validRecords,
+    newProducts,
+    existingProductsUpdated,
+    unchangedProducts,
+    requireMapping,
+    exceptionsCount: exceptions.length,
+    exceptions,
+  }
+}
+
+/**
+ * Ingest a batch of supplier feed items.
+ * Performs normalization, deterministic matching, diff tracking, raw record storage,
+ * and auditable exception logging.
+ * Idempotent, failure-safe, and preserves field ownership.
+ */
 export async function ingestSupplierFeed(
   supplierId: string,
   rawItems: RawSupplierFeedItem[],
-  userId?: string | null
+  userId?: string | null,
+  feedId?: string
 ): Promise<SupplierSyncRun> {
   const supplier = SUPPLIERS_STORE.find((s) => s.id === supplierId)
   if (!supplier) {
@@ -762,20 +1058,119 @@ export async function ingestSupplierFeed(
   let recordsRejected = 0
   const errors: string[] = []
   const warnings: string[] = []
+  const seenSkusInBatch = new Set<string>()
 
   for (const raw of rawItems) {
     recordsProcessed++
     try {
-      // 1. Normalization
+      // 1. Duplicate check within batch
+      const rawSkuUpper = (raw.supplierSku || '').trim().toUpperCase()
+      if (rawSkuUpper && seenSkusInBatch.has(rawSkuUpper)) {
+        const dupEx: SupplierImportException = {
+          id: `ex-${crypto.randomUUID().slice(0, 8)}`,
+          syncRunId: runId,
+          supplierId,
+          supplierSku: raw.supplierSku,
+          exceptionCode: 'DUPLICATE_SKU',
+          severity: 'WARNING',
+          message: `Duplicate SKU "${raw.supplierSku}" encountered in same feed run. Second occurrence evaluated as override.`,
+          rawRecord: { ...raw },
+          resolutionStatus: 'OPEN',
+          createdAt: new Date().toISOString(),
+        }
+        SUPPLIER_EXCEPTIONS_STORE.unshift(dupEx)
+        warnings.push(`Duplicate SKU "${raw.supplierSku}" in feed run.`)
+      } else if (rawSkuUpper) {
+        seenSkusInBatch.add(rawSkuUpper)
+      }
+
+      // 2. Normalization
       const normalized = normalizeSupplierItem(raw)
-      if (!normalized.supplierSku) {
+
+      // 3. Validation
+      const validation = validateSupplierFeedItem(normalized)
+      for (const issue of validation.issues) {
+        const ex: SupplierImportException = {
+          id: `ex-${crypto.randomUUID().slice(0, 8)}`,
+          syncRunId: runId,
+          supplierId,
+          supplierSku: normalized.supplierSku || null,
+          exceptionCode: issue.code,
+          severity: issue.severity,
+          message: issue.message,
+          rawRecord: { ...raw },
+          resolutionStatus: 'OPEN',
+          createdAt: new Date().toISOString(),
+        }
+        SUPPLIER_EXCEPTIONS_STORE.unshift(ex)
+      }
+
+      if (!validation.isValid) {
         recordsRejected++
-        warnings.push(`Item #${recordsProcessed} rejected: missing supplier SKU.`)
+        warnings.push(`Item #${recordsProcessed} (${raw.supplierSku || 'No SKU'}) rejected: validation failed.`)
         continue
       }
 
-      // 2. Deterministic Matching
+      // 4. Record/Update separate Supplier Product
+      const isDiscontinued = normalized.availability === 'NOT_AVAILABLE' &&
+        (String(raw.availability || '').toLowerCase().includes('discontinued') || raw.isDiscontinued === true)
+
+      const sourceHash = computeSourceHash(raw)
+      let supplierProduct = SUPPLIER_PRODUCTS_STORE.find(
+        (p) => p.supplierId === supplierId && p.supplierSku.toUpperCase() === normalized.normalizedSku
+      )
+
+      if (supplierProduct) {
+        supplierProduct.manufacturerSku = normalized.manufacturerSku ?? null
+        supplierProduct.eanGtin = normalized.eanGtin ?? null
+        supplierProduct.supplierProductName = normalized.title
+        supplierProduct.supplierDescription = raw.description ?? supplierProduct.supplierDescription ?? null
+        supplierProduct.supplierBrand = normalized.brandName ?? supplierProduct.supplierBrand ?? null
+        supplierProduct.rawCostMinorUnits = normalized.costMinorUnits
+        supplierProduct.rawRrpMinorUnits = normalized.rrpMinorUnits ?? null
+        supplierProduct.currency = normalized.currency
+        supplierProduct.rawStockQuantity = normalized.quantity ?? null
+        supplierProduct.rawAvailability = normalized.availability
+        supplierProduct.isDiscontinued = isDiscontinued
+        supplierProduct.sourcePayload = { ...raw }
+        supplierProduct.sourceHash = sourceHash
+        supplierProduct.lastSeenAt = new Date().toISOString()
+        supplierProduct.importStatus = isDiscontinued ? 'DISCONTINUED' : 'VALID'
+        supplierProduct.updatedAt = new Date().toISOString()
+      } else {
+        const newProduct: SupplierProduct = {
+          id: `sp-${supplier.slug}-${crypto.randomUUID().slice(0, 8)}`,
+          supplierId,
+          supplierFeedId: feedId ?? null,
+          supplierSku: normalized.supplierSku,
+          manufacturerSku: normalized.manufacturerSku ?? null,
+          eanGtin: normalized.eanGtin ?? null,
+          supplierProductName: normalized.title,
+          supplierDescription: raw.description ?? null,
+          supplierBrand: normalized.brandName ?? null,
+          supplierCategory: raw.category ? String(raw.category) : null,
+          supplierProductUrl: raw.productUrl ? String(raw.productUrl) : null,
+          rawCostMinorUnits: normalized.costMinorUnits,
+          rawRrpMinorUnits: normalized.rrpMinorUnits ?? null,
+          currency: normalized.currency,
+          rawStockQuantity: normalized.quantity ?? null,
+          rawAvailability: normalized.availability,
+          isDiscontinued,
+          sourcePayload: { ...raw },
+          sourceHash,
+          firstSeenAt: new Date().toISOString(),
+          lastSeenAt: new Date().toISOString(),
+          importStatus: isDiscontinued ? 'DISCONTINUED' : 'VALID',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        SUPPLIER_PRODUCTS_STORE.push(newProduct)
+        supplierProduct = newProduct
+      }
+
+      // 5. Deterministic Matching
       const mapping = await matchSupplierProduct(supplierId, normalized)
+      mapping.supplierProductId = supplierProduct.id
 
       // Store or update mapping in store
       const existingMappingIndex = SUPPLIER_MAPPINGS_STORE.findIndex(
@@ -790,7 +1185,7 @@ export async function ingestSupplierFeed(
       if (mapping.status === 'MATCHED' && mapping.canonicalProductId) {
         recordsMatched++
 
-        // 3. Diffing against existing supplier offer
+        // 6. Diffing against existing supplier offer
         const existingOffer = SUPPLIER_OFFERS_STORE.find(
           (o) => o.supplierId === supplierId && o.supplierSku === normalized.supplierSku
         )
@@ -825,10 +1220,12 @@ export async function ingestSupplierFeed(
               supplierName: supplier.name,
               supplierSku: normalized.supplierSku,
               canonicalProductId: mapping.canonicalProductId,
-              changeType: 'AVAILABILITY_CHANGED',
+              changeType: isDiscontinued ? 'DISCONTINUED_BY_SUPPLIER' : 'AVAILABILITY_CHANGED',
               oldValue: existingOffer.availability,
               newValue: normalized.availability,
-              details: `Availability changed from ${existingOffer.availability} to ${normalized.availability}`,
+              details: isDiscontinued
+                ? 'Product discontinued by supplier.'
+                : `Availability changed from ${existingOffer.availability} to ${normalized.availability}`,
               detectedAt: new Date().toISOString(),
             }
             SUPPLIER_CHANGE_EVENTS_STORE.unshift(diffEvent)
@@ -837,13 +1234,13 @@ export async function ingestSupplierFeed(
           // Update offer in place
           existingOffer.costMinorUnits = normalized.costMinorUnits
           existingOffer.supplierRrpMinorUnits = normalized.rrpMinorUnits ?? existingOffer.supplierRrpMinorUnits ?? null
-          existingOffer.availability = normalized.availability
-          existingOffer.quantity = normalized.quantity ?? existingOffer.quantity ?? null
+          existingOffer.availability = isDiscontinued ? 'NOT_AVAILABLE' : normalized.availability
+          existingOffer.quantity = isDiscontinued ? 0 : (normalized.quantity ?? existingOffer.quantity ?? null)
           existingOffer.leadTimeDays = normalized.leadTimeDays ?? existingOffer.leadTimeDays ?? null
           existingOffer.leadTimeText = normalized.leadTimeText ?? existingOffer.leadTimeText ?? null
           existingOffer.lastCheckedAt = new Date().toISOString()
           existingOffer.freshnessState = 'FRESH'
-          existingOffer.status = 'ACTIVE'
+          existingOffer.status = isDiscontinued ? 'DISCONTINUED' : 'ACTIVE'
           existingOffer.updatedAt = new Date().toISOString()
         } else {
           // Create new supplier offer
@@ -857,15 +1254,15 @@ export async function ingestSupplierFeed(
             costMinorUnits: normalized.costMinorUnits,
             currency: normalized.currency,
             supplierRrpMinorUnits: normalized.rrpMinorUnits ?? null,
-            availability: normalized.availability,
+            availability: isDiscontinued ? 'NOT_AVAILABLE' : normalized.availability,
             inventoryAuthority: 'SUPPLIER_STOCK',
-            quantity: normalized.quantity ?? null,
+            quantity: isDiscontinued ? 0 : (normalized.quantity ?? null),
             leadTimeDays: normalized.leadTimeDays ?? null,
             leadTimeText: normalized.leadTimeText ?? null,
             marketCode,
             freshnessState: 'FRESH',
             lastCheckedAt: new Date().toISOString(),
-            status: 'ACTIVE',
+            status: isDiscontinued ? 'DISCONTINUED' : 'ACTIVE',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
@@ -873,6 +1270,21 @@ export async function ingestSupplierFeed(
         }
       } else {
         recordsUnmatched++
+        // Log unmapped exception for administrative review queue
+        const unmappedEx: SupplierImportException = {
+          id: `ex-${crypto.randomUUID().slice(0, 8)}`,
+          syncRunId: runId,
+          supplierId,
+          supplierProductId: supplierProduct.id,
+          supplierSku: normalized.supplierSku,
+          exceptionCode: 'UNMAPPED_PRODUCT',
+          severity: 'WARNING',
+          message: `Supplier SKU "${normalized.supplierSku}" could not be deterministically matched to canonical product graph.`,
+          rawRecord: { ...raw },
+          resolutionStatus: 'OPEN',
+          createdAt: new Date().toISOString(),
+        }
+        SUPPLIER_EXCEPTIONS_STORE.unshift(unmappedEx)
       }
     } catch (err) {
       recordsRejected++
@@ -883,6 +1295,21 @@ export async function ingestSupplierFeed(
   // Update supplier lastSyncAt
   supplier.lastSyncAt = new Date().toISOString()
   supplier.updatedAt = new Date().toISOString()
+
+  // Update feed if provided
+  if (feedId) {
+    const feed = SUPPLIER_FEEDS_STORE.find((f) => f.id === feedId)
+    if (feed) {
+      feed.lastAttemptedRun = new Date().toISOString()
+      if (errors.length === 0) {
+        feed.lastSuccessfulRun = new Date().toISOString()
+        feed.errorState = null
+      } else {
+        feed.errorState = errors.join('; ')
+      }
+      feed.updatedAt = new Date().toISOString()
+    }
+  }
 
   const syncRun: SupplierSyncRun = {
     runId,
@@ -1204,6 +1631,151 @@ export async function getProcurementSummary(): Promise<ProcurementSummary> {
     syncHealth,
   }
 }
+
+// ── Multi-Supplier Ingestion Engine Query API ─────────────────────────────────
+
+export async function getSupplierFeeds(supplierId?: string): Promise<SupplierFeed[]> {
+  return SUPPLIER_FEEDS_STORE.filter((f) => {
+    if (supplierId && f.supplierId !== supplierId) return false
+    return true
+  })
+}
+
+export async function getSupplierFeedById(feedId: string): Promise<SupplierFeed | null> {
+  return SUPPLIER_FEEDS_STORE.find((f) => f.id === feedId) ?? null
+}
+
+export async function createSupplierFeed(
+  input: Omit<SupplierFeed, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<SupplierFeed> {
+  const feed: SupplierFeed = {
+    ...input,
+    id: `feed-${crypto.randomUUID().slice(0, 8)}`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+  SUPPLIER_FEEDS_STORE.push(feed)
+  return feed
+}
+
+export async function updateSupplierFeed(
+  id: string,
+  input: Partial<SupplierFeed>
+): Promise<SupplierFeed> {
+  const feed = SUPPLIER_FEEDS_STORE.find((f) => f.id === id)
+  if (!feed) throw new Error(`Supplier feed "${id}" not found.`)
+  Object.assign(feed, {
+    ...input,
+    updatedAt: new Date().toISOString(),
+  })
+  return feed
+}
+
+export async function getSupplierProducts(
+  supplierId?: string,
+  filter?: { status?: string; search?: string }
+): Promise<SupplierProduct[]> {
+  return SUPPLIER_PRODUCTS_STORE.filter((p) => {
+    if (supplierId && p.supplierId !== supplierId) return false
+    if (filter?.status && p.importStatus !== filter.status) return false
+    if (filter?.search) {
+      const q = filter.search.toLowerCase()
+      const matchSku = p.supplierSku.toLowerCase().includes(q)
+      const matchName = p.supplierProductName.toLowerCase().includes(q)
+      const matchMfr = (p.manufacturerSku || '').toLowerCase().includes(q)
+      if (!matchSku && !matchName && !matchMfr) return false
+    }
+    return true
+  })
+}
+
+export async function getSupplierProductById(id: string): Promise<SupplierProduct | null> {
+  return SUPPLIER_PRODUCTS_STORE.find((p) => p.id === id) ?? null
+}
+
+export async function getSupplierProductBySku(
+  supplierId: string,
+  supplierSku: string
+): Promise<SupplierProduct | null> {
+  return (
+    SUPPLIER_PRODUCTS_STORE.find(
+      (p) => p.supplierId === supplierId && p.supplierSku.toUpperCase() === supplierSku.toUpperCase()
+    ) ?? null
+  )
+}
+
+export async function getSupplierImportExceptions(
+  supplierId?: string,
+  status?: SupplierExceptionStatus
+): Promise<SupplierImportException[]> {
+  return SUPPLIER_EXCEPTIONS_STORE.filter((e) => {
+    if (supplierId && e.supplierId !== supplierId) return false
+    if (status && e.resolutionStatus !== status) return false
+    return true
+  })
+}
+
+export async function resolveSupplierImportException(
+  id: string,
+  resolutionNotes: string,
+  resolvedBy: string
+): Promise<SupplierImportException> {
+  const ex = SUPPLIER_EXCEPTIONS_STORE.find((e) => e.id === id)
+  if (!ex) throw new Error(`Supplier import exception "${id}" not found.`)
+  ex.resolutionStatus = 'RESOLVED'
+  ex.resolutionNotes = resolutionNotes
+  ex.resolvedBy = resolvedBy
+  ex.resolvedAt = new Date().toISOString()
+  return ex
+}
+
+/**
+ * End-to-end data lineage query: Trace any canonical product back to:
+ * Supplier -> Feed -> Sync Run -> Supplier Product -> Mapping -> Avorria Product
+ */
+export async function getProductDataLineage(canonicalProductId: string): Promise<ProductDataLineage[]> {
+  const canonical = SEED_PRODUCTS.find((p) => p.id === canonicalProductId)
+  if (!canonical) return []
+
+  const mappings = SUPPLIER_MAPPINGS_STORE.filter(
+    (m) => m.canonicalProductId === canonicalProductId && m.status === 'MATCHED'
+  )
+
+  const lineages: ProductDataLineage[] = []
+
+  for (const m of mappings) {
+    const supplier = SUPPLIERS_STORE.find((s) => s.id === m.supplierId)
+    const supplierProduct = SUPPLIER_PRODUCTS_STORE.find(
+      (sp) => sp.supplierId === m.supplierId && sp.supplierSku.toUpperCase() === m.supplierSku.toUpperCase()
+    )
+    const feed = supplierProduct?.supplierFeedId
+      ? SUPPLIER_FEEDS_STORE.find((f) => f.id === supplierProduct.supplierFeedId)
+      : null
+
+    const latestSyncRun = SUPPLIER_SYNC_RUNS_STORE.find((r) => r.supplierId === m.supplierId)
+
+    lineages.push({
+      canonicalProductId: canonical.id,
+      canonicalProductSku: canonical.sku,
+      canonicalProductName: canonical.name,
+      supplierId: m.supplierId,
+      supplierName: supplier?.name ?? 'Unknown Supplier',
+      supplierSku: m.supplierSku,
+      feedId: feed?.id ?? null,
+      feedName: feed?.feedName ?? null,
+      syncRunId: latestSyncRun?.runId ?? null,
+      supplierProductId: supplierProduct?.id ?? `sp-synth-${m.supplierSku}`,
+      mappingId: m.id,
+      matchMethod: m.matchMethod,
+      mappingConfidence: m.matchConfidenceCategory,
+      lastSyncedAt: supplierProduct?.lastSeenAt ?? m.updatedAt,
+      sourcePayload: supplierProduct?.sourcePayload ?? m.sourcePayload ?? null,
+    })
+  }
+
+  return lineages
+}
+
 
 // ─── Phase 11: Supplier Network Activation, Trade Accounts & Relationships ───────
 

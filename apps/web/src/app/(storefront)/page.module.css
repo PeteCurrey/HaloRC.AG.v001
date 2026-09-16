@@ -823,9 +823,10 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
 }
 
-/* Scrim over the background image */
+/* Scrim over the background image — transitions on hover to reveal rich artwork */
 .disciplineCardBg::after {
   content: '';
   position: absolute;
@@ -835,27 +836,32 @@
     linear-gradient(
       to top,
       rgba(249, 248, 246, 0.96) 0%,
-      rgba(249, 248, 246, 0.85) 45%,
-      rgba(249, 248, 246, 0.65) 100%
+      rgba(249, 248, 246, 0.88) 45%,
+      rgba(249, 248, 246, 0.72) 100%
     );
-  transition: opacity var(--duration-standard) var(--ease-standard);
+  transition: opacity 320ms var(--ease-standard), background 320ms var(--ease-standard);
 }
 
-/* Image itself — subtle preview */
+/* Image itself — subtle resting state, smoothly emerges on hover */
 .disciplineCardBg img {
-  opacity: 0.22;
-  transition: opacity var(--duration-standard) var(--ease-standard), transform var(--duration-standard) var(--ease-standard);
+  opacity: 0.12;
+  transform: scale(1.0);
+  transition: opacity 360ms var(--ease-standard), transform 450ms var(--ease-standard);
   object-fit: cover;
 }
 
 /* Reveal on hover */
 .disciplineCard:hover .disciplineCardBg img {
-  opacity: 0.4;
-  transform: scale(1.04);
+  opacity: 0.42;
+  transform: scale(1.05);
+}
+
+.disciplineCard:hover .disciplineCardBg::after {
+  opacity: 0.75;
 }
 
 .disciplineCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--border-medium);
   box-shadow: var(--shadow-card-hover);
 }
@@ -953,21 +959,77 @@
 }
 
 .engineeringBrandCard {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: var(--space-6);
+  padding: 0;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-subtle);
   text-decoration: none;
+  min-height: 200px;
   transition: var(--transition-card);
 }
 
 .engineeringBrandCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--border-medium);
   box-shadow: var(--shadow-card-hover);
+}
+
+/* Background image layer — sits behind content */
+.engineeringBrandBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Scrim over the background image — transitions on hover to reveal rich artwork */
+.engineeringBrandBg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      to top,
+      rgba(249, 248, 246, 0.96) 0%,
+      rgba(249, 248, 246, 0.88) 45%,
+      rgba(249, 248, 246, 0.72) 100%
+    );
+  transition: opacity 320ms var(--ease-standard), background 320ms var(--ease-standard);
+}
+
+/* Image itself — subtle resting state, smoothly emerges on hover */
+.engineeringBrandBg img {
+  opacity: 0.12;
+  transform: scale(1.0);
+  transition: opacity 360ms var(--ease-standard), transform 450ms var(--ease-standard);
+  object-fit: cover;
+}
+
+/* Reveal on hover */
+.engineeringBrandCard:hover .engineeringBrandBg img {
+  opacity: 0.42;
+  transform: scale(1.05);
+}
+
+.engineeringBrandCard:hover .engineeringBrandBg::after {
+  opacity: 0.75;
+}
+
+/* Content wrapper sits above the bg */
+.engineeringBrandContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  padding: var(--space-6);
 }
 
 .engineeringBrandTop {

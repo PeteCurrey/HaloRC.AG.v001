@@ -180,7 +180,7 @@
 }
 
 .buildCard:hover {
-  transform: translateY(-3px);
+  transform: translateY(-1px);
   border-color: rgba(200, 0, 26, 0.4);
   box-shadow: var(--shadow-card-hover);
 }

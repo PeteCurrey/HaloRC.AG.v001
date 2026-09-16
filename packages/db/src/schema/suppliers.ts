@@ -24,6 +24,11 @@ import {
   dataFreshnessStateEnum,
   supplierSyncStatusEnum,
   supplierChangeTypeEnum,
+  supplierFeedTypeEnum,
+  supplierFeedFormatEnum,
+  supplierAuthTypeEnum,
+  supplierExceptionSeverityEnum,
+  supplierExceptionStatusEnum,
 } from './enums'
 
 // ─── Suppliers ────────────────────────────────────────────────────────────────
@@ -151,10 +156,68 @@ export const supplierIntegrations = pgTable('supplier_integrations', {
   index('supplier_integrations_supplier_idx').on(t.supplierId),
 ])
 
+// ─── Multi-Feed & Raw Supplier Product Records Architecture ──────────────────
+
+export const supplierFeeds = pgTable('supplier_feeds', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  supplierId: text('supplier_id').notNull().references(() => suppliers.id, { onDelete: 'cascade' }),
+  feedName: text('feed_name').notNull(),
+  feedType: supplierFeedTypeEnum('feed_type').notNull().default('CATALOGUE'),
+  format: supplierFeedFormatEnum('format').notNull().default('CSV'),
+  sourceUrl: text('source_url'),
+  authType: supplierAuthTypeEnum('auth_type').notNull().default('NONE'),
+  authConfig: jsonb('auth_config').notNull().$defaultFn(() => ({})),
+  scheduleCron: text('schedule_cron'),
+  isActive: boolean('is_active').notNull().default(true),
+  lastAttemptedRun: timestamp('last_attempted_run', { withTimezone: true }),
+  lastSuccessfulRun: timestamp('last_successful_run', { withTimezone: true }),
+  nextScheduledRun: timestamp('next_scheduled_run', { withTimezone: true }),
+  errorState: text('error_state'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('supplier_feeds_supplier_idx').on(t.supplierId),
+  index('supplier_feeds_active_idx').on(t.isActive),
+])
+
+export const supplierProducts = pgTable('supplier_products', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  supplierId: text('supplier_id').notNull().references(() => suppliers.id, { onDelete: 'cascade' }),
+  supplierFeedId: text('supplier_feed_id').references(() => supplierFeeds.id, { onDelete: 'set null' }),
+  supplierSku: text('supplier_sku').notNull(),
+  manufacturerSku: text('manufacturer_sku'),
+  eanGtin: text('ean_gtin'),
+  supplierProductName: text('supplier_product_name').notNull(),
+  supplierDescription: text('supplier_description'),
+  supplierBrand: text('supplier_brand'),
+  supplierCategory: text('supplier_category'),
+  supplierProductUrl: text('supplier_product_url'),
+  rawCostMinorUnits: integer('raw_cost_minor_units').notNull().default(0),
+  rawRrpMinorUnits: integer('raw_rrp_minor_units'),
+  currency: text('currency').notNull().default('GBP'),
+  rawStockQuantity: integer('raw_stock_quantity'),
+  rawAvailability: text('raw_availability').notNull().default('UNKNOWN'),
+  isDiscontinued: boolean('is_discontinued').notNull().default(false),
+  sourcePayload: jsonb('source_payload').notNull().$defaultFn(() => ({})),
+  sourceHash: text('source_hash'),
+  firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  importStatus: text('import_status').notNull().default('VALID'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('supplier_products_supplier_idx').on(t.supplierId),
+  index('supplier_products_sku_idx').on(t.supplierId, t.supplierSku),
+  index('supplier_products_mfr_sku_idx').on(t.manufacturerSku),
+  index('supplier_products_ean_idx').on(t.eanGtin),
+  index('supplier_products_status_idx').on(t.importStatus),
+])
+
 export const supplierProductMappings = pgTable('supplier_product_mappings', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   supplierId: text('supplier_id').notNull().references(() => suppliers.id, { onDelete: 'cascade' }),
   supplierSku: text('supplier_sku').notNull(),
+  supplierProductId: text('supplier_product_id').references(() => supplierProducts.id, { onDelete: 'set null' }),
   canonicalProductId: text('canonical_product_id').references(() => products.id, { onDelete: 'set null' }),
   canonicalVariantId: text('canonical_variant_id').references(() => productVariants.id, { onDelete: 'set null' }),
   matchMethod: supplierMatchMethodEnum('match_method'),
@@ -174,6 +237,7 @@ export const supplierProductMappings = pgTable('supplier_product_mappings', {
   index('supplier_mappings_supplier_sku_idx').on(t.supplierId, t.supplierSku),
   index('supplier_mappings_canonical_idx').on(t.canonicalProductId),
   index('supplier_mappings_status_idx').on(t.status),
+  index('supplier_mappings_product_idx').on(t.supplierProductId),
 ])
 
 export const supplierOffers = pgTable('supplier_offers', {
@@ -237,6 +301,28 @@ export const supplierChangeEvents = pgTable('supplier_change_events', {
   index('supplier_change_events_detected_idx').on(t.detectedAt),
 ])
 
+export const supplierImportExceptions = pgTable('supplier_import_exceptions', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  syncRunId: text('sync_run_id').references(() => supplierSyncRuns.runId, { onDelete: 'cascade' }),
+  supplierId: text('supplier_id').notNull().references(() => suppliers.id, { onDelete: 'cascade' }),
+  supplierProductId: text('supplier_product_id').references(() => supplierProducts.id, { onDelete: 'set null' }),
+  supplierSku: text('supplier_sku'),
+  exceptionCode: text('exception_code').notNull(),
+  severity: supplierExceptionSeverityEnum('severity').notNull().default('ERROR'),
+  message: text('message').notNull(),
+  rawRecord: jsonb('raw_record'),
+  resolutionStatus: supplierExceptionStatusEnum('resolution_status').notNull().default('OPEN'),
+  resolvedBy: text('resolved_by'),
+  resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+  resolutionNotes: text('resolution_notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('supp_exceptions_run_idx').on(t.syncRunId),
+  index('supp_exceptions_supplier_idx').on(t.supplierId),
+  index('supp_exceptions_status_idx').on(t.resolutionStatus),
+  index('supp_exceptions_code_idx').on(t.exceptionCode),
+])
+
 // ─── Relations ────────────────────────────────────────────────────────────────
 
 export const suppliersRelations = relations(suppliers, ({ many }) => ({
@@ -246,10 +332,13 @@ export const suppliersRelations = relations(suppliers, ({ many }) => ({
   documents: many(supplierDocuments),
   activityLog: many(supplierActivityLog),
   integrations: many(supplierIntegrations),
+  feeds: many(supplierFeeds),
+  supplierProducts: many(supplierProducts),
   mappings: many(supplierProductMappings),
   offers: many(supplierOffers),
   syncRuns: many(supplierSyncRuns),
   changeEvents: many(supplierChangeEvents),
+  importExceptions: many(supplierImportExceptions),
 }))
 
 // ─── Phase 11: Supplier Network & Trade Accounts Schema ───────────────────────

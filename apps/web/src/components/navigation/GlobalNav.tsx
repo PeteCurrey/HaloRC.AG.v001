@@ -9,7 +9,7 @@ import { HaloLogo } from '@/components/brand/HaloLogo'
 import { MegaMenu } from './MegaMenu'
 import { MEGA_MENUS } from '@/lib/navigation-data'
 
-type MegaMenuId = 'machines' | 'race' | 'brands'
+type MegaMenuId = 'machines' | 'parts' | 'race' | 'brands'
 
 interface NavItem {
   label: string
@@ -20,6 +20,7 @@ interface NavItem {
 
 const NAV_ITEMS: readonly NavItem[] = [
   { label: 'The Machines', href: '/machines', megaMenuId: 'machines' },
+  { label: 'Parts & Upgrades', href: '/parts', megaMenuId: 'parts' },
   { label: 'Race Department', href: '/race', variant: 'race', megaMenuId: 'race' },
   { label: 'Brands', href: '/brands', megaMenuId: 'brands' },
   { label: 'Build My Rig', href: '/build' },
@@ -39,6 +40,7 @@ export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
   const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuId | null>(null)
   const [expandedAccordions, setExpandedAccordions] = useState<Record<MegaMenuId, boolean>>({
     machines: false,
+    parts: false,
     race: false,
     brands: false,
   })
@@ -85,6 +87,7 @@ export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
     setActiveMegaMenu(null)
     setExpandedAccordions({
       machines: false,
+      parts: false,
       race: false,
       brands: false,
     })
@@ -274,7 +277,7 @@ export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
         </div>
 
         {/* Desktop Mega Menus (anchored under fixed navbar) */}
-        {(['machines', 'race', 'brands'] as const).map((key) => (
+        {(['machines', 'parts', 'race', 'brands'] as const).map((key) => (
           <MegaMenu
             key={key}
             id={`megamenu-${key}`}

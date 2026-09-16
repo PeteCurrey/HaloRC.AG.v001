@@ -59,8 +59,9 @@ export const ADMIN_NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Procurement',
+    title: 'Suppliers & Procurement',
     items: [
+      { href: '/admin/suppliers', label: 'Supplier Directory' },
       { href: '/admin/procurement', label: 'Procurement Feed' },
       { href: '/admin/procurement/unmatched', label: 'Unmatched SKUs' },
     ],

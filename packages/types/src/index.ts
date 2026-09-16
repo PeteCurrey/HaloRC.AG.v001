@@ -1268,6 +1268,9 @@ export interface RawSupplierFeedItem {
   leadTimeDays?: number | null
   leadTimeText?: string | null
   vatTreatment?: string | null
+  category?: string | null
+  productUrl?: string | null
+  isDiscontinued?: boolean | null
   imageUrls?: string[]
   documentUrls?: string[]
   sourceTimestamp?: string
@@ -1300,6 +1303,7 @@ export interface SupplierProductMapping {
   id: string
   supplierId: string
   supplierSku: string
+  supplierProductId?: string | null
   canonicalProductId: string | null
   canonicalVariantId: string | null
   canonicalProductName?: string | null
@@ -1385,6 +1389,162 @@ export interface ProcurementSummary {
   recentChanges: SupplierChangeEvent[]
   syncHealth: 'OPTIMAL' | 'DEGRADED' | 'ATTENTION_REQUIRED'
 }
+
+// ─── Multi-Supplier Catalogue Ingestion Engine Types ─────────────────────────
+
+export type SupplierFeedType =
+  | 'CATALOGUE'
+  | 'STOCK'
+  | 'PRICE'
+  | 'IMAGE'
+  | 'ORDER_STATUS'
+
+export type SupplierFeedFormat =
+  | 'CSV'
+  | 'XML'
+  | 'JSON'
+  | 'REST_API'
+  | 'MANUAL_UPLOAD'
+
+export type SupplierAuthType =
+  | 'NONE'
+  | 'BASIC'
+  | 'API_KEY'
+  | 'BEARER_TOKEN'
+  | 'OAUTH2'
+  | 'SFTP'
+
+export type SupplierExceptionSeverity = 'WARNING' | 'ERROR' | 'CRITICAL'
+
+export type SupplierExceptionStatus = 'OPEN' | 'RESOLVED' | 'IGNORED'
+
+export type SupplierExceptionCode =
+  | 'MISSING_SKU'
+  | 'DUPLICATE_SKU'
+  | 'INVALID_PRICE'
+  | 'INVALID_CURRENCY'
+  | 'INVALID_STOCK'
+  | 'UNKNOWN_CATEGORY'
+  | 'UNKNOWN_BRAND'
+  | 'UNMAPPED_PRODUCT'
+  | 'CONFLICTING_EAN'
+  | 'MALFORMED_RECORD'
+  | 'MISSING_REQUIRED_FIELD'
+  | 'DISCONTINUED_PRODUCT'
+  | 'IMAGE_UNAVAILABLE'
+  | 'AMBIGUOUS_MATCH'
+
+export interface SupplierFeed {
+  id: string
+  supplierId: string
+  feedName: string
+  feedType: SupplierFeedType
+  format: SupplierFeedFormat
+  sourceUrl?: string | null
+  authType: SupplierAuthType
+  authConfig?: Record<string, unknown>
+  scheduleCron?: string | null
+  isActive: boolean
+  lastAttemptedRun?: string | null
+  lastSuccessfulRun?: string | null
+  nextScheduledRun?: string | null
+  errorState?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SupplierProduct {
+  id: string
+  supplierId: string
+  supplierFeedId?: string | null
+  supplierSku: string
+  manufacturerSku?: string | null
+  eanGtin?: string | null
+  supplierProductName: string
+  supplierDescription?: string | null
+  supplierBrand?: string | null
+  supplierCategory?: string | null
+  supplierProductUrl?: string | null
+  rawCostMinorUnits: number
+  rawRrpMinorUnits?: number | null
+  currency: Currency
+  rawStockQuantity?: number | null
+  rawAvailability: string
+  isDiscontinued: boolean
+  sourcePayload: Record<string, unknown>
+  sourceHash?: string | null
+  firstSeenAt: string
+  lastSeenAt: string
+  importStatus: 'VALID' | 'EXCEPTION' | 'REJECTED' | 'DISCONTINUED'
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SupplierImportException {
+  id: string
+  syncRunId?: string | null
+  supplierId: string
+  supplierProductId?: string | null
+  supplierSku?: string | null
+  exceptionCode: SupplierExceptionCode
+  severity: SupplierExceptionSeverity
+  message: string
+  rawRecord?: Record<string, unknown> | null
+  resolutionStatus: SupplierExceptionStatus
+  resolvedBy?: string | null
+  resolvedAt?: string | null
+  resolutionNotes?: string | null
+  createdAt: string
+}
+
+export interface ValidationIssue {
+  field?: string
+  code: SupplierExceptionCode
+  severity: SupplierExceptionSeverity
+  message: string
+}
+
+export interface ValidationResult {
+  isValid: boolean
+  issues: ValidationIssue[]
+}
+
+export interface ImportPreviewSummary {
+  supplierId: string
+  feedId?: string | null
+  totalDiscovered: number
+  validRecords: number
+  newProducts: number
+  existingProductsUpdated: number
+  unchangedProducts: number
+  requireMapping: number
+  exceptionsCount: number
+  exceptions: Array<{
+    supplierSku?: string
+    code: SupplierExceptionCode
+    severity: SupplierExceptionSeverity
+    message: string
+  }>
+}
+
+export interface ProductDataLineage {
+  canonicalProductId: string
+  canonicalProductSku: string
+  canonicalProductName: string
+  supplierId: string
+  supplierName: string
+  supplierSku: string
+  feedId?: string | null
+  feedName?: string | null
+  syncRunId?: string | null
+  supplierProductId: string
+  mappingId: string
+  matchMethod: SupplierMatchMethod | null
+  mappingConfidence: string
+  lastSyncedAt: string
+  sourcePayload?: Record<string, unknown> | null
+}
+
 
 // ─── Phase 9: Multi-Market Commercial Expansion & International Scale ───────
 

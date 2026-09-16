@@ -149,7 +149,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <span className={s.breadcrumbSep} aria-hidden="true">/</span>
         <Link href={`/brands/${detail.brand.slug}`}>{detail.brand.name}</Link>
         <span className={s.breadcrumbSep} aria-hidden="true">/</span>
-        <span aria-current="page" style={{ color: 'var(--colour-off-white)' }}>
+        <span aria-current="page" style={{ color: 'var(--text-primary)' }}>
           {detail.shortName}
         </span>
       </nav>
@@ -170,7 +170,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'var(--colour-graphite)',
+                backgroundColor: 'var(--bg-surface-subtle)',
                 padding: 'var(--space-6)',
                 textAlign: 'center',
               }}
@@ -181,7 +181,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   fontSize: '0.6875rem',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: isHalo ? 'var(--colour-halo)' : 'var(--colour-smoke)',
+                  color: isHalo ? 'var(--colour-halo)' : 'var(--text-tertiary)',
                   marginBottom: 'var(--space-2)',
                 }}
               >
@@ -192,7 +192,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   fontFamily: 'var(--font-primary)',
                   fontSize: 'var(--text-lg)',
                   fontWeight: 600,
-                  color: 'var(--colour-off-white)',
+                  color: 'var(--text-primary)',
                 }}
               >
                 {detail.name}
@@ -202,7 +202,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.625rem',
-                    color: 'var(--colour-smoke)',
+                    color: 'var(--text-tertiary)',
                     marginTop: 'var(--space-2)',
                   }}
                 >
@@ -410,7 +410,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             {detail.compatibleParts.map((part) => (
               <Link
                 key={part.partId}
-                href={`/machines/${part.slug}`}
+                href={`/parts/${part.slug}`}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',

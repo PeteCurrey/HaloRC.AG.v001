@@ -113,15 +113,16 @@ export interface EngineeringBrandItem {
   specialism: string
   status: string
   href: string
+  image?: string
 }
 
 export const FEATURED_ENGINEERING_BRANDS: readonly EngineeringBrandItem[] = [
-  { name: 'XRAY', country: 'Slovakia', specialism: 'World Championship Touring & Buggy', status: 'Authorised Dealer', href: '/brands' },
-  { name: 'Awesomatix', country: 'Germany', specialism: 'Rotary Damper Precision Chassis', status: 'Authorised Dealer', href: '/brands' },
-  { name: 'Traxxas', country: 'USA', specialism: 'Heavyweight Bash & Flagship Scale', status: 'Authorised Dealer', href: '/brands' },
-  { name: 'Schumacher', country: 'UK', specialism: 'British Championship Competition', status: 'Authorised Dealer', href: '/brands' },
-  { name: 'Hobbywing', country: 'China', specialism: 'XeRun Brushless ESCs & Motors', status: 'Distributor Sourced', href: '/brands' },
-  { name: 'Sanwa', country: 'Japan', specialism: 'FHSS-5 Ultra-Low Latency Telemetry', status: 'Distributor Sourced', href: '/brands' },
+  { name: 'XRAY', country: 'Slovakia', specialism: 'World Championship Touring & Buggy', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/xray.jpg' },
+  { name: 'Awesomatix', country: 'Germany', specialism: 'Rotary Damper Precision Chassis', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/awesomatix.jpg' },
+  { name: 'Traxxas', country: 'USA', specialism: 'Heavyweight Bash & Flagship Scale', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/traxxas.jpg' },
+  { name: 'Schumacher', country: 'UK', specialism: 'British Championship Competition', status: 'Authorised Dealer', href: '/brands', image: '/images/brands/schumacher.jpg' },
+  { name: 'Hobbywing', country: 'China', specialism: 'XeRun Brushless ESCs & Motors', status: 'Distributor Sourced', href: '/brands', image: '/images/brands/hobbywing.jpg' },
+  { name: 'Sanwa', country: 'Japan', specialism: 'FHSS-5 Ultra-Low Latency Telemetry', status: 'Distributor Sourced', href: '/brands', image: '/images/brands/sanwa.jpg' },
 ] as const
 
 // ─── Mega Menu Data Structures ───────────────────────────────────────────────
@@ -157,7 +158,7 @@ export interface MegaMenuData {
   spotlight?: MegaMenuSpotlight
 }
 
-export const MEGA_MENUS: Record<'machines' | 'race' | 'brands', MegaMenuData> = {
+export const MEGA_MENUS: Record<'machines' | 'parts' | 'race' | 'brands', MegaMenuData> = {
   machines: {
     id: 'machines',
     navLabel: 'The Machines',
@@ -194,6 +195,43 @@ export const MEGA_MENUS: Record<'machines' | 'race' | 'brands', MegaMenuData> = 
       imageSrc: '/images/hero/hero-1-5-scale-rc.jpg',
       imageAlt: 'Traxxas X-Maxx 8S monster truck platform',
       badge: 'BASH BENCHMARK',
+    },
+  },
+
+  parts: {
+    id: 'parts',
+    navLabel: 'Parts & Upgrades',
+    href: '/parts',
+    columns: [
+      {
+        title: 'By Component System',
+        links: [
+          { label: 'Suspension & Steering', href: '/parts?type=SUSPENSION', sub: 'Arms, hubs, steering bellcranks & links' },
+          { label: 'Drivetrain & Driveline', href: '/parts?type=DRIVETRAIN', sub: 'Driveshafts, CV axles, gears & diffs' },
+          { label: 'Option & Upgrade Parts', href: '/parts?type=OPTION_PART', sub: 'Titanium, CNC aluminium & carbon tuning' },
+          { label: 'Factory Replacement Parts', href: '/parts?type=REPLACEMENT_PART', sub: 'Direct OEM platform spares' },
+          { label: 'Body Shells & Aero', href: '/parts?type=BODY', sub: 'Homologated touring & lexan shells' },
+        ],
+      },
+      {
+        title: 'Race Electronics',
+        links: [
+          { label: 'Speed Controllers (ESC)', href: '/parts?type=ESC', sub: 'Competition brushless ESCs' },
+          { label: 'Brushless Motors', href: '/parts?type=MOTOR', sub: 'Sensored spec & modified motors' },
+          { label: 'High-Torque Servos', href: '/parts?type=SERVO', sub: 'Brushless steel-gear steering servos' },
+          { label: 'Radio Systems & Telemetry', href: '/parts?type=RADIO_SYSTEM', sub: 'Ultra-low latency transmitters & RX' },
+          { label: 'Batteries & Chargers', href: '/parts?type=BATTERY', sub: 'LCG LiPo packs & balance chargers' },
+          { label: 'Browse All 15 Parts', href: '/parts', badge: 'VERIFIED FIT' },
+        ],
+      },
+    ],
+    spotlight: {
+      tag: 'OPTION UPGRADE',
+      title: 'XRAY Titanium Pivot Ball Set',
+      description: 'Ultra-lightweight high-precision titanium pivot balls for XRAY X4 touring platform. Reduced unsprung mass and zero slop.',
+      href: '/parts/xray-302040-titanium-pivot-ball-set-x4',
+      linkText: 'Inspect Component',
+      badge: 'HALO OPTION',
     },
   },
 

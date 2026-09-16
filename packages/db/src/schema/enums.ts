@@ -515,6 +515,44 @@ export const homepageSectionTypeEnum = pgEnum('homepage_section_type', [
   'BUYING_GUIDE',
 ])
 
+export const supplierFeedTypeEnum = pgEnum('supplier_feed_type', [
+  'CATALOGUE',
+  'STOCK',
+  'PRICE',
+  'IMAGE',
+  'ORDER_STATUS',
+])
+
+export const supplierFeedFormatEnum = pgEnum('supplier_feed_format', [
+  'CSV',
+  'XML',
+  'JSON',
+  'REST_API',
+  'MANUAL_UPLOAD',
+])
+
+export const supplierAuthTypeEnum = pgEnum('supplier_auth_type', [
+  'NONE',
+  'BASIC',
+  'API_KEY',
+  'BEARER_TOKEN',
+  'OAUTH2',
+  'SFTP',
+])
+
+export const supplierExceptionSeverityEnum = pgEnum('supplier_exception_severity', [
+  'WARNING',
+  'ERROR',
+  'CRITICAL',
+])
+
+export const supplierExceptionStatusEnum = pgEnum('supplier_exception_status', [
+  'OPEN',
+  'RESOLVED',
+  'IGNORED',
+])
+
+
 
 
 

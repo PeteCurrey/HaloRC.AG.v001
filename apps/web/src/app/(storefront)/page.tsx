@@ -313,13 +313,26 @@ export default function HomePage() {
             <div className={s.engineeringBrandsGrid}>
               {FEATURED_ENGINEERING_BRANDS.map((brand) => (
                 <Link key={brand.name} href={brand.href} className={s.engineeringBrandCard}>
-                  <div className={s.engineeringBrandTop}>
-                    <span className={s.engineeringBrandOrigin}>{brand.country}</span>
-                    <span className={s.engineeringBrandStatus}>{brand.status}</span>
+                  {brand.image && (
+                    <div className={s.engineeringBrandBg} aria-hidden="true">
+                      <Image
+                        src={brand.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      />
+                    </div>
+                  )}
+                  <div className={s.engineeringBrandContent}>
+                    <div className={s.engineeringBrandTop}>
+                      <span className={s.engineeringBrandOrigin}>{brand.country}</span>
+                      <span className={s.engineeringBrandStatus}>{brand.status}</span>
+                    </div>
+                    <h3 className={s.engineeringBrandName}>{brand.name}</h3>
+                    <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
+                    <span className={s.engineeringBrandArrow}>Explore Brand Universe →</span>
                   </div>
-                  <h3 className={s.engineeringBrandName}>{brand.name}</h3>
-                  <p className={s.engineeringBrandSpecialism}>{brand.specialism}</p>
-                  <span className={s.engineeringBrandArrow}>Explore Brand Universe →</span>
                 </Link>
               ))}
             </div>
