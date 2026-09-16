@@ -373,6 +373,17 @@ export default function HomePage() {
         <div className={s.sectionInner}>
           <ScrollReveal>
             <div className={s.buildCtaBanner}>
+              <div className={s.buildCtaBg} aria-hidden="true">
+                <Image
+                  src="/images/build/pit-bench-workbench.jpg"
+                  alt="High-performance RC competition chassis on pit bench workbench with precision tools"
+                  fill
+                  quality={90}
+                  sizes="(max-width: 1280px) 100vw, 1280px"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+                <div className={s.buildCtaScrim} />
+              </div>
               <div className={s.buildCtaContent}>
                 <div className={s.buildCtaBadge}>
                   <span className={s.buildCtaDot} aria-hidden="true" />
