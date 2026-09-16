@@ -3508,3 +3508,210 @@ export async function getProcurementDataQualityReport(): Promise<{
   }
 }
 
+// ── Procurement Notes ──────────────────────────────────────────────────────────
+
+export async function getProcurementNotes(supplierId?: string): Promise<ProcurementNote[]> {
+  if (!supplierId) return [...PROCUREMENT_NOTES_STORE]
+  return PROCUREMENT_NOTES_STORE.filter((n) => n.supplierId === supplierId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+export async function addProcurementNote(
+  input: Omit<ProcurementNote, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<ProcurementNote> {
+  const now = new Date().toISOString()
+  const note: ProcurementNote = {
+    id: `pnote-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    supplierId: input.supplierId,
+    note: input.note,
+    author: input.author,
+    noteType: input.noteType,
+    createdAt: now,
+    updatedAt: now,
+  }
+  PROCUREMENT_NOTES_STORE.unshift(note)
+  return note
+}
+
+// ── Procurement Audit Log ──────────────────────────────────────────────────────
+
+export async function getProcurementAuditLog(supplierId?: string, limit = 50): Promise<ProcurementAuditEntry[]> {
+  const entries = supplierId
+    ? PROCUREMENT_AUDIT_STORE.filter((e) => e.supplierId === supplierId)
+    : [...PROCUREMENT_AUDIT_STORE]
+  return entries.slice(0, limit)
+}
+
+export async function addAuditEntry(
+  input: Omit<ProcurementAuditEntry, 'id' | 'performedAt'>
+): Promise<ProcurementAuditEntry> {
+  const entry: ProcurementAuditEntry = {
+    id: `audit-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    supplierId: input.supplierId ?? null,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    action: input.action,
+    oldValue: input.oldValue ?? null,
+    newValue: input.newValue ?? null,
+    performedBy: input.performedBy,
+    performedAt: new Date().toISOString(),
+  }
+  PROCUREMENT_AUDIT_STORE.unshift(entry)
+  return entry
+}
+
+// ── Supplier Search ────────────────────────────────────────────────────────────
+
+export interface SupplierSearchFilters {
+  query?: string | null
+  country?: string | null
+  procurementStatus?: ProcurementStatus | null
+  supplierType?: SupplierRecord['supplierType'] | null
+}
+
+export async function searchSuppliers(filters: SupplierSearchFilters = {}): Promise<SupplierRecord[]> {
+  let results = [...SUPPLIERS_STORE]
+
+  if (filters.query) {
+    const q = filters.query.toLowerCase().trim()
+    results = results.filter((s) => {
+      if (s.name.toLowerCase().includes(q)) return true
+      if (s.legalName?.toLowerCase().includes(q)) return true
+      if (s.tradingName?.toLowerCase().includes(q)) return true
+      if (s.country.toLowerCase().includes(q)) return true
+      if (s.contactEmail?.toLowerCase().includes(q)) return true
+      if (s.website?.toLowerCase().includes(q)) return true
+      if (s.notes?.toLowerCase().includes(q)) return true
+      // Check contacts for this supplier
+      const contacts = SUPPLIER_CONTACTS_STORE.filter((c) => c.supplierId === s.id)
+      if (contacts.some((c) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q))) return true
+      // Check brand relationships
+      const brandRels = BRAND_SUPPLIER_RELATIONSHIPS_STORE.filter((r) => r.supplierId === s.id)
+      const brandNames = brandRels.map((r) => {
+        const brand = SEED_BRANDS.find((b) => b.id === r.brandId)
+        return brand?.name.toLowerCase() ?? ''
+      })
+      if (brandNames.some((bn) => bn.includes(q))) return true
+      return false
+    })
+  }
+
+  if (filters.country) {
+    results = results.filter((s) => s.country.toLowerCase() === filters.country!.toLowerCase())
+  }
+
+  if (filters.procurementStatus) {
+    results = results.filter((s) => s.procurementStatus === filters.procurementStatus)
+  }
+
+  if (filters.supplierType) {
+    results = results.filter((s) => s.supplierType === filters.supplierType)
+  }
+
+  return results.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+// ── Procurement Dashboard Data ────────────────────────────────────────────────
+
+export interface ProcurementDashboardData {
+  supplierCounts: Record<ProcurementStatus, number>
+  totalSuppliers: number
+  openTasks: number
+  overdueTasks: number
+  pendingApplications: number
+  unverifiedRelationships: number
+  upcomingFollowUps: Array<{
+    supplierId: string
+    supplierName: string
+    followUpDate: string
+    subject: string
+    type: string
+  }>
+  recentCommunications: Array<{
+    supplierId: string
+    supplierName: string
+    subject: string
+    occurredAt: string
+    type: string
+  }>
+}
+
+export async function getProcurementDashboardData(): Promise<ProcurementDashboardData> {
+  const now = new Date()
+  const todayStr = now.toISOString().slice(0, 10)
+
+  const statuses: ProcurementStatus[] = [
+    'RESEARCH', 'TARGET', 'CONTACT_TO_MAKE', 'CONTACTED',
+    'APPLICATION_AVAILABLE', 'APPLICATION_SUBMITTED', 'AWAITING_RESPONSE',
+    'APPROVED', 'ACCOUNT_OPEN', 'TERMS_RECEIVED', 'TRADING',
+    'PAUSED', 'REJECTED', 'CLOSED',
+  ]
+
+  const supplierCounts = statuses.reduce((acc, status) => {
+    acc[status] = SUPPLIERS_STORE.filter((s) => s.procurementStatus === status).length
+    return acc
+  }, {} as Record<ProcurementStatus, number>)
+
+  const openTasks = PROCUREMENT_TASKS_STORE.filter((t) => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length
+  const overdueTasks = PROCUREMENT_TASKS_STORE.filter(
+    (t) => (t.status === 'OPEN' || t.status === 'IN_PROGRESS') && t.dueDate && t.dueDate < todayStr
+  ).length
+
+  const pendingApplications = TRADE_ACCOUNT_APPLICATIONS_STORE.filter(
+    (a) => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW' || a.status === 'ACKNOWLEDGED'
+  ).length
+
+  const unverifiedRelationships = BRAND_SUPPLIER_RELATIONSHIPS_STORE.filter(
+    (r) => r.verificationStatus === 'UNVERIFIED'
+  ).length
+
+  // Upcoming follow-ups from communications (next 14 days)
+  const futureDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const upcomingFollowUps = SUPPLIER_COMMUNICATIONS_STORE
+    .filter((c) => c.nextFollowUpDate && c.nextFollowUpDate >= todayStr && c.nextFollowUpDate <= futureDate)
+    .sort((a, b) => (a.nextFollowUpDate ?? '').localeCompare(b.nextFollowUpDate ?? ''))
+    .slice(0, 10)
+    .map((c) => {
+      const supplier = SUPPLIERS_STORE.find((s) => s.id === c.supplierId)
+      return {
+        supplierId: c.supplierId,
+        supplierName: supplier?.name ?? 'Unknown',
+        followUpDate: c.nextFollowUpDate ?? '',
+        subject: c.subject,
+        type: c.type,
+      }
+    })
+
+  const recentCommunications = SUPPLIER_COMMUNICATIONS_STORE
+    .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+    .slice(0, 10)
+    .map((c) => {
+      const supplier = SUPPLIERS_STORE.find((s) => s.id === c.supplierId)
+      return {
+        supplierId: c.supplierId,
+        supplierName: supplier?.name ?? 'Unknown',
+        subject: c.subject,
+        occurredAt: c.occurredAt,
+        type: c.type,
+      }
+    })
+
+  return {
+    supplierCounts,
+    totalSuppliers: SUPPLIERS_STORE.length,
+    openTasks,
+    overdueTasks,
+    pendingApplications,
+    unverifiedRelationships,
+    upcomingFollowUps,
+    recentCommunications,
+  }
+}
+
+// ── Supplier Procurement Status Pipeline Query ────────────────────────────────
+
+export async function getSuppliersByProcurementStatus(status: ProcurementStatus): Promise<SupplierRecord[]> {
+  return SUPPLIERS_STORE.filter((s) => s.procurementStatus === status)
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+

@@ -8,10 +8,11 @@ export function ProcurementNav({ currentTab }: ProcurementNavProps) {
   const tabs = [
     { label: 'Overview', href: '/admin/procurement', key: 'overview' },
     { label: 'Suppliers', href: '/admin/procurement/suppliers', key: 'suppliers' },
-    { label: 'Trade Applications', href: '/admin/procurement/applications', key: 'applications' },
     { label: 'Brand Sourcing', href: '/admin/procurement/brands', key: 'brands' },
-    { label: 'Relationships', href: '/admin/procurement/relationships', key: 'relationships' },
     { label: 'Contacts', href: '/admin/procurement/contacts', key: 'contacts' },
+    { label: 'Applications', href: '/admin/procurement/applications', key: 'applications' },
+    { label: 'Tasks', href: '/admin/procurement/tasks', key: 'tasks' },
+    { label: 'Relationships', href: '/admin/procurement/relationships', key: 'relationships' },
     { label: 'Pipeline Board', href: '/admin/procurement/pipeline', key: 'pipeline' },
     { label: 'Unmatched Queue', href: '/admin/procurement/unmatched', key: 'unmatched' },
     { label: 'Import Feed', href: '/admin/procurement/import', key: 'import' },

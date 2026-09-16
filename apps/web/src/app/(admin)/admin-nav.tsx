@@ -59,11 +59,16 @@ export const ADMIN_NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Suppliers & Procurement',
+    title: 'Procurement',
     items: [
-      { href: '/admin/suppliers', label: 'Supplier Directory' },
-      { href: '/admin/procurement', label: 'Procurement Feed' },
+      { href: '/admin/procurement', label: 'Dashboard' },
+      { href: '/admin/procurement/suppliers', label: 'Suppliers' },
+      { href: '/admin/procurement/brands', label: 'Brand Sourcing' },
+      { href: '/admin/procurement/contacts', label: 'Contacts' },
+      { href: '/admin/procurement/applications', label: 'Applications' },
+      { href: '/admin/procurement/tasks', label: 'Tasks' },
       { href: '/admin/procurement/unmatched', label: 'Unmatched SKUs' },
+      { href: '/admin/procurement/import', label: 'Feed Import' },
     ],
   },
 ]
