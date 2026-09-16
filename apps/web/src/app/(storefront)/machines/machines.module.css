@@ -267,6 +267,30 @@
   transform: scale(1.02);
 }
 
+.cardImageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(10, 10, 12, 0.4) 100%);
+  pointer-events: none;
+}
+
+.haloTag {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(10, 10, 12, 0.85);
+  color: var(--colour-halo);
+  border: 1px solid rgba(184, 147, 90, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
 .imagePlaceholder {
   font-family: var(--font-mono);
   font-size: var(--text-xs);

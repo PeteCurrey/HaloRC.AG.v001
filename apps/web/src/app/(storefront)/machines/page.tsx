@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import s from './machines.module.css'
 import { getMarketPreference } from '@/actions/market'
@@ -13,6 +14,48 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://avorria.com/machines',
   },
+}
+
+const BRAND_IMAGES: Record<string, string> = {
+  awesomatix: '/images/brands/awesomatix.jpg',
+  hobbywing: '/images/brands/hobbywing.jpg',
+  sanwa: '/images/brands/sanwa.jpg',
+  schumacher: '/images/brands/schumacher.jpg',
+  traxxas: '/images/brands/traxxas.jpg',
+  xray: '/images/brands/xray.jpg',
+}
+
+const DISCIPLINE_IMAGES: Record<string, string> = {
+  BASH: '/images/disciplines/bash.jpg',
+  RACE: '/images/disciplines/race.jpg',
+  DRIFT: '/images/disciplines/drift.jpg',
+  CRAWL: '/images/disciplines/crawl.jpg',
+  SCALE: '/images/disciplines/scale.jpg',
+  LARGE_SCALE: '/images/disciplines/large-scale.jpg',
+}
+
+const MACHINE_IMAGES: Record<string, string> = {
+  'xray-x4-2026-1-10-touring-car-kit': '/images/brands/xray.jpg',
+  'awesomatix-a800mx-1-10-touring-car-kit': '/images/brands/awesomatix.jpg',
+  'traxxas-x-maxx-8s-brushless-monster-truck': '/images/disciplines/bash.jpg',
+  'arrma-kraton-6s-blx-extreme-bash-speed-monster': '/images/disciplines/bash.jpg',
+  'yokomo-master-drift-md-2-0-chassis-kit': '/images/disciplines/drift.jpg',
+  'reve-d-rdx-1-10-rwd-drift-chassis-kit': '/images/disciplines/drift.jpg',
+  'traxxas-trx-4-1979-ford-bronco-crawler': '/images/disciplines/crawl.jpg',
+  'axial-scx10-iii-jeep-jlu-wrangler-4wd-rtr': '/images/disciplines/crawl.jpg',
+  'tamiya-cc-02-mercedes-benz-g-500-scale-kit': '/images/disciplines/scale.jpg',
+  'fg-sportsline-4wd-porsche-911-gt3-1-5-rtr': '/images/disciplines/large-scale.jpg',
+  'mecatech-fw01-1-5-competition-supercar-chassis': '/images/disciplines/large-scale.jpg',
+  'team-associated-rc8b4-1-nitro-buggy-kit': '/images/disciplines/race.jpg',
+}
+
+function getMachineImage(slug: string, brandSlug: string, discipline: string): string {
+  return (
+    MACHINE_IMAGES[slug] ||
+    BRAND_IMAGES[brandSlug] ||
+    DISCIPLINE_IMAGES[discipline.toUpperCase()] ||
+    '/images/hero/hero-1-5-scale-rc.jpg'
+  )
 }
 
 const DISCIPLINES = [
@@ -64,6 +107,17 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         marketCode: activeMarket,
       })
     : []
+
+  // Showroom mode: fetch machines across disciplines
+  const allShowroomMachines = !isCatalogueMode
+    ? await getMachinesList({ marketCode: activeMarket })
+    : []
+
+  const bashMachines = allShowroomMachines.filter((m) => m.discipline === 'BASH').slice(0, 2)
+  const raceMachines = allShowroomMachines.filter((m) => m.discipline === 'RACE').slice(0, 2)
+  const driftMachines = allShowroomMachines.filter((m) => m.discipline === 'DRIFT').slice(0, 2)
+  const crawlMachines = allShowroomMachines.filter((m) => m.discipline === 'CRAWL').slice(0, 2)
+  const haloMachines = allShowroomMachines.filter((m) => m.tier === 'HALO').slice(0, 3)
 
   // Helper to build filter query string (catalogue mode)
   function buildFilterHref(newParams: { discipline?: string; scale?: string; sort?: string }) {
@@ -182,6 +236,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 <div className={s.productGrid}>
                   {machines.map((m) => {
                     const isHalo = m.tier === 'HALO'
+                    const imageSrc = getMachineImage(m.slug, m.brand.slug, m.discipline)
                     return (
                       <article
                         key={m.id}
@@ -189,27 +244,31 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                       >
                         <div>
                           <div className={s.cardImageSlot}>
-                            <div className={s.imagePlaceholder}>
-                              {m.brand.name} · {m.shortName ?? m.name}
-                            </div>
-                          </div>
-
-                          <div className={s.cardHeader}>
-                            <span className={s.brandName}>{m.brand.name}</span>
-                            {isHalo ? (
-                              <span className={`${s.tierBadge} ${s.tierBadgeHalo}`}>
+                            <Image
+                              src={imageSrc}
+                              alt={`${m.brand.name} ${m.name}`}
+                              fill
+                              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              style={{ objectFit: 'cover' }}
+                            />
+                            <div className={s.cardImageOverlay} />
+                            {isHalo && (
+                              <span className={s.haloTag}>
                                 ★ Halo / {m.haloClassification ?? 'Competition'}
-                              </span>
-                            ) : (
-                              <span className={s.tierBadge}>
-                                {m.scale ?? 'Standard'}
                               </span>
                             )}
                           </div>
 
+                          <div className={s.cardHeader}>
+                            <span className={s.brandName}>{m.brand.name}</span>
+                            <span className={s.tierBadge}>
+                              {[m.scale, m.powerType].filter(Boolean).join(' · ') || m.discipline}
+                            </span>
+                          </div>
+
                           <h2 className={s.machineName}>
                             <Link href={`/machines/${m.slug}`} style={{ color: 'inherit' }}>
-                              {m.name}
+                              {m.shortName ?? m.name}
                             </Link>
                           </h2>
 
@@ -264,7 +323,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                             href={`/machines/${m.slug}`}
                             className={`${s.viewCta} ${isHalo ? s.viewCtaHalo : ''}`}
                           >
-                            View Specs →
+                            VIEW MACHINE →
                           </Link>
                         </div>
                       </article>
@@ -365,11 +424,36 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 significant power margins define the category — from large scale down to
                 1:8 bruisers built for extreme punishment.
               </p>
-              <div className={s.emptyGrid}>
-                <p className={s.emptyGridText}>
-                  Catalogue developing — we are establishing our specialist supplier network for bash platforms.
-                </p>
-              </div>
+              {bashMachines.length > 0 ? (
+                <div className={s.chapterCards}>
+                  {bashMachines.map((m) => (
+                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
+                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                        <Image
+                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
+                          alt={m.name}
+                          fill
+                          sizes="120px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className={s.chapterCardBody}>
+                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
+                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
+                        <span className={s.chapterCardSpec}>
+                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={s.emptyGrid}>
+                  <p className={s.emptyGridText}>
+                    Catalogue developing — we are establishing our specialist supplier network for bash platforms.
+                  </p>
+                </div>
+              )}
               <Link href="/machines?view=catalogue&discipline=bash" className={s.chapterCta}>
                 Explore All Bash Machines →
               </Link>
@@ -389,11 +473,36 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 to 1:5 large-scale, race platforms are selected for documented competition
                 lineage and proven results at national and international level.
               </p>
-              <div className={s.emptyGrid}>
-                <p className={s.emptyGridText}>
-                  Catalogue developing — we are establishing our specialist supplier network for competition platforms.
-                </p>
-              </div>
+              {raceMachines.length > 0 ? (
+                <div className={s.chapterCards}>
+                  {raceMachines.map((m) => (
+                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
+                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                        <Image
+                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
+                          alt={m.name}
+                          fill
+                          sizes="120px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className={s.chapterCardBody}>
+                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
+                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
+                        <span className={s.chapterCardSpec}>
+                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={s.emptyGrid}>
+                  <p className={s.emptyGridText}>
+                    Catalogue developing — we are establishing our specialist supplier network for competition platforms.
+                  </p>
+                </div>
+              )}
               <Link href="/machines?view=catalogue&discipline=race" className={s.chapterCta}>
                 Explore All Race Platforms →
               </Link>
@@ -413,11 +522,36 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 positioning, and graphite construction deliver the precision required for
                 consistent high-angle technique — from club-level to international competition.
               </p>
-              <div className={s.emptyGrid}>
-                <p className={s.emptyGridText}>
-                  Catalogue developing — we are establishing our specialist supplier network for drift platforms.
-                </p>
-              </div>
+              {driftMachines.length > 0 ? (
+                <div className={s.chapterCards}>
+                  {driftMachines.map((m) => (
+                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
+                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                        <Image
+                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
+                          alt={m.name}
+                          fill
+                          sizes="120px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className={s.chapterCardBody}>
+                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
+                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
+                        <span className={s.chapterCardSpec}>
+                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={s.emptyGrid}>
+                  <p className={s.emptyGridText}>
+                    Catalogue developing — we are establishing our specialist supplier network for drift platforms.
+                  </p>
+                </div>
+              )}
               <Link href="/machines?view=catalogue&discipline=drift" className={s.chapterCta}>
                 Explore All Drift Machines →
               </Link>
@@ -437,11 +571,36 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 for severe off-camber recovery, and low-speed torque management define
                 what separates a genuine trail rig from a scaled-down drive.
               </p>
-              <div className={s.emptyGrid}>
-                <p className={s.emptyGridText}>
-                  Catalogue developing — we are establishing our specialist supplier network for crawl platforms.
-                </p>
-              </div>
+              {crawlMachines.length > 0 ? (
+                <div className={s.chapterCards}>
+                  {crawlMachines.map((m) => (
+                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
+                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                        <Image
+                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
+                          alt={m.name}
+                          fill
+                          sizes="120px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className={s.chapterCardBody}>
+                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
+                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
+                        <span className={s.chapterCardSpec}>
+                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={s.emptyGrid}>
+                  <p className={s.emptyGridText}>
+                    Catalogue developing — we are establishing our specialist supplier network for crawl platforms.
+                  </p>
+                </div>
+              )}
               <Link href="/machines?view=catalogue&discipline=crawl" className={s.chapterCta}>
                 Explore All Crawl Machines →
               </Link>
@@ -463,14 +622,46 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               demands of international competition or the standards of a discerning private owner.
             </p>
           </div>
-          <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>
-            <p className={s.emptyGridText}>
-              Halo platform catalogue developing. We are currently establishing the supply relationships required to offer these platforms at the standard Avorria demands.
-            </p>
-            <Link href="/race" className={s.tabLink}>
-              Enter Race Department →
-            </Link>
-          </div>
+          {haloMachines.length > 0 ? (
+            <div className={s.haloCardsGrid}>
+              {haloMachines.map((m) => (
+                <Link key={m.id} href={`/machines/${m.slug}`} className={s.haloCard}>
+                  <div className={s.haloCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                    <Image
+                      src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
+                      alt={m.name}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, 100vw"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                  <div className={s.haloCardContent}>
+                    <span className={s.haloCardEyebrow}>
+                      ★ Halo / {m.haloClassification ?? 'Competition'}
+                    </span>
+                    <h3 className={s.haloCardName}>{m.shortName ?? m.name}</h3>
+                    <p className={s.haloCardDetail}>{m.editorialSummary}</p>
+                    <div className={s.haloSpecRow}>
+                      {m.scale && <span className={s.haloSpecPill}>{m.scale}</span>}
+                      {m.powerType && <span className={s.haloSpecPill}>{m.powerType}</span>}
+                      <span className={s.haloSpecPill} style={{ color: 'var(--colour-halo)', borderColor: 'rgba(184, 147, 90, 0.4)' }}>
+                        VIEW MACHINE →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>
+              <p className={s.emptyGridText}>
+                Halo platform catalogue developing. We are currently establishing the supply relationships required to offer these platforms at the standard Avorria demands.
+              </p>
+              <Link href="/race" className={s.tabLink}>
+                Enter Race Department →
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
