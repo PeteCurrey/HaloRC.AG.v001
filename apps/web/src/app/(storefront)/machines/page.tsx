@@ -6,6 +6,13 @@ import { getMarketPreference } from '@/actions/market'
 import { getMachinesList } from '@halo-rc/db'
 import { MarketAwarePrice, StockStatus } from '@halo-rc/ui'
 import type { Currency } from '@halo-rc/types'
+import {
+  HeroImage,
+  EditorialSplit,
+  ChapterIntro,
+  FullBleedImage,
+} from '@/components/sections'
+import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 export const metadata: Metadata = {
   title: 'The Machines — Avorria RC Showroom',
@@ -84,6 +91,45 @@ const SCALES = [
   { label: '1:10 Scale', value: '1:10' },
 ]
 
+const CATEGORY_TILES = [
+  {
+    name: 'Competition Race',
+    slug: 'race',
+    desc: 'IFMAR & BRCA championship touring, buggy & GT platforms.',
+    image: '/images/disciplines/race.jpg',
+  },
+  {
+    name: 'Heavyweight Bash',
+    slug: 'bash',
+    desc: 'Over-engineered steel drivetrain platforms absorbing extreme punishment.',
+    image: '/images/disciplines/bash.jpg',
+  },
+  {
+    name: 'Precision Drift',
+    slug: 'drift',
+    desc: 'RWD weight-transfer chassis dynamics & high-angle countersteer.',
+    image: '/images/disciplines/drift.jpg',
+  },
+  {
+    name: 'Scale & Trail Crawl',
+    slug: 'crawl',
+    desc: 'Portal-axle clearance, locking differentials, and terrain mastery.',
+    image: '/images/disciplines/crawl.jpg',
+  },
+  {
+    name: 'Large Scale 1:5',
+    slug: 'large_scale',
+    desc: 'Full-scale petrol motorsport engineering with hydraulic disc brakes.',
+    image: '/images/disciplines/large-scale.jpg',
+  },
+  {
+    name: 'Scale Fidelity',
+    slug: 'scale',
+    desc: 'Authentic mechanical realism and accurate scale recreation.',
+    image: '/images/disciplines/scale.jpg',
+  },
+]
+
 interface MachinesPageProps {
   searchParams: Promise<{
     discipline?: string
@@ -100,7 +146,6 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
   const activeSort = sort ?? 'featured'
   const activeMarket = await getMarketPreference()
 
-  // Show catalogue mode if explicitly requested or if any filter/sort is active
   const hasActiveFilters =
     (discipline && discipline !== 'all') ||
     (scale && scale !== 'all') ||
@@ -128,7 +173,6 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
   const crawlMachines = allShowroomMachines.filter((m) => m.discipline === 'CRAWL').slice(0, 2)
   const haloMachines = allShowroomMachines.filter((m) => m.tier === 'HALO').slice(0, 3)
 
-  // Helper to build filter query string (catalogue mode)
   function buildFilterHref(newParams: { discipline?: string; scale?: string; sort?: string }) {
     const d = newParams.discipline !== undefined ? newParams.discipline : activeDiscipline
     const sc = newParams.scale !== undefined ? newParams.scale : activeScale
@@ -350,295 +394,103 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
   // ── SHOWROOM MODE ────────────────────────────────────────────────────────
   return (
     <div className={s.showroom}>
-
       {/* ── 1. Cinematic Hero ── */}
-      <section className={s.showroomHero}>
-        <div className={s.showroomHeroBg} aria-hidden="true">
-          <Image
-            src="/images/disciplines/large-scale.jpg"
-            alt="Large Scale Precision RC Competition Machine"
-            fill
-            priority
-            quality={90}
-            sizes="100vw"
-            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
-          />
-        </div>
-        <div className={s.showroomHeroScrim} aria-hidden="true" />
-        <div className={s.showroomHeroScrimTop} aria-hidden="true" />
-        <div className={s.showroomHeroContent}>
-          <p className={s.showroomHeroEyebrow}>The Machines</p>
-          <h1 className={s.showroomHeroHeadline}>
-            Precision engineering,<br />at every scale.
-          </h1>
-          <p className={s.showroomHeroSubline}>
-            Every machine in the Avorria catalogue is selected for documented engineering
-            merit — verified platforms, structured compatibility, and market-aware delivery.
-          </p>
-          <div className={s.showroomHeroActions}>
-            <Link href="/machines?view=catalogue" className={s.heroPrimary}>
-              Browse All Machines
-            </Link>
-            <a href="#disciplines" className={s.heroSecondary}>
-              Explore Showroom ↓
-            </a>
-          </div>
-        </div>
-      </section>
+      <HeroImage
+        eyebrow="The Machines"
+        heading={"Precision engineering,\nat every scale."}
+        subline="Every machine in the Avorria catalogue is selected for documented engineering merit — verified platforms, structured compatibility, and market-aware delivery."
+        imageSrc="/images/disciplines/large-scale.jpg"
+        imageAlt="Large scale competition machine platform"
+        primaryCtaText="Browse All Machines"
+        primaryCtaHref="/machines?view=catalogue"
+        secondaryCtaText="Explore Categories"
+        secondaryCtaHref="#categories"
+      />
 
-      {/* ── 2. Editorial Philosophy ── */}
-      <section className={s.editorialSpread}>
-        <div className={s.editorialSpreadInner}>
-          <div className={s.editorialText}>
-            <p className={s.sectionEyebrow}>Our Approach</p>
-            <h2 className={s.sectionHeadline}>Engineered machines,<br />not catalogue filler.</h2>
-            <p className={s.sectionBody}>
-              The Avorria machine list is curated, not aggregated. Every platform earns its
-              place through verified engineering credentials — documented construction
-              specifications, confirmed competition lineage, or a demonstrated record of
-              real-world performance.
-            </p>
-            <p className={s.sectionBody}>
-              We build across five disciplines: bash, race, drift, crawl, and large scale —
-              from entry-level RTR machines to hand-built bespoke competition chassis.
-            </p>
-          </div>
-          <div className={s.editorialStats}>
-            <div className={s.statItem}>
-              <span className={s.statNumber}>5</span>
-              <span className={s.statLabel}>Disciplines</span>
-            </div>
-            <div className={s.statItem}>
-              <span className={s.statNumber}>1:5</span>
-              <span className={s.statLabel}>Largest scale</span>
-            </div>
-            <div className={s.statItem}>
-              <span className={s.statNumber}>1:12</span>
-              <span className={s.statLabel}>Smallest scale</span>
-            </div>
-            <div className={s.statItem}>
-              <span className={s.statNumber}>Kit</span>
-              <span className={s.statLabel}>to RTR</span>
-            </div>
+      {/* ── 2. Chapter 01: Category Navigation with Real Category Imagery ── */}
+      <div id="categories">
+        <ChapterIntro
+          number="01"
+          title="DISCIPLINE CATEGORIES"
+          intro="Select a discipline to explore dedicated platforms, competition regulations, and specialist component configurations."
+          surface="light"
+        />
+      </div>
+
+      <section className={s.categoryTilesSection}>
+        <div className={s.container}>
+          <div className={s.categoryTilesGrid}>
+            {CATEGORY_TILES.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/machines?view=catalogue&discipline=${cat.slug}`}
+                className={s.categoryTile}
+              >
+                <div className={s.categoryTileBg}>
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+                <div className={s.categoryTileScrim} />
+                <div className={s.categoryTileContent}>
+                  <span className={s.categoryTileBadge}>Discipline</span>
+                  <h3 className={s.categoryTileTitle}>{cat.name}</h3>
+                  <p className={s.categoryTileDesc}>{cat.desc}</p>
+                  <span className={s.categoryTileLink}>Explore Platforms →</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── 3. Discipline Chapters ── */}
-      <section className={s.disciplineChapters} id="disciplines">
-        <div className={s.disciplineChaptersInner}>
+      {/* ── 3. Editorial Split: Bash Discipline ── */}
+      <EditorialSplit
+        eyebrow="Discipline Focus: Heavyweight Bash"
+        heading={"Built to absorb\neverything."}
+        body="Bash machines operate at the intersection of engineering resilience and raw performance. Heavy-duty steel drivetrain components, reinforced chassis, and significant power margins define the category — from large scale down to 1:8 bruisers built for extreme punishment."
+        imageSrc="/images/disciplines/bash.jpg"
+        imageAlt="Heavyweight bash machine suspension and tire profile"
+        imagePosition="left"
+        surface="light"
+        primaryCtaText="View Bash Catalogue"
+        primaryCtaHref="/machines?view=catalogue&discipline=bash"
+      />
 
-          {/* Bash */}
-          <div className={s.disciplineChapter}>
-            <div className={s.chapterLabel}>
-              <p className={s.sectionEyebrow}>Bash</p>
-              <h2 className={s.chapterHeadline}>Built to absorb everything.</h2>
-            </div>
-            <div className={s.chapterContent}>
-              <p className={s.chapterBody}>
-                Bash machines operate at the intersection of engineering resilience and raw
-                performance. Heavy-duty steel drivetrain components, reinforced chassis, and
-                significant power margins define the category — from large scale down to
-                1:8 bruisers built for extreme punishment.
-              </p>
-              {bashMachines.length > 0 ? (
-                <div className={s.chapterCards}>
-                  {bashMachines.map((m) => (
-                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
-                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
-                        <Image
-                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
-                          alt={m.name}
-                          fill
-                          sizes="120px"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                      <div className={s.chapterCardBody}>
-                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
-                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
-                        <span className={s.chapterCardSpec}>
-                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={s.emptyGrid}>
-                  <p className={s.emptyGridText}>
-                    Catalogue developing — we are establishing our specialist supplier network for bash platforms.
-                  </p>
-                </div>
-              )}
-              <Link href="/machines?view=catalogue&discipline=bash" className={s.chapterCta}>
-                Explore All Bash Machines →
-              </Link>
-            </div>
-          </div>
+      {/* ── 4. Editorial Split: Competition Race ── */}
+      <EditorialSplit
+        eyebrow="Discipline Focus: Competition Race"
+        heading={"Championship at\nevery scale."}
+        body="Competition machines demand chassis precision, electronics integrity, and geometry verified against championship regulations. From 1:10 touring car to 1:5 large-scale, race platforms are selected for documented competition lineage and proven results at national and international level."
+        imageSrc="/images/disciplines/race.jpg"
+        imageAlt="Competition race car on circuit"
+        imagePosition="right"
+        surface="light"
+        primaryCtaText="Explore Race Platforms"
+        primaryCtaHref="/machines?view=catalogue&discipline=race"
+        secondaryCtaText="Race Department"
+        secondaryCtaHref="/race"
+      />
 
-          {/* Race */}
-          <div className={`${s.disciplineChapter} ${s.disciplineChapterReverse}`}>
-            <div className={s.chapterLabel}>
-              <p className={s.sectionEyebrow}>Competition Race</p>
-              <h2 className={s.chapterHeadline}>Championship at every scale.</h2>
-            </div>
-            <div className={s.chapterContent}>
-              <p className={s.chapterBody}>
-                Competition machines demand chassis precision, electronics integrity, and
-                geometry verified against championship regulations. From 1:10 touring car
-                to 1:5 large-scale, race platforms are selected for documented competition
-                lineage and proven results at national and international level.
-              </p>
-              {raceMachines.length > 0 ? (
-                <div className={s.chapterCards}>
-                  {raceMachines.map((m) => (
-                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
-                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
-                        <Image
-                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
-                          alt={m.name}
-                          fill
-                          sizes="120px"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                      <div className={s.chapterCardBody}>
-                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
-                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
-                        <span className={s.chapterCardSpec}>
-                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={s.emptyGrid}>
-                  <p className={s.emptyGridText}>
-                    Catalogue developing — we are establishing our specialist supplier network for competition platforms.
-                  </p>
-                </div>
-              )}
-              <Link href="/machines?view=catalogue&discipline=race" className={s.chapterCta}>
-                Explore All Race Platforms →
-              </Link>
-            </div>
-          </div>
-
-          {/* Drift */}
-          <div className={s.disciplineChapter}>
-            <div className={s.chapterLabel}>
-              <p className={s.sectionEyebrow}>Precision Drift</p>
-              <h2 className={s.chapterHeadline}>Control at the limit.</h2>
-            </div>
-            <div className={s.chapterContent}>
-              <p className={s.chapterBody}>
-                Competition drift chassis are engineered around countersteer dynamics and
-                predictable angle control. Rear-wheel-drive configurations, variable motor
-                positioning, and graphite construction deliver the precision required for
-                consistent high-angle technique — from club-level to international competition.
-              </p>
-              {driftMachines.length > 0 ? (
-                <div className={s.chapterCards}>
-                  {driftMachines.map((m) => (
-                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
-                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
-                        <Image
-                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
-                          alt={m.name}
-                          fill
-                          sizes="120px"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                      <div className={s.chapterCardBody}>
-                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
-                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
-                        <span className={s.chapterCardSpec}>
-                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={s.emptyGrid}>
-                  <p className={s.emptyGridText}>
-                    Catalogue developing — we are establishing our specialist supplier network for drift platforms.
-                  </p>
-                </div>
-              )}
-              <Link href="/machines?view=catalogue&discipline=drift" className={s.chapterCta}>
-                Explore All Drift Machines →
-              </Link>
-            </div>
-          </div>
-
-          {/* Crawl */}
-          <div className={`${s.disciplineChapter} ${s.disciplineChapterReverse}`}>
-            <div className={s.chapterLabel}>
-              <p className={s.sectionEyebrow}>Scale Trail & Crawl</p>
-              <h2 className={s.chapterHeadline}>Engineering for terrain.</h2>
-            </div>
-            <div className={s.chapterContent}>
-              <p className={s.chapterBody}>
-                Trail and crawl machines demand engineering that works against gravity.
-                Portal axles for maximum ground clearance, remote-locking differentials
-                for severe off-camber recovery, and low-speed torque management define
-                what separates a genuine trail rig from a scaled-down drive.
-              </p>
-              {crawlMachines.length > 0 ? (
-                <div className={s.chapterCards}>
-                  {crawlMachines.map((m) => (
-                    <Link key={m.id} href={`/machines/${m.slug}`} className={s.chapterCard}>
-                      <div className={s.chapterCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
-                        <Image
-                          src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
-                          alt={m.name}
-                          fill
-                          sizes="120px"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                      <div className={s.chapterCardBody}>
-                        <span className={s.chapterCardBrand}>{m.brand.name}</span>
-                        <span className={s.chapterCardName}>{m.shortName ?? m.name}</span>
-                        <span className={s.chapterCardSpec}>
-                          {[m.scale, m.powerType].filter(Boolean).join(' · ')}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={s.emptyGrid}>
-                  <p className={s.emptyGridText}>
-                    Catalogue developing — we are establishing our specialist supplier network for crawl platforms.
-                  </p>
-                </div>
-              )}
-              <Link href="/machines?view=catalogue&discipline=crawl" className={s.chapterCta}>
-                Explore All Crawl Machines →
-              </Link>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── 4. Dark Halo Chapter ── */}
+      {/* ── 5. Dark Halo Chapter ── */}
       <section className={s.darkHaloChapter}>
         <div className={s.darkHaloInner}>
-          <div className={s.darkHaloHeader}>
-            <p className={s.darkHaloEyebrow}>Halo / Engineering</p>
-            <h2 className={s.darkHaloHeadline}>Machines built without compromise.</h2>
-            <p className={s.darkHaloSubline}>
-              The Halo tier represents the ceiling of what the format allows — platforms
-              where the specification exists not to satisfy a price point but to meet the
-              demands of international competition or the standards of a discerning private owner.
-            </p>
-          </div>
+          <ScrollReveal variant="slide">
+            <div className={s.darkHaloHeader}>
+              <p className={s.darkHaloEyebrow}>Halo / Engineering</p>
+              <h2 className={s.darkHaloHeadline}>Machines built without compromise.</h2>
+              <p className={s.darkHaloSubline}>
+                The Halo tier represents the ceiling of what the format allows — platforms
+                where the specification exists not to satisfy a price point but to meet the
+                demands of international competition or the standards of a discerning private owner.
+              </p>
+            </div>
+          </ScrollReveal>
+
           {haloMachines.length > 0 ? (
             <div className={s.haloCardsGrid}>
               {haloMachines.map((m) => (
@@ -682,7 +534,19 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         </div>
       </section>
 
-      {/* ── 5. Scale Progression Band ── */}
+      {/* ── 6. Full Bleed Transition: Scale Engineering ── */}
+      <FullBleedImage
+        imageSrc="/images/disciplines/scale.jpg"
+        imageAlt="Scale engineering realism chassis"
+        height="medium"
+        eyebrow="Mechanical Fidelity"
+        heading={"Scale realism.\nAuthentic physics."}
+        body="True-to-life suspension geometry, realistic curb weight distribution, and scale mechanical components."
+        ctaText="Browse Scale Range"
+        ctaHref="/machines?view=catalogue&discipline=scale"
+      />
+
+      {/* ── 7. Scale Progression Band ── */}
       <section className={s.scaleBand}>
         <div className={s.scaleBandInner}>
           <p className={s.sectionEyebrow}>The Avorria Scale Range</p>
@@ -706,45 +570,17 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
             <Link href="/machines?view=catalogue&scale=1:5" className={s.scaleItem}>
               <span className={s.scaleRatio}>1:5</span>
               <span className={s.scaleTitle}>Full-Scale Engineering</span>
-              <span className={s.scaleDesc}>Petrol-powered platforms where the engineering complexity approaches real motorsport. Disc brakes, tuned exhausts, proper gearboxes.</span>
+              <span className={s.scaleDesc}>Petrol-powered platforms where engineering complexity approaches real motorsport. Disc brakes, tuned exhausts, proper gearboxes.</span>
               <span className={s.scaleCta}>Browse 1:5 →</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 6. Race Department Gateway ── */}
-      <section className={s.raceGateway}>
-        <div className={s.raceGatewayInner}>
-          <div className={s.raceGatewayContent}>
-            <p className={s.sectionEyebrow}>Race Department</p>
-            <h2 className={s.raceGatewayHeadline}>Competition machines<br />are built, not bought.</h2>
-            <p className={s.raceGatewayBody}>
-              The Avorria Race Department exists for those who compete. Kit chassis paired with
-              verified electronics, precision parts, and platform-specific build guidance.
-              If you race, this is where your build starts.
-            </p>
-            <Link href="/race" className={s.raceGatewayCta}>
-              Enter Race Department →
-            </Link>
-          </div>
-          <div className={s.raceGatewayMeta}>
-            <div className={s.raceMeta}>
-              <span className={s.raceMetaLabel}>Disciplines</span>
-              <span className={s.raceMetaValue}>1:10 Touring · 1:8 Buggy · 1:5</span>
-            </div>
-            <div className={s.raceMeta}>
-              <span className={s.raceMetaLabel}>Category</span>
-              <span className={s.raceMetaValue}>Kit · Competition · Halo</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. Catalogue Transition ── */}
+      {/* ── 8. Catalogue Transition Gateway ── */}
       <section className={s.catalogueGateway}>
         <div className={s.catalogueGatewayInner}>
-          <p className={s.sectionEyebrow}>Complete Catalogue</p>
+          <p className={s.sectionEyebrow}>Complete Inventory</p>
           <h2 className={s.catalogueGatewayHeadline}>Looking for something specific?</h2>
           <p className={s.catalogueGatewayBody}>
             Browse the complete Avorria machine inventory with discipline and scale filters,
@@ -766,7 +602,6 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
           </div>
         </div>
       </section>
-
     </div>
   )
 }
