@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { AdminTabs } from '@/components/admin'
 
 interface ProcurementNavProps {
   currentTab?: string
@@ -6,60 +6,21 @@ interface ProcurementNavProps {
 
 export function ProcurementNav({ currentTab }: ProcurementNavProps) {
   const tabs = [
-    { label: 'Overview', href: '/admin/procurement', key: 'overview' },
-    { label: 'Suppliers', href: '/admin/procurement/suppliers', key: 'suppliers' },
-    { label: 'Brand Sourcing', href: '/admin/procurement/brands', key: 'brands' },
-    { label: 'Contacts', href: '/admin/procurement/contacts', key: 'contacts' },
-    { label: 'Applications', href: '/admin/procurement/applications', key: 'applications' },
-    { label: 'Tasks', href: '/admin/procurement/tasks', key: 'tasks' },
-    { label: 'Relationships', href: '/admin/procurement/relationships', key: 'relationships' },
-    { label: 'Pipeline Board', href: '/admin/procurement/pipeline', key: 'pipeline' },
-    { label: 'Unmatched Queue', href: '/admin/procurement/unmatched', key: 'unmatched' },
-    { label: 'Import Feed', href: '/admin/procurement/import', key: 'import' },
+    { id: 'overview', label: 'Overview', href: '/admin/procurement' },
+    { id: 'suppliers', label: 'Suppliers', href: '/admin/procurement/suppliers' },
+    { id: 'brands', label: 'Brand Sourcing', href: '/admin/procurement/brands' },
+    { id: 'contacts', label: 'Contacts', href: '/admin/procurement/contacts' },
+    { id: 'applications', label: 'Applications', href: '/admin/procurement/applications' },
+    { id: 'tasks', label: 'Tasks', href: '/admin/procurement/tasks' },
+    { id: 'relationships', label: 'Relationships', href: '/admin/procurement/relationships' },
+    { id: 'pipeline', label: 'Pipeline Board', href: '/admin/procurement/pipeline' },
+    { id: 'unmatched', label: 'Unmatched Queue', href: '/admin/procurement/unmatched' },
+    { id: 'import', label: 'Import Feed', href: '/admin/procurement/import' },
   ]
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--space-2)',
-        padding: 'var(--space-2) var(--space-4)',
-        backgroundColor: 'var(--colour-carbon)',
-        border: '1px solid var(--colour-steel)',
-        borderRadius: 'var(--radius-md)',
-        marginBottom: 'var(--space-6)',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {tabs.map((tab) => {
-        const isActive = currentTab === tab.key
-        return (
-          <Link
-            key={tab.key}
-            href={tab.href}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: 'var(--space-2) var(--space-3)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: 'var(--text-xs)',
-              fontFamily: 'var(--font-mono)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              textDecoration: 'none',
-              backgroundColor: isActive ? 'var(--colour-halo-10)' : 'transparent',
-              color: isActive ? 'var(--colour-halo)' : 'var(--colour-ash)',
-              border: `1px solid ${isActive ? 'var(--colour-halo)' : 'transparent'}`,
-              fontWeight: isActive ? 600 : 400,
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {tab.label}
-          </Link>
-        )
-      })}
+    <div style={{ marginBottom: 20 }}>
+      <AdminTabs tabs={tabs} activeId={currentTab} />
     </div>
   )
 }

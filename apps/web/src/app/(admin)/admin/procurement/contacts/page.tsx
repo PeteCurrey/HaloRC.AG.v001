@@ -3,6 +3,14 @@ import {
   getSupplierContacts,
   getSuppliers,
 } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminSection,
+  AdminTable,
+  AdminTableRow,
+  AdminAction,
+} from '@/components/admin'
 import { ProcurementNav } from '../ProcurementNav'
 
 export default async function SupplierContactsPage() {
@@ -18,120 +26,93 @@ export default async function SupplierContactsPage() {
   })
 
   return (
-    <div>
+    <>
+      <AdminPageHeader
+        category="Procurement Directory"
+        title="Supplier Contacts Directory"
+        description="Directory of key supplier contacts: commercial sales, trade coordinators, credit control, and technical support."
+        status={
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: '#767A85', backgroundColor: '#EFEFED', padding: '2px 8px', borderRadius: 3 }}>
+            {contactRows.length} Contacts
+          </span>
+        }
+      />
+
       <ProcurementNav currentTab="contacts" />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', color: 'var(--colour-halo)', textTransform: 'uppercase' }}>
-              Procurement Directory
-            </span>
-          </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
-            Supplier Contacts Directory
-          </h1>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)' }}>
-            Directory of key supplier contacts: commercial sales, trade coordinators, credit control, and technical support.
-          </p>
-        </div>
-
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', padding: 'var(--space-2) var(--space-3)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-sm)' }}>
-          {contactRows.length} Contacts
-        </span>
-      </div>
-
-      {/* Contacts Table */}
-      <div style={{ backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--colour-steel)', backgroundColor: 'var(--colour-charcoal)' }}>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Contact Person
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Supplier Entity
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Role / Function
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Email
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Phone / Mobile
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--colour-smoke)', textTransform: 'uppercase', textAlign: 'right' }}>
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+      <AdminSection>
+        <AdminPanel padding="none">
+          <AdminTable
+            columns={[
+              'Contact Person',
+              'Supplier Entity',
+              'Role / Function',
+              'Email',
+              'Phone / Mobile',
+              { header: 'Action', align: 'right' },
+            ]}
+          >
             {contactRows.map((ct) => (
-              <tr key={ct.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
-                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--colour-white)', fontSize: 'var(--text-sm)' }}>
-                      {ct.firstName ? `${ct.firstName} ${ct.lastName}` : ct.name}
-                    </span>
-                    {ct.isPrimary && (
-                      <span style={{ fontSize: '10px', color: 'var(--colour-halo)', fontFamily: 'var(--font-mono)' }}>
-                        [PRIMARY]
+              <AdminTableRow
+                key={ct.id}
+                cells={[
+                  <div key="person">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontWeight: 600, color: '#111317', fontSize: '0.8125rem' }}>
+                        {ct.firstName ? `${ct.firstName} ${ct.lastName}` : ct.name}
+                      </span>
+                      {ct.isPrimary && (
+                        <span style={{ fontSize: '0.625rem', color: '#B8935A', fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>
+                          [PRIMARY]
+                        </span>
+                      )}
+                    </div>
+                    {ct.title && (
+                      <span style={{ fontSize: '0.6875rem', color: '#767A85' }}>
+                        {ct.title}
                       </span>
                     )}
-                  </div>
-                  {ct.title && (
-                    <span style={{ fontSize: '11px', color: 'var(--colour-ash)' }}>
-                      {ct.title}
+                  </div>,
+
+                  <div key="supplier">
+                    <Link
+                      href={`/admin/procurement/suppliers/${ct.supplierId}`}
+                      style={{ color: '#111317', textDecoration: 'none', fontSize: '0.75rem', fontWeight: 600 }}
+                    >
+                      {ct.supplier?.name ?? ct.supplierId}
+                    </Link>
+                    <span style={{ fontSize: '0.6875rem', color: '#767A85', display: 'block' }}>
+                      {ct.supplier?.country ?? 'Unknown'}
                     </span>
-                  )}
-                </td>
+                  </div>,
 
-                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                  <Link
-                    href={`/admin/procurement/suppliers/${ct.supplierId}`}
-                    style={{ color: 'var(--colour-white)', textDecoration: 'none', fontSize: 'var(--text-xs)', fontWeight: 600 }}
-                  >
-                    {ct.supplier?.name ?? ct.supplierId}
-                  </Link>
-                  <span style={{ fontSize: '11px', color: 'var(--colour-ash)', display: 'block' }}>
-                    {ct.supplier?.country ?? 'Unknown'}
-                  </span>
-                </td>
+                  <span key="role" style={{ fontSize: '0.75rem', color: '#494D55' }}>
+                    {ct.role.replace(/_/g, ' ')}
+                  </span>,
 
-                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-                  {ct.role.replace(/_/g, ' ')}
-                </td>
+                  <div key="email" style={{ fontSize: '0.75rem' }}>
+                    {ct.email ? (
+                      <a href={`mailto:${ct.email}`} style={{ color: '#494D55', textDecoration: 'none' }}>
+                        {ct.email}
+                      </a>
+                    ) : (
+                      <span style={{ color: '#767A85' }}>None</span>
+                    )}
+                  </div>,
 
-                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)' }}>
-                  {ct.email ? (
-                    <a href={`mailto:${ct.email}`} style={{ color: 'var(--colour-smoke)', textDecoration: 'none' }}>
-                      {ct.email}
-                    </a>
-                  ) : (
-                    <span style={{ color: 'var(--colour-slate)' }}>None</span>
-                  )}
-                </td>
+                  <span key="phone" style={{ fontSize: '0.75rem', color: '#494D55' }}>
+                    {ct.phone ?? ct.mobile ?? 'None'}
+                  </span>,
 
-                <td style={{ padding: 'var(--space-3) var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)' }}>
-                  {ct.phone ?? ct.mobile ?? 'None'}
-                </td>
-
-                <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
-                  <Link
-                    href={`/admin/procurement/suppliers/${ct.supplierId}`}
-                    style={{ fontSize: '11px', color: 'var(--colour-halo)', textDecoration: 'none', fontFamily: 'var(--font-mono)' }}
-                  >
-                    Supplier &rarr;
-                  </Link>
-                </td>
-              </tr>
+                  <AdminAction key="action" href={`/admin/procurement/suppliers/${ct.supplierId}`} variant="secondary" size="sm">
+                    Supplier →
+                  </AdminAction>,
+                ]}
+              />
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </AdminTable>
+        </AdminPanel>
+      </AdminSection>
+    </>
   )
 }

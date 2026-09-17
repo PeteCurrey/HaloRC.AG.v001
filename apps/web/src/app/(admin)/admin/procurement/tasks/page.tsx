@@ -4,6 +4,12 @@ import {
   getSuppliers,
   SEED_BRANDS,
 } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminSection,
+  AdminStatus,
+} from '@/components/admin'
 import { ProcurementNav } from '../ProcurementNav'
 
 export default async function ProcurementTasksBoardPage() {
@@ -28,97 +34,99 @@ export default async function ProcurementTasksBoardPage() {
   const completedTasks = tasksWithDetails.filter((t) => t.status === 'COMPLETED')
 
   const columns = [
-    { title: 'Open', tasks: openTasks, color: 'var(--colour-ash)' },
+    { title: 'Open', tasks: openTasks, color: '#767A85' },
     { title: 'In Progress', tasks: inProgressTasks, color: '#3b82f6' },
     { title: 'Waiting On Supplier', tasks: waitingTasks, color: '#f59e0b' },
-    { title: 'Completed', tasks: completedTasks, color: 'var(--colour-halo)' },
+    { title: 'Completed', tasks: completedTasks, color: '#1A6E34' },
   ]
 
   return (
-    <div>
+    <>
+      <AdminPageHeader
+        category="Procurement Operations"
+        title="Procurement Tasks & Action Board"
+        description="Operational tasks across supplier applications, trade references, credit facilities, terms review, and catalogue mapping."
+        status={
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: '#767A85', backgroundColor: '#EFEFED', padding: '2px 8px', borderRadius: 3 }}>
+            {tasks.length} Total Tasks
+          </span>
+        }
+      />
+
       <ProcurementNav currentTab="tasks" />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', color: 'var(--colour-halo)', textTransform: 'uppercase' }}>
-              Procurement Operations
-            </span>
-          </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
-            Procurement Tasks &amp; Action Board
-          </h1>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)' }}>
-            Operational tasks across supplier applications, trade references, credit facilities, terms review, and catalogue mapping.
-          </p>
-        </div>
-
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)', padding: 'var(--space-2) var(--space-3)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-sm)' }}>
-          {tasks.length} Total Tasks
-        </span>
-      </div>
-
       {/* Board Columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
-        {columns.map((col) => (
-          <div key={col.title} style={{ backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--colour-steel)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: col.color }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--colour-white)', fontWeight: 600 }}>
-                  {col.title}
-                </span>
-              </div>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
-                {col.tasks.length}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              {col.tasks.map((task) => (
-                <div key={task.id} style={{ padding: 'var(--space-3)', backgroundColor: 'var(--colour-charcoal)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--colour-steel)' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--colour-white)' }}>
-                      {task.title}
-                    </span>
-                    <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--colour-carbon)', color: task.priority === 'HIGH' || task.priority === 'URGENT' ? 'var(--colour-race)' : 'var(--colour-ash)', fontFamily: 'var(--font-mono)' }}>
-                      {task.priority}
-                    </span>
-                  </div>
-
-                  {task.supplier && (
-                    <Link
-                      href={`/admin/procurement/suppliers/${task.supplier.id}`}
-                      style={{ fontSize: '11px', color: 'var(--colour-halo)', textDecoration: 'none', display: 'block', marginTop: 2 }}
-                    >
-                      {task.supplier.name} &rarr;
-                    </Link>
-                  )}
-
-                  {task.description && (
-                    <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--colour-ash)', lineHeight: 'var(--leading-normal)' }}>
-                      {task.description}
-                    </p>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2)', paddingTop: 'var(--space-2)', borderTop: '1px solid var(--colour-carbon)', fontSize: '10px', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>
-                    <span>Due: {task.dueDate ?? 'Unset'}</span>
-                    <span>{task.assignedTo ?? 'Unassigned'}</span>
-                  </div>
+      <AdminSection>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+          {columns.map((col) => (
+            <AdminPanel
+              key={col.title}
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: col.color }} />
+                  <span>{col.title}</span>
                 </div>
-              ))}
-
-              {col.tasks.length === 0 && (
-                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-slate)', fontStyle: 'italic', padding: 'var(--space-4) 0', textAlign: 'center' }}>
-                  No tasks in this stage
+              }
+              badge={
+                <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: '#767A85' }}>
+                  {col.tasks.length}
                 </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+              }
+              padding="sm"
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {col.tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    style={{
+                      padding: '10px 12px',
+                      backgroundColor: '#FAFAF9',
+                      borderRadius: 4,
+                      border: '1px solid #E2E2DE',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#111317' }}>
+                        {task.title}
+                      </span>
+                      <AdminStatus
+                        status={task.priority === 'HIGH' || task.priority === 'URGENT' ? 'alert' : 'neutral'}
+                        label={task.priority}
+                      />
+                    </div>
+
+                    {task.supplier && (
+                      <Link
+                        href={`/admin/procurement/suppliers/${task.supplier.id}`}
+                        style={{ fontSize: '0.6875rem', color: '#B8935A', textDecoration: 'none', display: 'block', marginTop: 2 }}
+                      >
+                        {task.supplier.name} →
+                      </Link>
+                    )}
+
+                    {task.description && (
+                      <p style={{ margin: '4px 0 0 0', fontSize: '0.6875rem', color: '#494D55', lineHeight: 'var(--leading-normal)' }}>
+                        {task.description}
+                      </p>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 6, borderTop: '1px solid #E2E2DE', fontSize: '0.625rem', color: '#767A85', fontFamily: 'var(--font-mono, monospace)' }}>
+                      <span>Due: {task.dueDate ?? 'Unset'}</span>
+                      <span>{task.assignedTo ?? 'Unassigned'}</span>
+                    </div>
+                  </div>
+                ))}
+
+                {col.tasks.length === 0 && (
+                  <span style={{ fontSize: '0.75rem', color: '#767A85', fontStyle: 'italic', padding: '16px 0', textAlign: 'center', display: 'block' }}>
+                    No tasks in this stage
+                  </span>
+                )}
+              </div>
+            </AdminPanel>
+          ))}
+        </div>
+      </AdminSection>
+    </>
   )
 }

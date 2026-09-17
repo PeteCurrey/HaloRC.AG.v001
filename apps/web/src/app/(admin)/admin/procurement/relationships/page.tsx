@@ -4,6 +4,14 @@ import {
   getSuppliers,
   SEED_BRANDS,
 } from '@halo-rc/db'
+import {
+  AdminPageHeader,
+  AdminPanel,
+  AdminSection,
+  AdminTable,
+  AdminTableRow,
+  AdminStatus,
+} from '@/components/admin'
 import { ProcurementNav } from '../ProcurementNav'
 import { verifyBrandSupplierRelationshipAction } from '@/actions/procurement'
 
@@ -23,166 +31,121 @@ export default async function RelationshipsDirectoryPage() {
   })
 
   return (
-    <div>
+    <>
+      <AdminPageHeader
+        category="Procurement Intelligence"
+        title="Brand & Supplier Distribution Rights"
+        description="Authoritative audit trail for manufacturer distribution channels. Explicitly distinguishes official authorization from unverified reseller claims."
+      />
+
       <ProcurementNav currentTab="relationships" />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', color: 'var(--colour-halo)', textTransform: 'uppercase' }}>
-              Procurement Intelligence
-            </span>
-          </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
-            Brand &amp; Supplier Distribution Rights
-          </h1>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)' }}>
-            Authoritative audit trail for manufacturer distribution channels. Explicitly distinguishes official authorization from unverified reseller claims.
-          </p>
-        </div>
-      </div>
-
-      {/* Relationships Table */}
-      <div style={{ backgroundColor: 'var(--colour-carbon)', border: '1px solid var(--colour-steel)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--colour-steel)', backgroundColor: 'var(--colour-charcoal)' }}>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Brand
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Supplier
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Channel Type
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Territory
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Status
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase' }}>
-                Evidence Source
-              </th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase', textAlign: 'right' }}>
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+      <AdminSection>
+        <AdminPanel padding="none">
+          <AdminTable
+            columns={[
+              'Brand',
+              'Supplier',
+              'Channel Type',
+              'Territory',
+              'Status',
+              'Evidence Source',
+              { header: 'Action', align: 'right' },
+            ]}
+          >
             {rows.map((row) => (
-              <tr key={row.id} style={{ borderBottom: '1px solid var(--colour-steel)' }}>
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span style={{ color: 'var(--colour-white)', fontWeight: 600, display: 'block' }}>
+              <AdminTableRow
+                key={row.id}
+                cells={[
+                  <span key="brand" style={{ color: '#111317', fontWeight: 600 }}>
                     {row.brand?.name ?? row.brandId}
-                  </span>
-                </td>
+                  </span>,
 
-                <td style={{ padding: 'var(--space-4)' }}>
                   <Link
+                    key="supplier"
                     href={`/admin/procurement/suppliers/${row.supplierId}`}
-                    style={{ color: 'var(--colour-white)', textDecoration: 'none', fontWeight: 500 }}
+                    style={{ color: '#B8935A', textDecoration: 'none', fontWeight: 500 }}
                   >
                     {row.supplier?.name ?? row.supplierId}
-                  </Link>
-                </td>
+                  </Link>,
 
-                <td style={{ padding: 'var(--space-4)' }}>
                   <span
+                    key="type"
                     style={{
                       display: 'inline-block',
                       padding: '2px 6px',
-                      backgroundColor: 'var(--colour-charcoal)',
-                      border: '1px solid var(--colour-steel)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '11px',
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--colour-smoke)',
+                      backgroundColor: '#EFEFED',
+                      borderRadius: 3,
+                      fontSize: '0.6875rem',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      color: '#494D55',
                     }}
                   >
                     {row.relationshipType.replace('_', ' ')}
                     {row.isExclusive ? ` [${row.exclusivityScope ?? 'EXCLUSIVE'}]` : ''}
-                  </span>
-                </td>
+                  </span>,
 
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-white)' }}>
+                  <span key="terr" style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.75rem', color: '#111317' }}>
                     {row.territory}
-                  </span>
-                </td>
+                  </span>,
 
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '2px 8px',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '11px',
-                      fontFamily: 'var(--font-mono)',
-                      fontWeight: 600,
-                      backgroundColor: row.verificationStatus === 'VERIFIED' ? 'var(--colour-halo-10)' : 'var(--colour-race-10)',
-                      color: row.verificationStatus === 'VERIFIED' ? 'var(--colour-halo)' : 'var(--colour-race)',
-                      border: `1px solid ${row.verificationStatus === 'VERIFIED' ? 'var(--colour-halo)' : 'var(--colour-race)'}`,
-                    }}
-                  >
-                    {row.verificationStatus}
-                  </span>
-                </td>
+                  <AdminStatus
+                    key="status"
+                    status={row.verificationStatus === 'VERIFIED' ? 'verified' : 'warning'}
+                    label={row.verificationStatus}
+                  />,
 
-                <td style={{ padding: 'var(--space-4)' }}>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--colour-ash)' }}>
+                  <div key="evidence" style={{ fontSize: '0.75rem', color: '#767A85' }}>
                     {row.evidenceSourceType}
                     {row.evidenceNotes && ` — ${row.evidenceNotes.slice(0, 45)}...`}
-                  </div>
-                </td>
+                  </div>,
 
-                <td style={{ padding: 'var(--space-4)', textAlign: 'right' }}>
-                  {row.verificationStatus === 'UNVERIFIED' ? (
-                    <form
-                      action={async () => {
-                        'use server'
-                        await verifyBrandSupplierRelationshipAction({
-                          brandId: row.brandId,
-                          supplierId: row.supplierId,
-                          territory: row.territory,
-                          relationshipType: row.relationshipType,
-                          verificationStatus: 'VERIFIED',
-                          evidenceSourceType: row.evidenceSourceType,
-                          evidenceUrl: row.evidenceUrl ?? null,
-                          evidenceNotes: 'Staff audited manufacturer invoice & distribution agreement.',
-                        })
-                      }}
-                    >
-                      <button
-                        type="submit"
-                        style={{
-                          padding: 'var(--space-1) var(--space-3)',
-                          backgroundColor: 'var(--colour-carbon)',
-                          border: '1px solid var(--colour-steel)',
-                          borderRadius: 'var(--radius-sm)',
-                          color: 'var(--colour-halo)',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: 'var(--text-xs)',
-                          cursor: 'pointer',
+                  <div key="action" style={{ textAlign: 'right' }}>
+                    {row.verificationStatus === 'UNVERIFIED' ? (
+                      <form
+                        action={async () => {
+                          'use server'
+                          await verifyBrandSupplierRelationshipAction({
+                            brandId: row.brandId,
+                            supplierId: row.supplierId,
+                            territory: row.territory,
+                            relationshipType: row.relationshipType,
+                            verificationStatus: 'VERIFIED',
+                            evidenceSourceType: row.evidenceSourceType,
+                            evidenceUrl: row.evidenceUrl ?? null,
+                            evidenceNotes: 'Staff audited manufacturer invoice & distribution agreement.',
+                          })
                         }}
                       >
-                        Verify &check;
-                      </button>
-                    </form>
-                  ) : (
-                    <span style={{ fontSize: '11px', color: 'var(--colour-ash)' }}>
-                      Audited &check;
-                    </span>
-                  )}
-                </td>
-              </tr>
+                        <button
+                          type="submit"
+                          style={{
+                            padding: '4px 10px',
+                            backgroundColor: 'transparent',
+                            border: '1px solid #B8935A',
+                            borderRadius: 3,
+                            color: '#B8935A',
+                            fontFamily: 'var(--font-mono, monospace)',
+                            fontSize: '0.6875rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Verify ✓
+                        </button>
+                      </form>
+                    ) : (
+                      <span style={{ fontSize: '0.6875rem', color: '#1A6E34', fontFamily: 'var(--font-mono, monospace)' }}>
+                        Audited ✓
+                      </span>
+                    )}
+                  </div>,
+                ]}
+              />
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </AdminTable>
+        </AdminPanel>
+      </AdminSection>
+    </>
   )
 }

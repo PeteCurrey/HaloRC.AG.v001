@@ -4,6 +4,10 @@ import {
   getSuppliers,
 } from '@halo-rc/db'
 import type { ProcurementPipelineStage } from '@halo-rc/types'
+import {
+  AdminPageHeader,
+  AdminSection,
+} from '@/components/admin'
 import { ProcurementNav } from '../ProcurementNav'
 
 const PIPELINE_STAGES: Array<{ key: ProcurementPipelineStage; label: string }> = [
@@ -25,139 +29,132 @@ export default async function ProcurementPipelinePage() {
   const suppliers = await getSuppliers()
 
   return (
-    <div>
+    <>
+      <AdminPageHeader
+        category="Supplier Activation Board"
+        title="11-Stage Procurement Pipeline"
+        description="Visual progression of supplier commercial activation from initial market discovery through legal account opening and live automated catalog feeds."
+      />
+
       <ProcurementNav currentTab="pipeline" />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <span style={{ width: 8, height: 8, backgroundColor: 'var(--colour-halo)', borderRadius: '50%' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', color: 'var(--colour-halo)', textTransform: 'uppercase' }}>
-              Supplier Activation Board
-            </span>
-          </div>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--colour-white)', marginBottom: 'var(--space-2)' }}>
-            11-Stage Procurement Pipeline
-          </h1>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--colour-ash)', maxWidth: '64ch', lineHeight: 'var(--leading-relaxed)' }}>
-            Visual progression of supplier commercial activation from initial market discovery through legal account opening and live automated catalog feeds.
-          </p>
-        </div>
-      </div>
-
       {/* Pipeline Board */}
-      <div
-        style={{
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gridAutoColumns: 'minmax(240px, 1fr)',
-          gap: 'var(--space-3)',
-          overflowX: 'auto',
-          paddingBottom: 'var(--space-4)',
-        }}
-      >
-        {PIPELINE_STAGES.map((stage) => {
-          const stageApps = applications.filter((a) => a.stage === stage.key)
-          return (
-            <div
-              key={stage.key}
-              style={{
-                backgroundColor: 'var(--colour-carbon)',
-                border: '1px solid var(--colour-steel)',
-                borderRadius: 'var(--radius-md)',
-                padding: 'var(--space-3)',
-                minHeight: 380,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
+      <AdminSection>
+        <div
+          style={{
+            display: 'grid',
+            gridAutoFlow: 'column',
+            gridAutoColumns: 'minmax(240px, 1fr)',
+            gap: 12,
+            overflowX: 'auto',
+            paddingBottom: 16,
+          }}
+        >
+          {PIPELINE_STAGES.map((stage) => {
+            const stageApps = applications.filter((a) => a.stage === stage.key)
+            return (
               <div
+                key={stage.key}
                 style={{
+                  backgroundColor: 'var(--admin-surface, #FFFFFF)',
+                  border: '1px solid var(--admin-border, #E2E2DE)',
+                  borderRadius: 'var(--admin-radius-md, 5px)',
+                  padding: 12,
+                  minHeight: 380,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 'var(--space-3)',
-                  paddingBottom: 'var(--space-2)',
-                  borderBottom: '1px solid var(--colour-steel)',
+                  flexDirection: 'column',
+                  boxShadow: 'var(--admin-shadow-card)',
                 }}
               >
-                <span
+                <div
                   style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--colour-smoke)',
-                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                    paddingBottom: 8,
+                    borderBottom: '1px solid var(--admin-border-subtle, #EBEBE7)',
                   }}
                 >
-                  {stage.label}
-                </span>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    padding: '1px 5px',
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: stageApps.length > 0 ? 'var(--colour-halo-10)' : 'var(--colour-charcoal)',
-                    color: stageApps.length > 0 ? 'var(--colour-halo)' : 'var(--colour-ash)',
-                  }}
-                >
-                  {stageApps.length}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flex: 1 }}>
-                {stageApps.map((app) => {
-                  const supplier = suppliers.find((s) => s.id === app.supplierId)
-                  return (
-                    <Link
-                      key={app.id}
-                      href={`/admin/procurement/applications/${app.id}`}
-                      style={{
-                        padding: 'var(--space-3)',
-                        backgroundColor: 'var(--colour-charcoal)',
-                        border: '1px solid var(--colour-steel)',
-                        borderRadius: 'var(--radius-sm)',
-                        textDecoration: 'none',
-                        display: 'block',
-                      }}
-                    >
-                      <span style={{ color: 'var(--colour-white)', fontWeight: 600, fontSize: 'var(--text-xs)', display: 'block', marginBottom: 2 }}>
-                        {supplier?.name ?? app.supplierId}
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'var(--colour-ash)', display: 'block', marginBottom: 4 }}>
-                        {supplier?.country ?? 'Global'} • {app.status}
-                      </span>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--colour-smoke)', fontFamily: 'var(--font-mono)' }}>
-                        <span>Reqs: {app.requirements.filter((r) => r.status === 'VERIFIED').length}/{app.requirements.length}</span>
-                        <span>{app.creditLimitMinorUnits ? `${app.creditCurrency === 'USD' ? '$' : '£'}${app.creditLimitMinorUnits / 100}` : 'Cash'}</span>
-                      </div>
-                    </Link>
-                  )
-                })}
-
-                {stageApps.length === 0 && (
-                  <div
+                  <span
                     style={{
-                      flex: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px dashed var(--colour-steel)',
-                      borderRadius: 'var(--radius-sm)',
-                      color: 'var(--colour-ash)',
-                      fontSize: 'var(--text-xs)',
-                      fontFamily: 'var(--font-mono)',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      fontSize: '0.6875rem',
+                      color: 'var(--admin-text-primary, #111317)',
+                      fontWeight: 600,
                     }}
                   >
-                    No items
-                  </div>
-                )}
+                    {stage.label}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono, monospace)',
+                      fontSize: '0.625rem',
+                      padding: '1px 6px',
+                      borderRadius: 3,
+                      backgroundColor: stageApps.length > 0 ? '#B8935A' : '#EFEFED',
+                      color: stageApps.length > 0 ? '#FFFFFF' : '#767A85',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {stageApps.length}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                  {stageApps.map((app) => {
+                    const supplier = suppliers.find((s) => s.id === app.supplierId)
+                    return (
+                      <Link
+                        key={app.id}
+                        href={`/admin/procurement/applications/${app.id}`}
+                        style={{
+                          padding: 10,
+                          backgroundColor: '#FAFAF9',
+                          border: '1px solid #E2E2DE',
+                          borderRadius: 4,
+                          textDecoration: 'none',
+                          display: 'block',
+                          transition: 'border-color 0.15s ease',
+                        }}
+                      >
+                        <span style={{ color: '#111317', fontWeight: 600, fontSize: '0.75rem', display: 'block', marginBottom: 2 }}>
+                          {supplier?.name ?? app.supplierId}
+                        </span>
+                        <span style={{ fontSize: '0.6875rem', color: '#767A85', display: 'block', marginBottom: 4 }}>
+                          {supplier?.country ?? 'Global'} • {app.status}
+                        </span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.625rem', color: '#767A85', fontFamily: 'var(--font-mono, monospace)' }}>
+                          <span>Reqs: {app.requirements.filter((r) => r.status === 'VERIFIED').length}/{app.requirements.length}</span>
+                          <span>{app.creditLimitMinorUnits ? `${app.creditCurrency === 'USD' ? '$' : '£'}${app.creditLimitMinorUnits / 100}` : 'Cash'}</span>
+                        </div>
+                      </Link>
+                    )
+                  })}
+
+                  {stageApps.length === 0 && (
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px dashed #E2E2DE',
+                        borderRadius: 4,
+                        color: '#767A85',
+                        fontSize: '0.75rem',
+                        fontFamily: 'var(--font-mono, monospace)',
+                      }}
+                    >
+                      No items
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
+            )
+          })}
+        </div>
+      </AdminSection>
+    </>
   )
 }
