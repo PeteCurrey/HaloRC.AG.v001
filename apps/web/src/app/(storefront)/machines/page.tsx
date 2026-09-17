@@ -23,6 +23,7 @@ const BRAND_IMAGES: Record<string, string> = {
   schumacher: '/images/brands/schumacher.jpg',
   traxxas: '/images/brands/traxxas.jpg',
   xray: '/images/brands/xray.jpg',
+  'mugen-seiki': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
 }
 
 const DISCIPLINE_IMAGES: Record<string, string> = {
@@ -47,6 +48,14 @@ const MACHINE_IMAGES: Record<string, string> = {
   'fg-sportsline-4wd-porsche-911-gt3-1-5-rtr': '/images/disciplines/large-scale.jpg',
   'mecatech-fw01-1-5-competition-supercar-chassis': '/images/disciplines/large-scale.jpg',
   'team-associated-rc8b4-1-nitro-buggy-kit': '/images/disciplines/race.jpg',
+  'mugen-mtc3-1-10-4wd-ep-touring-kit': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
+  'mugen-msb1-1-10-2wd-ep-buggy-kit': 'https://www.mugenshop.eu/media/image/product/9490/lg/b2001_mugen-seiki-msb1-1-10-2wd-elektro-buggy-bausatz.jpg',
+  'mugen-mbx-8r-nitro-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7732/lg/e2027_mugen-seiki-mbx-8r-1-8-nitro-buggy-kit.jpg',
+  'mugen-mbx-8r-eco-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7734/lg/e2028_mugen-seiki-mbx-8r-eco-1-8-electric-buggy-kit.jpg',
+  'mugen-mbx-8tr-nitro-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8499/lg/e2029_mugen-seiki-mbx8t-r-1-8-nitro-truggy-kit.jpg',
+  'mugen-mbx-8tr-eco-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8500/lg/e2030_mugen-seiki-mbx8t-r-eco-1-8-elektro-truggy-kit.jpg',
+  'mugen-mrx7-1-8-touring-kit': 'https://www.mugenshop.eu/media/image/product/10126/lg/h2009_mugen-seiki-mrx7-1-8-on-road-chassis-kit.jpg',
+  'mugen-mtx-7r-1-10-touring-kit': 'https://www.mugenshop.eu/media/image/product/9103/lg/t2006_mugen-seiki-mtx-7r-1-10-nitro-touring-car-kit.jpg',
 }
 
 function getMachineImage(slug: string, brandSlug: string, discipline: string): string {

@@ -20,8 +20,8 @@ export default function HomePage() {
       <section className={s.hero} aria-label="Avorria RC — Hero">
         <div className={s.heroBg} aria-hidden="true">
           <Image
-            src="/images/hero/hero-1-5-scale-rc.jpg"
-            alt="Premium 1/5th scale competition racing RC car on circuit"
+            src="/images/hero/hero-precision-chassis.jpg"
+            alt="Close-up of competition touring car precision carbon fibre chassis and suspension engineering"
             fill
             priority
             quality={90}

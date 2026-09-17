@@ -1,0 +1,275 @@
+/* ─── HeroImage Section ───────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  /* Offset storefront layout paddingTop so this bleeds to top of viewport */
+  margin-top: calc(-1 * var(--nav-height));
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background-color: var(--colour-void);
+  isolation: isolate;
+}
+
+.hero[data-size="large"] {
+  min-height: 90svh;
+}
+
+.hero[data-size="medium"] {
+  min-height: 70svh;
+}
+
+/* ─── Background image ──────────────────────────────────────────────────── */
+
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* CSS scroll-driven parallax — progressive enhancement */
+@supports (animation-timeline: scroll()) {
+  .bg img {
+    animation: heroParallax linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 80vh;
+    will-change: transform;
+  }
+}
+
+@keyframes heroParallax {
+  from { transform: translateY(0) scale(1.06); }
+  to   { transform: translateY(14%) scale(1.06); }
+}
+
+/* Baseline scale to avoid white edges on parallax */
+.bg img {
+  transform: scale(1.06);
+}
+
+/* ─── Scrims ────────────────────────────────────────────────────────────── */
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(8, 8, 8, 0.90) 0%,
+    rgba(8, 8, 8, 0.45) 45%,
+    rgba(8, 8, 8, 0.08) 80%,
+    transparent 100%
+  );
+}
+
+.scrimTop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 8, 8, 0.45) 0%,
+    transparent 28%
+  );
+}
+
+/* ─── Content ───────────────────────────────────────────────────────────── */
+
+.content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--gutter-lg);
+  padding-bottom: var(--section-space-hero);
+  padding-top: calc(var(--nav-height) + var(--space-8));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+
+  /* Entry animation */
+  animation: heroContentIn 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 100ms;
+}
+
+@keyframes heroContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .content {
+    padding-inline: var(--gutter-xl);
+  }
+}
+
+/* ─── Eyebrow ───────────────────────────────────────────────────────────── */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  animation: heroContentIn 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0ms;
+}
+
+.eyebrowLine {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background-color: var(--colour-halo);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.eyebrowText {
+  font-family: var(--font-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--colour-halo);
+}
+
+/* ─── Heading ───────────────────────────────────────────────────────────── */
+
+.heading {
+  font-family: var(--font-primary);
+  font-size: clamp(var(--text-3xl), 7vw, var(--text-6xl));
+  font-weight: var(--weight-extralight);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-tight);
+  color: var(--colour-white);
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+/* ─── Subline ───────────────────────────────────────────────────────────── */
+
+.subline {
+  font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
+  font-weight: var(--weight-light);
+  color: var(--colour-ash);
+  max-width: 44ch;
+  line-height: var(--leading-relaxed);
+}
+
+/* ─── Actions ───────────────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--colour-ignition);
+  color: var(--colour-white);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.btnPrimary:hover {
+  background-color: var(--colour-ignition-bright);
+  box-shadow: 0 4px 20px var(--colour-ignition-40);
+  transform: translateY(-1px);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: transparent;
+  color: var(--colour-ash);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.btnGhost:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--colour-off-white);
+}
+
+.btnPrimary:focus-visible,
+.btnGhost:focus-visible {
+  outline: 2px solid var(--colour-halo);
+  outline-offset: 3px;
+}
+
+/* ─── Scroll indicator ──────────────────────────────────────────────────── */
+
+.scrollIndicator {
+  position: absolute;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  animation: scrollBreathe 3.2s ease-in-out infinite;
+}
+
+@keyframes scrollBreathe {
+  0%, 100% { opacity: 0.35; transform: translateX(-50%) translateY(0); }
+  50%       { opacity: 0.75; transform: translateX(-50%) translateY(6px); }
+}
+
+.scrollLine {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, transparent, var(--colour-smoke));
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .bg img {
+    animation: none !important;
+    transform: none !important;
+  }
+  .content,
+  .eyebrow {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .scrollIndicator {
+    animation: none !important;
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,218 @@
+/* ─── EditorialSplit Section ──────────────────────────────────────────────── */
+
+.section {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 560px;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    grid-template-columns: 1fr 1fr;
+    min-height: 640px;
+  }
+
+  .section[data-ratio="60-40"] {
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .section[data-ratio="40-60"] {
+    grid-template-columns: 2fr 3fr;
+  }
+
+  /* When image is on the right, reverse visual order */
+  .section[data-image-position="right"] .imagePanel {
+    order: 2;
+  }
+  .section[data-image-position="right"] .contentPanel {
+    order: 1;
+  }
+}
+
+/* ─── Image panel ───────────────────────────────────────────────────────── */
+
+.imagePanel {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--colour-graphite);
+  /* On mobile: tall image above content */
+  min-height: 360px;
+}
+
+@media (min-width: 1024px) {
+  .imagePanel {
+    min-height: unset;
+  }
+}
+
+.imagePanel img {
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.imagePanel:hover img {
+  transform: scale(1.025) !important;
+}
+
+/* Optional subtle link overlay on image */
+.imageLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+}
+
+/* ─── Content panel ─────────────────────────────────────────────────────── */
+
+.contentPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-8) var(--gutter-lg);
+}
+
+@media (min-width: 1024px) {
+  .contentPanel {
+    padding: var(--space-10) var(--gutter-xl);
+  }
+}
+
+/* Dark surface variant */
+.section[data-surface="dark"] .contentPanel {
+  background-color: var(--colour-carbon);
+}
+
+.section[data-surface="dark"] .heading {
+  color: var(--colour-off-white);
+}
+
+.section[data-surface="dark"] .body {
+  color: var(--colour-ash);
+}
+
+/* Light surface (default) */
+.contentPanel {
+  background-color: var(--bg-canvas);
+}
+
+/* ─── Eyebrow ───────────────────────────────────────────────────────────── */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.eyebrowLine {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background-color: var(--colour-halo);
+  flex-shrink: 0;
+}
+
+.eyebrowText {
+  font-family: var(--font-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--colour-halo);
+}
+
+/* ─── Heading ───────────────────────────────────────────────────────────── */
+
+.heading {
+  font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+  font-weight: var(--weight-extralight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  max-width: 18ch;
+}
+
+/* ─── Body ──────────────────────────────────────────────────────────────── */
+
+.body {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  max-width: 46ch;
+  font-weight: var(--weight-light);
+}
+
+/* ─── Actions ───────────────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--colour-ignition);
+  color: var(--colour-white);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.btnPrimary:hover {
+  background-color: var(--colour-ignition-bright);
+  box-shadow: 0 4px 20px var(--colour-ignition-40);
+  transform: translateY(-1px);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.btnGhost:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+/* Dark surface button overrides */
+.section[data-surface="dark"] .btnGhost {
+  color: var(--colour-ash);
+  border-color: var(--colour-mist);
+}
+
+.section[data-surface="dark"] .btnGhost:hover {
+  border-color: var(--colour-ash);
+  color: var(--colour-off-white);
+}
+
+.btnPrimary:focus-visible,
+.btnGhost:focus-visible {
+  outline: 2px solid var(--colour-halo);
+  outline-offset: 3px;
+}

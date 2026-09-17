@@ -22,6 +22,7 @@ import {
   compatibilityRules,
   documents,
   suppliers,
+  supplierOffers,
   builds,
   buildSlots,
   buildAlternatives,
@@ -97,6 +98,18 @@ export async function seed() {
       website: 'https://rcmart.com',
       status: 'ACTIVE',
       notes: 'Direct Asia-Pacific competition specialist',
+    },
+    {
+      id: 'sup-mugen-europe',
+      slug: 'mugen-seiki-europe',
+      name: 'Mugen Seiki Europe',
+      legalName: 'Mugen Seiki Europe Vertriebs GmbH',
+      type: 'MANUFACTURER',
+      country: 'DE',
+      website: 'https://www.mugen.eu',
+      status: 'ACTIVE',
+      currency: 'EUR',
+      notes: 'European division & central distribution for Mugen Seiki Japan',
     },
   ]).onConflictDoNothing()
 
@@ -180,6 +193,22 @@ export async function seed() {
       leadTimeDays: offer.leadTimeDays,
       notes: offer.notes,
     }).onConflictDoNothing()
+  }
+
+  // ── Supplier Offers (Confidential Supplier Wholesale Costs) ──────────────
+  console.log('  → Supplier Offers (Confidential Supplier Pricing)')
+  const mugenSupplierOffers = [
+    { id: 'soff-mugen-a2006', canonicalProductId: 'prod-mugen-a2006', canonicalVariantId: 'var-mugen-a2006-kit', supplierId: 'sup-mugen-europe', supplierSku: 'A2006', costMinorUnits: 52900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-b2001', canonicalProductId: 'prod-mugen-b2001', canonicalVariantId: 'var-mugen-b2001-kit', supplierId: 'sup-mugen-europe', supplierSku: 'B2001', costMinorUnits: 30900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-e2027', canonicalProductId: 'prod-mugen-e2027', canonicalVariantId: 'var-mugen-e2027-kit', supplierId: 'sup-mugen-europe', supplierSku: 'E2027', costMinorUnits: 52900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-e2028', canonicalProductId: 'prod-mugen-e2028', canonicalVariantId: 'var-mugen-e2028-kit', supplierId: 'sup-mugen-europe', supplierSku: 'E2028', costMinorUnits: 52900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-e2029', canonicalProductId: 'prod-mugen-e2029', canonicalVariantId: 'var-mugen-e2029-kit', supplierId: 'sup-mugen-europe', supplierSku: 'E2029', costMinorUnits: 57900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-e2030', canonicalProductId: 'prod-mugen-e2030', canonicalVariantId: 'var-mugen-e2030-kit', supplierId: 'sup-mugen-europe', supplierSku: 'E2030', costMinorUnits: 57900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-h2009', canonicalProductId: 'prod-mugen-h2009', canonicalVariantId: 'var-mugen-h2009-kit', supplierId: 'sup-mugen-europe', supplierSku: 'H2009', costMinorUnits: 64900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+    { id: 'soff-mugen-t2006', canonicalProductId: 'prod-mugen-t2006', canonicalVariantId: 'var-mugen-t2006-kit', supplierId: 'sup-mugen-europe', supplierSku: 'T2006', costMinorUnits: 49900, currency: 'EUR', availability: 'IN_STOCK' as const, inventoryAuthority: 'SUPPLIER_STOCK' as const, marketCode: 'UK' as const },
+  ]
+  for (const soff of mugenSupplierOffers) {
+    await db.insert(supplierOffers).values(soff).onConflictDoNothing()
   }
 
   // ── Specifications with Provenance ───────────────────────────────────────

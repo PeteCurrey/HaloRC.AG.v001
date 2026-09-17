@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'teamxray.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.mugenshop.eu',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mugenshop.eu',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     // Focal point support via custom loader in future

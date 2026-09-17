@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Work_Sans, JetBrains_Mono, Barlow_Condensed } from 'next/font/google'
+import { Work_Sans, JetBrains_Mono, Barlow_Condensed, Barlow } from 'next/font/google'
 import '../styles/tokens.css'
 import '../styles/base.css'
 import '../styles/typography.css'
@@ -27,6 +27,14 @@ const barlowCondensed = Barlow_Condensed({
   variable: '--font-barlow-condensed',
   display: 'swap',
   weight: ['500', '600'],
+})
+
+// Wordmark: Barlow Black — used exclusively for the AVORRIA wordmark identity
+const barlow = Barlow({
+  subsets: ['latin'],
+  variable: '--font-barlow',
+  display: 'block',
+  weight: ['900'],
 })
 
 export const metadata: Metadata = {
@@ -62,7 +70,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable}`}
+      className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable} ${barlow.variable}`}
     >
       <body>
         <AuthLayoutGuard>

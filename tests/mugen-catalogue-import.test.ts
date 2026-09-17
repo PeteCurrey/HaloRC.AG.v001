@@ -215,11 +215,11 @@ describe('MUGEN Seiki Production Catalogue Import Engine', () => {
       )
       expect(mugenKits.length).toBeGreaterThanOrEqual(8)
 
-      // Verify publication safety: products are kept in REVIEW / DRAFT in admin
+      // Verify publication safety: only the 8 controlled competition kits are published, all other items staged in REVIEW
       const publishedMugen = STORE_PRODUCTS.filter(
         (p) => p.brandId === 'brand-mugen-seiki' && p.published === true
       )
-      expect(publishedMugen.length).toBe(0) // None automatically published without manual clearance
+      expect(publishedMugen.length).toBe(8)
 
       // Verify quality report metrics
       const report = result.report

@@ -19,6 +19,30 @@ const BRAND_IMAGES: Record<string, string> = {
   schumacher: '/images/brands/schumacher.jpg',
   traxxas: '/images/brands/traxxas.jpg',
   xray: '/images/brands/xray.jpg',
+  'mugen-seiki': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
+}
+
+const MACHINE_IMAGES: Record<string, string> = {
+  'xray-x4-2026-1-10-touring-car-kit': '/images/brands/xray.jpg',
+  'awesomatix-a800mx-1-10-touring-car-kit': '/images/brands/awesomatix.jpg',
+  'traxxas-x-maxx-8s-brushless-monster-truck': '/images/disciplines/bash.jpg',
+  'arrma-kraton-6s-blx-extreme-bash-speed-monster': '/images/disciplines/bash.jpg',
+  'yokomo-master-drift-md-2-0-chassis-kit': '/images/disciplines/drift.jpg',
+  'reve-d-rdx-1-10-rwd-drift-chassis-kit': '/images/disciplines/drift.jpg',
+  'traxxas-trx-4-1979-ford-bronco-crawler': '/images/disciplines/crawl.jpg',
+  'axial-scx10-iii-jeep-jlu-wrangler-4wd-rtr': '/images/disciplines/crawl.jpg',
+  'tamiya-cc-02-mercedes-benz-g-500-scale-kit': '/images/disciplines/scale.jpg',
+  'fg-sportsline-4wd-porsche-911-gt3-1-5-rtr': '/images/disciplines/large-scale.jpg',
+  'mecatech-fw01-1-5-competition-supercar-chassis': '/images/disciplines/large-scale.jpg',
+  'team-associated-rc8b4-1-nitro-buggy-kit': '/images/disciplines/race.jpg',
+  'mugen-mtc3-1-10-4wd-ep-touring-kit': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
+  'mugen-msb1-1-10-2wd-ep-buggy-kit': 'https://www.mugenshop.eu/media/image/product/9490/lg/b2001_mugen-seiki-msb1-1-10-2wd-elektro-buggy-bausatz.jpg',
+  'mugen-mbx-8r-nitro-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7732/lg/e2027_mugen-seiki-mbx-8r-1-8-nitro-buggy-kit.jpg',
+  'mugen-mbx-8r-eco-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7734/lg/e2028_mugen-seiki-mbx-8r-eco-1-8-electric-buggy-kit.jpg',
+  'mugen-mbx-8tr-nitro-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8499/lg/e2029_mugen-seiki-mbx8t-r-1-8-nitro-truggy-kit.jpg',
+  'mugen-mbx-8tr-eco-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8500/lg/e2030_mugen-seiki-mbx8t-r-eco-1-8-elektro-truggy-kit.jpg',
+  'mugen-mrx7-1-8-touring-kit': 'https://www.mugenshop.eu/media/image/product/10126/lg/h2009_mugen-seiki-mrx7-1-8-on-road-chassis-kit.jpg',
+  'mugen-mtx-7r-1-10-touring-kit': 'https://www.mugenshop.eu/media/image/product/9103/lg/t2006_mugen-seiki-mtx-7r-1-10-nitro-touring-car-kit.jpg',
 }
 
 const DISCIPLINE_IMAGES: Record<string, string> = {
@@ -92,7 +116,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const isHalo = detail.tier === 'HALO'
   const offer = detail.offer
 
-  const heroImgSrc = BRAND_IMAGES[detail.brand.slug] || DISCIPLINE_IMAGES[detail.discipline]
+  const heroImgSrc =
+    MACHINE_IMAGES[detail.slug] ||
+    BRAND_IMAGES[detail.brand.slug] ||
+    DISCIPLINE_IMAGES[detail.discipline]
   const storyImgSrc = DISCIPLINE_IMAGES[detail.discipline] || BRAND_IMAGES[detail.brand.slug]
 
   // JSON-LD Structured Data
