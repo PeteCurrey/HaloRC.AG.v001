@@ -19,16 +19,17 @@ beforeEach(() => {
 })
 
 describe('Phase 11: Trade Account Application Lifecycle (Scenarios E, F, G, H)', () => {
-  it('Scenario E: Authoritative business profile provides accurate corporate data for applications', () => {
+  it('Scenario E: Authoritative business profile holds confirmed legal identity and flags pending verification', () => {
     const profile = getHaloBusinessProfile()
 
     expect(profile.legalName).toBe('Halo RC Ltd')
-    expect(profile.companyNumber).toBe('14598721')
-    expect(profile.vatNumber).toBe('GB 432 9876 54')
-    expect(profile.registeredAddress.country).toBe('United Kingdom')
-    expect(profile.tradingAddress.postalCode).toBe('NN12 8TJ')
-    expect(profile.bankDetails.bankName).toBe('Barclays Bank UK PLC')
-    expect(profile.tradeReferences.length).toBeGreaterThanOrEqual(2)
+    expect(profile.tradingName).toBe('Halo RC')
+    expect(profile.primaryContact.name).toBe('Peter Currey')
+    // Unconfirmed registration, banking, and trade reference fields must remain unpopulated until verified
+    expect(profile.companyNumber).toBe('')
+    expect(profile.vatNumber).toBe('')
+    expect(profile.bankDetails.bankName).toBe('')
+    expect(profile.tradeReferences).toEqual([])
   })
 
   it('Scenario F: Creates application with full requirements checklist initialized to PENDING', async () => {
@@ -57,10 +58,12 @@ describe('Phase 11: Trade Account Application Lifecycle (Scenarios E, F, G, H)',
   })
 
   it('Scenario G: Individual requirements can be verified with audit trail', async () => {
-    const apps = await getTradeAccountApplications('sup-cml')
-    const app = apps[0]
-    expect(app).toBeDefined()
-    const firstReq = app!.requirements[0]
+    const app = await createTradeAccountApplication({
+      supplierId: 'sup-cml',
+      notes: 'Applying for direct commercial trade account for UK distribution.',
+      assignedTo: 'procurement@halo-rc.com',
+    })
+    const firstReq = app.requirements[0]
     expect(firstReq).toBeDefined()
 
     const updated = await updateTradeAccountRequirement(firstReq!.id, 'VERIFIED', {
@@ -74,9 +77,12 @@ describe('Phase 11: Trade Account Application Lifecycle (Scenarios E, F, G, H)',
     expect(updated.documentId).toBe('doc-certificate-of-incorporation')
   })
 
-  it('Scenario H: Approval workflow activates trade account, updates credit limit and supplier status', async () => {
-    const apps = await getTradeAccountApplications('sup-cml')
-    const app = apps[0]!
+  it('Scenario H: Approval workflow updates application without auto-mutating supplier relationship status', async () => {
+    const app = await createTradeAccountApplication({
+      supplierId: 'sup-cml',
+      notes: 'Applying for direct commercial trade account for UK distribution.',
+      assignedTo: 'procurement@halo-rc.com',
+    })
 
     // Step 1: Submit application
     const submitted = await updateTradeAccountApplicationStatus(
@@ -102,25 +108,24 @@ describe('Phase 11: Trade Account Application Lifecycle (Scenarios E, F, G, H)',
       'ACCOUNT_OPENED',
       {
         accountReference: 'CML-HALO-9921',
-        creditLimitMinorUnits: 2500000, // £25,000 credit facility
+        creditLimitMinorUnits: 500000, // Explicit verified £5,000 credit limit entered by user
         creditCurrency: 'GBP',
-        notes: '30-day net credit facility authorized following D&B check.',
+        notes: 'Commercial trade credit facility authorized following formal review.',
         reviewedBy: 'finance_director@halo-rc.com',
       }
     )
 
     expect(approved.status).toBe('APPROVED')
     expect(approved.stage).toBe('ACCOUNT_OPENED')
-    expect(approved.creditLimitMinorUnits).toBe(2500000)
+    expect(approved.creditLimitMinorUnits).toBe(500000)
     expect(approved.creditCurrency).toBe('GBP')
     expect(approved.accountReference).toBe('CML-HALO-9921')
     expect(approved.approvedAt).toBeTruthy()
 
-    // Verify supplier record was activated
+    // Verify supplier record is NOT automatically activated (§7 No Automatic Status Progression)
     const supplier = await getSupplierById('sup-cml')
     expect(supplier).toBeDefined()
-    expect(supplier?.relationshipStatus).toBe('ACTIVE')
-    expect(supplier?.accountReference).toBe('CML-HALO-9921')
+    expect(supplier?.relationshipStatus).toBe('PROSPECT')
   })
 
   it('handles application rejection and marks stage as TERMINATED', async () => {

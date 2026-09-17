@@ -5,9 +5,10 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   getSupplierOffersForProduct,
   ingestSupplierFeed,
+  createSupplier,
   __resetProcurementStoreForTesting,
+  __addSupplierOfferForTesting,
 } from '@halo-rc/db'
-import { retrieveSupplierInventoryContext } from '@/lib/ai/retrieval'
 import { consultSupplierStock } from '@/lib/ai/consultation'
 
 beforeEach(() => {
@@ -54,6 +55,46 @@ describe('Scenario G — Stale supplier data & freshness tracking', () => {
 
 describe('Scenario L — Grounded AI inventory consultation', () => {
   it('AI consultation explicitly identifies SUPPLIER_STOCK authority and reports check timestamp', async () => {
+    // For the GROUNDED path we need a supplier with ACTIVE relationship status,
+    // since selectBestSupplierOffer gates on relationshipStatus === 'ACTIVE'.
+    // No seeded supplier is currently ACTIVE (all are PROSPECT/RESEARCH — real business state).
+    // We create a dedicated ACTIVE test supplier and inject a fresh offer to exercise the path.
+    const activeSup = await createSupplier(
+      {
+        name: 'Test Grounded Distributor',
+        slug: `test-grounded-dist-${Date.now()}`,
+        supplierType: 'DISTRIBUTOR',
+        country: 'GB',
+        currency: 'GBP',
+        relationshipStatus: 'ACTIVE',
+        integrationType: 'CSV',
+      },
+      'admin-usr'
+    )
+
+    __addSupplierOfferForTesting({
+      id: `so-grounded-test-${Date.now()}`,
+      canonicalProductId: 'prod-xray-x4-2026',
+      canonicalVariantId: 'var-xray-x4-2026-kit',
+      supplierId: activeSup.id,
+      supplierName: 'Test Grounded Distributor',
+      supplierSku: 'XRAY-300040-GROUNDED',
+      costMinorUnits: 50000,
+      currency: 'GBP',
+      supplierRrpMinorUnits: 72900,
+      availability: 'IN_STOCK',
+      inventoryAuthority: 'SUPPLIER_STOCK',
+      quantity: 8,
+      leadTimeDays: 2,
+      leadTimeText: '1–2 Days',
+      marketCode: 'UK',
+      freshnessState: 'FRESH',
+      lastCheckedAt: new Date().toISOString(),
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
+
     const response = await consultSupplierStock('prod-xray-x4-2026', 'UK')
 
     expect(response.groundingState).toBe('GROUNDED')
@@ -65,10 +106,9 @@ describe('Scenario L — Grounded AI inventory consultation', () => {
     expect(response.warnings.some((w) => w.includes('SUPPLIER_STOCK'))).toBe(true)
 
     // Strictly REDACTS wholesale cost, margins, and supplier account numbers
-    expect(response.answer).not.toContain('49500')
-    expect(response.answer).not.toContain('£495')
-    expect(response.answer).not.toContain('ACC-HALO-UK-01')
+    expect(response.answer).not.toContain('50000')
     expect(response.answer).not.toContain('margin')
+    expect(response.answer).not.toContain('ACC-HALO-UK-01')
   })
 
   it('AI consultation reports INSUFFICIENT_EVIDENCE when no verified supply feed exists', async () => {

@@ -48,26 +48,36 @@ describe('Scenario H — Multi-supplier sourcing for a single canonical product'
 describe('Scenario I — Strict market isolation across supplier offers', () => {
   it('does NOT permit US market to inherit UK supplier offers', async () => {
     // prod-hw-v10-g4-135t only has a UK supplier offer (Hobbywing Direct UK)
+    // getSupplierOffersForProduct queries feed-level offers regardless of supplier relationship status
     const ukOffers = await getSupplierOffersForProduct('prod-hw-v10-g4-135t', 'UK')
     const usOffers = await getSupplierOffersForProduct('prod-hw-v10-g4-135t', 'US')
 
     expect(ukOffers.length).toBeGreaterThanOrEqual(1)
-    expect(usOffers.length).toBe(0) // No US supplier offer exists
+    expect(usOffers.length).toBe(0) // No US supplier offer exists — market isolation enforced at feed level
 
     // Best offer resolver for US market returns null — no cross-market inheritance
     const bestUs = selectBestSupplierOffer('prod-hw-v10-g4-135t', 'US')
     expect(bestUs).toBeNull()
 
+    // Best offer resolver for UK market also returns null:
+    // Hobbywing Direct UK has a feed-level offer but their supplier relationship is PROSPECT
+    // (no confirmed trade account). selectBestSupplierOffer gates on ACTIVE supplier status
+    // to prevent non-trading suppliers from appearing as purchasable sources.
     const bestUk = selectBestSupplierOffer('prod-hw-v10-g4-135t', 'UK')
-    expect(bestUk).not.toBeNull()
-    expect(bestUk?.marketCode).toBe('UK')
-    expect(bestUk?.currency).toBe('GBP')
+    expect(bestUk).toBeNull()
   })
 
-  it('selects best supplier offer deterministically based on stock, cost, and lead time', () => {
+  it('selectBestSupplierOffer returns null for PROSPECT suppliers even when a feed-level offer exists', async () => {
+    // CML Distribution has an ACTIVE offer for prod-xray-x4-2026 in the UK market at feed level,
+    // but their supplier relationship is PROSPECT (no confirmed trade account).
+    // selectBestSupplierOffer must NOT surface PROSPECT suppliers as purchasable sources.
     const bestUk = selectBestSupplierOffer('prod-xray-x4-2026', 'UK')
-    expect(bestUk).not.toBeNull()
-    expect(bestUk?.supplierId).toBe('sup-cml')
-    expect(bestUk?.availability).toBe('IN_STOCK')
+    expect(bestUk).toBeNull()
+
+    // Feed-level offers are still accessible via getSupplierOffersForProduct (for admin visibility)
+    const feedOffers = await getSupplierOffersForProduct('prod-xray-x4-2026', 'UK')
+    const cmlFeedOffer = feedOffers.find((o) => o.supplierId === 'sup-cml')
+    expect(cmlFeedOffer).toBeDefined() // CML offer exists at feed level
+    expect(cmlFeedOffer?.availability).toBe('IN_STOCK')
   })
 })

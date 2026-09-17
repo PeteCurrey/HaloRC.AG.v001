@@ -377,6 +377,20 @@ export const SEED_BRANDS: SeedBrand[] = [
     specialisms: ['Touring Car Aerodynamics', 'EFRA/BRCA Homologated Bodies'],
     disciplines: ['RACE'],
   },
+  {
+    id: 'brand-mugen-seiki',
+    slug: 'mugen-seiki',
+    name: 'Mugen Seiki',
+    tier: 'PREMIUM_COMPETITION',
+    status: 'ACTIVE',
+    countryOfOrigin: 'JP',
+    foundedYear: 1990,
+    description: 'Premier Japanese RC racing manufacturer, legendary for multiple IFMAR World Championship titles across 1/8 nitro off-road buggies (MBX), 1/8 on-road track racing (MRX), and competition electric touring cars (MTC).',
+    website: 'https://www.mugenseiki.com',
+    commercialRelationship: 'DISTRIBUTOR_SOURCED',
+    specialisms: ['1/8 Off-Road Buggies', '1/8 On-Road Track', '1/10 Electric Touring', '1/10 2WD Buggies'],
+    disciplines: ['RACE'],
+  },
 ]
 
 // ── 2. Platforms ─────────────────────────────────────────────────────────────

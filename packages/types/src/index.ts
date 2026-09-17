@@ -1,7 +1,7 @@
 // ─── Market & Commerce ───────────────────────────────────────────────────────
 
 export type MarketCode = 'UK' | 'US'
-export type Currency = 'GBP' | 'USD'
+export type Currency = 'GBP' | 'USD' | 'EUR'
 export type TaxMode = 'INCLUSIVE' | 'EXCLUSIVE'
 
 export interface Market {
@@ -1973,7 +1973,7 @@ export interface SupplierCommercialTerms {
   id: string
   supplierId: string
   currency: Currency
-  paymentTerms: PaymentTermsType
+  paymentTerms: PaymentTermsType | null
   paymentTermsDays?: number | null
   earlyPaymentDiscountPercent?: number | null
   minimumOrderQuantityUnits?: number | null
@@ -2401,6 +2401,382 @@ export type OrderFulfilmentStatus =
   | 'DELIVERED'
   | 'CANCELLED'
 
+// ─── MUGEN Catalogue & Media Enrichment Types ────────────────────────────────
+
+export type MediaReviewCategory =
+  | 'IMAGE_MATCHED'
+  | 'IMAGE_NOT_FOUND'
+  | 'IMAGE_AMBIGUOUS'
+  | 'RIGHTS_REVIEW'
+  | 'PAGE_REQUIRES_MANUAL_REVIEW'
+
+export interface MugenMediaRecord {
+  id: string
+  productId?: string | null
+  mugenSku: string
+  productName: string
+  productType: string
+  productUrl?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  sourceDomain?: string | null
+  sourcePageUrl?: string | null
+  retrievalTimestamp?: string | null
+  mediaConfidence: 'EXACT_SKU_MATCH' | 'EXACT_PAGE_MATCH' | 'NAME_SKU_CONFIRMED' | 'AMBIGUOUS' | 'UNMATCHED'
+  matchingMethod: 'EXACT_MUGEN_PRODUCT_PAGE' | 'MANUAL_OVERRIDE' | 'NONE'
+  reviewCategory: MediaReviewCategory
+  rightsReviewStatus: 'CLEARED' | 'RIGHTS_REVIEW_REQUIRED' | 'RESTRICTED'
+  reviewNotes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MugenImportManifestFile {
+  filename: string
+  fileSize: number
+  detectedEncoding: string
+  delimiter: string
+  columnNames: string[]
+  rowCount: number
+  duplicateCount: number
+  importDate: string
+  detectedProductType: string
+}
+
+export interface MugenCatalogueQualityReport {
+  filesProcessed: number
+  rowsProcessed: number
+  uniqueSupplierSkus: number
+  newCanonicalProducts: number
+  updatedProducts: number
+  duplicatesDetected: number
+  conflictsDetected: number
+  rejectedRows: number
+  imagesMatched: number
+  imagesMissing: number
+  ambiguousMatches: number
+  rightsReviewItems: number
+  validPrices: number
+  invalidPrices: number
+  missingCurrencies: number
+  missingStockInfo: number
+  publishedCount: number
+  stagedCount: number
+  reviewRequiredCount: number
+  rejectedCount: number
+  confidenceBreakdown: {
+    VERIFIED: number
+    KNOWN: number
+    INFERRED: number
+    UNKNOWN: number
+  }
+}
+
+// ─── Supplier CSV Import Pipeline Types ──────────────────────────────────────
+
+export type ImportJobStatus =
+  | 'UPLOADED'
+  | 'PROCESSING'
+  | 'COLUMN_DETECTION'
+  | 'FIELD_MAPPING'
+  | 'NORMALISING'
+  | 'SKU_MATCHING'
+  | 'DEDUP'
+  | 'VALIDATION'
+  | 'MEDIA_ENRICHMENT'
+  | 'REVIEW_REQUIRED'
+  | 'READY'
+  | 'COMMITTED'
+  | 'FAILED'
+  | 'REJECTED'
+  | 'ROLLED_BACK'
+
+export type ImportRowStatus =
+  | 'VALID'
+  | 'INVALID'
+  | 'DUPLICATE'
+  | 'SKIPPED'
+  | 'WARNING'
+  | 'COMMITTED'
+  | 'REJECTED'
+
+export type ImportRowAction =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'PRICE_UPDATE'
+  | 'STOCK_UPDATE'
+  | 'NO_CHANGE'
+  | 'REJECT'
+  | 'SKIP'
+
+export type ImportMatchConfidence =
+  | 'VERIFIED'
+  | 'KNOWN'
+  | 'INFERRED'
+  | 'UNKNOWN'
+  | 'NO_MATCH'
+
+export type MediaEnrichmentStatus =
+  | 'PENDING'
+  | 'MATCHED'
+  | 'UNMATCHED'
+  | 'MANUAL_REQUIRED'
+  | 'CLEARED'
+
+export type ImageRightsStatus =
+  | 'CLEARED'
+  | 'RIGHTS_REVIEW_REQUIRED'
+  | 'RESTRICTED'
+  | 'NOT_APPLICABLE'
+
+export type ImportAuditAction =
+  | 'JOB_CREATED'
+  | 'JOB_COMMITTED'
+  | 'JOB_REJECTED'
+  | 'JOB_ROLLED_BACK'
+  | 'ROW_COMMITTED'
+  | 'ROW_REJECTED'
+  | 'FIELD_MAP_SAVED'
+  | 'MEDIA_ENRICHED'
+
+/**
+ * Per-supplier field mapping configuration.
+ * Maps supplier CSV column headers to canonical Avorria field names.
+ */
+export interface SupplierFieldMap {
+  id: string
+  supplierId: string
+  mapName: string
+  isActive: boolean
+  /** Key: supplier column header, Value: canonical field name */
+  mappings: Record<string, CanonicalImportField>
+  createdAt: string
+  updatedAt: string
+  createdBy: string | null
+}
+
+/**
+ * Canonical Avorria fields that supplier columns can be mapped to.
+ */
+export type CanonicalImportField =
+  | 'supplier_sku'
+  | 'manufacturer_sku'
+  | 'ean'
+  | 'product_name'
+  | 'description'
+  | 'brand'
+  | 'category'
+  | 'net_price'
+  | 'rrp'
+  | 'currency'
+  | 'stock_quantity'
+  | 'availability'
+  | 'product_url'
+  | 'image_url'
+  | 'weight_grams'
+  | 'notes'
+  | 'IGNORE'
+
+/**
+ * An individual uploaded file within an import job.
+ */
+export interface CsvImportFile {
+  id: string
+  jobId: string
+  supplierId: string
+  originalFilename: string
+  fileSizeBytes: number
+  detectedEncoding: 'UTF-8' | 'UTF-8-BOM' | 'LATIN-1' | 'UNKNOWN'
+  detectedDelimiter: ',' | ';' | '\t' | 'UNKNOWN'
+  sourceFileHash: string
+  rowCount: number
+  duplicateCount: number
+  columnNames: string[]
+  uploadedAt: string
+}
+
+/**
+ * A single row from a supplier CSV, preserved in the staging area.
+ */
+export interface CsvImportRow {
+  id: string
+  jobId: string
+  fileId: string
+  supplierId: string
+  sourceFilename: string
+  sourceRowNumber: number
+  /** Original raw payload from the CSV, keyed by supplier column header */
+  rawPayload: Record<string, string>
+  // Normalised fields (populated after field mapping + normalisation)
+  supplierSku: string | null
+  manufacturerSku: string | null
+  eanGtin: string | null
+  productName: string | null
+  description: string | null
+  brand: string | null
+  category: string | null
+  netPriceMinorUnits: number | null
+  currency: Currency | null
+  rrpMinorUnits: number | null
+  stockQuantity: number | null
+  rawAvailability: string | null
+  // Matching results
+  mappedProductId: string | null
+  mappedVariantId: string | null
+  matchMethod: string | null
+  matchConfidence: ImportMatchConfidence
+  // Status
+  rowStatus: ImportRowStatus
+  rowAction: ImportRowAction
+  validationErrors: string[]
+  validationWarnings: string[]
+  isDuplicateOfRowId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Top-level import job record.
+ */
+export interface CsvImportJob {
+  id: string
+  supplierId: string
+  uploadedBy: string | null
+  status: ImportJobStatus
+  currentStage: string
+  fileCount: number
+  filenames: string[]
+  // Aggregate stats
+  rowsTotal: number
+  rowsValid: number
+  rowsInvalid: number
+  rowsDuplicate: number
+  rowsCommitted: number
+  rowsRejected: number
+  newProducts: number
+  updatedProducts: number
+  priceChanges: number
+  stockChanges: number
+  missingImagery: number
+  missingCommercialData: number
+  errors: string[]
+  warnings: string[]
+  createdAt: string
+  updatedAt: string
+  committedAt: string | null
+  committedBy: string | null
+  rolledBackAt: string | null
+  rolledBackBy: string | null
+  rollbackReason: string | null
+}
+
+/**
+ * Preview summary shown to administrator before commit.
+ */
+export interface ImportPreview {
+  jobId: string
+  supplierId: string
+  filesUploaded: number
+  filenames: string[]
+  rowsDetected: number
+  validRows: number
+  invalidRows: number
+  newProducts: number
+  existingProducts: number
+  duplicateRows: number
+  potentialMatches: number
+  missingRequiredFields: number
+  missingImagery: number
+  priceChanges: number
+  stockChanges: number
+  errors: string[]
+  warnings: string[]
+}
+
+/**
+ * Per-row summary for the import preview table.
+ */
+export interface ImportPreviewRow {
+  rowId: string
+  sourceFilename: string
+  sourceRowNumber: number
+  supplierSku: string | null
+  productName: string | null
+  rowAction: ImportRowAction
+  matchConfidence: ImportMatchConfidence
+  rowStatus: ImportRowStatus
+  errors: string[]
+  warnings: string[]
+}
+
+/**
+ * Records a snapshot of what changed during a commit, for rollback purposes.
+ */
+export interface ImportRollbackRecord {
+  id: string
+  jobId: string
+  entityType: 'supplier_product' | 'supplier_offer' | 'supplier_mapping'
+  entityId: string
+  actionTaken: 'CREATED' | 'UPDATED'
+  previousState: Record<string, unknown> | null
+  newState: Record<string, unknown>
+  rolledBackAt: string | null
+}
+
+/**
+ * Item in the media enrichment queue for products without imagery.
+ */
+export interface MediaEnrichmentItem {
+  id: string
+  jobId: string | null
+  supplierId: string
+  supplierSku: string
+  manufacturerSku: string | null
+  eanGtin: string | null
+  productName: string
+  brand: string | null
+  enrichmentStatus: MediaEnrichmentStatus
+  imageUrl: string | null
+  imageSourceUrl: string | null
+  imageSourceDomain: string | null
+  imageRightsStatus: ImageRightsStatus
+  enrichedBy: string | null
+  enrichedAt: string | null
+  createdAt: string
+}
+
+/**
+ * Full audit trail entry for import operations.
+ */
+export interface ImportAuditEntry {
+  id: string
+  actor: string | null
+  timestamp: string
+  supplierId: string
+  importJobId: string | null
+  action: ImportAuditAction
+  entityType: string | null
+  entityId: string | null
+  previousValue: unknown | null
+  newValue: unknown | null
+  sourceFilename: string | null
+  sourceRowNumber: number | null
+  notes: string | null
+}
+
+/**
+ * Result returned when a CSV buffer is parsed.
+ */
+export interface ParsedCsvResult {
+  filename: string
+  encoding: 'UTF-8' | 'UTF-8-BOM' | 'LATIN-1' | 'UNKNOWN'
+  delimiter: ',' | ';' | '\t' | 'UNKNOWN'
+  columnNames: string[]
+  rows: Array<Record<string, string>>
+  rowCount: number
+  malformedRows: Array<{ rowNumber: number; rawLine: string; reason: string }>
+  fileHash: string
+}
 
 
 

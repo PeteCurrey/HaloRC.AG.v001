@@ -85,8 +85,8 @@ export async function seed() {
       type: 'DISTRIBUTOR',
       country: 'GB',
       website: 'https://cmldistribution.co.uk',
-      status: 'ACTIVE',
-      notes: 'Authoritative UK distributor for premium race chassis and electronics',
+      status: 'CONTACTED',
+      notes: 'UK distributor for XRAY, HUDY, and competition chassis brands. Contacted for trade account enquiry.',
     },
     {
       id: 'sup-rcmart',

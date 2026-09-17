@@ -60,32 +60,34 @@ function s(
  */
 export const AVORRIA_PROCUREMENT_MASTER: SeedSupplier[] = [
 
-  // ─── CONFIRMED ACTIVE / TRADING ──────────────────────────────────────────
+  // ─── KEY PROSPECTS — CONTACTED (primary trade targets) ───────────────────
 
+  // ⚠️ DATA INTEGRITY: No confirmed account with CML. Status reflects actual known state only.
+  // Do NOT upgrade to APPROVED / ACCOUNT_OPEN / TRADING without confirmed evidence.
   s('sup-cml', 'cml-distribution', 'CML Distribution', 'DISTRIBUTOR', 'United Kingdom',
-    'TRADING', 'ACTIVE', {
+    'CONTACTED', 'PROSPECT', {
       legalName: 'CML Distribution Ltd',
       website: 'https://www.cmldistribution.co.uk',
-      accountReference: 'ACC-AVORRIA-UK-01',
-      contactEmail: 'sales@cmldistribution.co.uk',
-      contactPhone: '+44 1527 575349',
-      dealerEmail: 'trade@cmldistribution.co.uk',
+      // accountReference: null  — no confirmed account reference
+      contactEmail: 'sales@cmldistribution.co.uk',   // publicly listed
+      contactPhone: '+44 1527 575349',                // publicly listed
+      dealerEmail: 'trade@cmldistribution.co.uk',    // publicly listed
       contactPageUrl: 'https://www.cmldistribution.co.uk/contact',
-      notes: 'Primary UK distributor for XRAY, HUDY, and competition chassis brands. Net 30 account approved. Account manager: Mark Edwards.',
-      lastContactedAt: '2026-03-01T10:00:00Z',
+      notes: 'UK distributor for XRAY, HUDY, and competition chassis brands. Contacted for trade account enquiry. No account, credit facility, or commercial terms confirmed.',
+      // lastContactedAt: not confirmed — do not populate
     }),
 
+  // ⚠️ DATA INTEGRITY: No confirmed account with Hobbywing Direct UK. Status reflects actual known state only.
+  // Do NOT upgrade to APPROVED / ACCOUNT_OPEN / TRADING without confirmed evidence.
   s('sup-hobbywing-uk', 'hobbywing-direct-uk', 'Hobbywing Direct UK', 'MANUFACTURER', 'United Kingdom',
-    'TRADING', 'ACTIVE', {
-      legalName: 'Hobbywing Technology UK Ltd',
+    'CONTACTED', 'PROSPECT', {
       website: 'https://www.hobbywing.co.uk',
-      accountReference: 'HW-DIR-449',
-      contactEmail: 'orders@hobbywing.co.uk',
-      contactPhone: '+44 20 8123 4567',
+      // accountReference: null  — no confirmed account reference
+      contactEmail: 'orders@hobbywing.co.uk',   // publicly listed
       dealerEmail: 'trade@hobbywing.co.uk',
       tradeRegistrationUrl: 'https://hobbywing.co.uk/trade',
-      notes: 'Factory direct UK commercial branch. Manufacturer direct for Hobbywing brushless systems. Net 30 approved.',
-      lastContactedAt: '2026-01-12T16:00:00Z',
+      notes: 'UK commercial branch for Hobbywing brushless systems. Contacted for trade account enquiry. No account or commercial terms confirmed.',
+      // lastContactedAt: not confirmed — do not populate
     }),
 
   // ─── CONTACTED ────────────────────────────────────────────────────────────
@@ -127,9 +129,9 @@ export const AVORRIA_PROCUREMENT_MASTER: SeedSupplier[] = [
 
   s('sup-mugen-europe', 'mugen-seiki-europe', 'Mugen Seiki Europe', 'DISTRIBUTOR', 'Germany',
     'CONTACTED', 'PROSPECT', {
-      website: 'https://www.mugen-seiki.eu',
+      website: 'https://www.mugen.eu',
       contactEmail: 'info@mugen-seiki.eu',
-      currency: 'GBP',
+      currency: 'EUR',
       notes: 'European arm of Mugen Seiki (Japan). Contacted for UK dealer/trade account information.',
       lastContactedAt: '2026-02-10T00:00:00Z',
     }),

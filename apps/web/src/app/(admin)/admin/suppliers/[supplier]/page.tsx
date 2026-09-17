@@ -7,6 +7,8 @@ import {
   getSupplierImportExceptions,
   getSupplierSyncRuns,
   getSupplierChangeEvents,
+  getSupplierCommercialTerms,
+  getTradeAccountApplications,
 } from '@halo-rc/db'
 import {
   AdminPageHeader,
@@ -19,6 +21,7 @@ import {
   AdminTabs,
   AdminEmptyState,
 } from '@/components/admin'
+import CatalogueImportTab from './catalogue-import/page'
 
 interface PageProps {
   params: Promise<{ supplier: string }>
@@ -33,13 +36,27 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
   const supplier = await getSupplierById(supplierSlugOrId)
   if (!supplier) notFound()
 
-  const [feeds, products, mappings, exceptions, syncRuns] = await Promise.all([
+  const [feeds, products, mappings, exceptions, syncRuns, commercialTerms, tradeApplications] = await Promise.all([
     getSupplierFeeds(supplier.id),
     getSupplierProducts(supplier.id),
     getSupplierMappings(supplier.id),
     getSupplierImportExceptions(supplier.id),
     getSupplierSyncRuns(supplier.id),
+    getSupplierCommercialTerms(supplier.id),
+    getTradeAccountApplications(supplier.id),
   ])
+
+  const latestApp = tradeApplications[0] ?? null
+  const creditLimit = latestApp?.creditLimitMinorUnits
+    ? `${latestApp.creditCurrency === 'USD' ? '$' : '£'}${(latestApp.creditLimitMinorUnits / 100).toLocaleString()}`
+    : 'Unknown'
+
+  const hasUnverifiedCommercialData =
+    !commercialTerms ||
+    !commercialTerms.isVerified ||
+    commercialTerms.paymentTerms === 'UNKNOWN' ||
+    commercialTerms.paymentTerms === null ||
+    creditLimit === 'Unknown'
 
   const openExceptions = exceptions.filter((e) => e.resolutionStatus === 'OPEN')
   const unmappedMappings = mappings.filter((m) => m.status === 'UNMATCHED')
@@ -50,6 +67,7 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
     { id: 'feeds', label: `Feeds (${feeds.length})`, href: `/admin/suppliers/${supplier.slug}?tab=feeds` },
     { id: 'products', label: `Products (${products.length})`, href: `/admin/suppliers/${supplier.slug}?tab=products` },
     { id: 'mapping', label: `Mapping (${unmappedMappings.length} unmapped)`, href: `/admin/suppliers/${supplier.slug}?tab=mapping` },
+    { id: 'catalogue-import', label: 'Catalogue Import', href: `/admin/suppliers/${supplier.slug}?tab=catalogue-import` },
     { id: 'exceptions', label: `Exceptions (${openExceptions.length})`, href: `/admin/suppliers/${supplier.slug}?tab=exceptions`, badge: openExceptions.length > 0 ? String(openExceptions.length) : undefined },
     { id: 'history', label: `Sync History (${syncRuns.length})`, href: `/admin/suppliers/${supplier.slug}?tab=history` },
   ]
@@ -118,6 +136,77 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
               </span>
             </AdminPanel>
           </div>
+
+          {hasUnverifiedCommercialData && (
+            <div
+              style={{
+                marginBottom: 20,
+                padding: '12px 16px',
+                backgroundColor: '#FFFBEB',
+                border: '1px solid #FDE68A',
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.75rem', color: '#92400E', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  DATA QUALITY WARNING
+                </div>
+                <div style={{ fontSize: '0.8125rem', color: '#B45309', marginTop: 2 }}>
+                  Commercial information requires verification. Trade terms, credit limits, and account status must not be treated as confirmed without signed documentation or verified procurement records.
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AdminPanel title="Commercial & Trade Terms (Provenance Controlled)" padding="lg" style={{ marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, fontSize: 'var(--text-xs)' }}>
+              <div>
+                <span style={{ color: '#767A85' }}>Credit Account Limit:</span>
+                <div style={{ color: creditLimit === 'Unknown' ? '#767A85' : '#111317', fontWeight: 600, marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                  {creditLimit}
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#767A85' }}>Payment Terms:</span>
+                <div style={{ color: !commercialTerms?.paymentTerms || commercialTerms.paymentTerms === 'UNKNOWN' ? '#767A85' : '#111317', fontWeight: 600, marginTop: 2 }}>
+                  {commercialTerms?.paymentTerms ? commercialTerms.paymentTerms.replace('_', ' ') : 'Unknown'}
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#767A85' }}>Trade Discount:</span>
+                <div style={{ color: commercialTerms?.standardDiscountTierPercent ? '#111317' : '#767A85', fontWeight: 600, marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                  {commercialTerms?.standardDiscountTierPercent ? `${commercialTerms.standardDiscountTierPercent}%` : 'Unknown'}
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#767A85' }}>Opening Order Min:</span>
+                <div style={{ color: commercialTerms?.minimumOrderValueMinorUnits ? '#111317' : '#767A85', fontWeight: 600, marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                  {commercialTerms?.minimumOrderValueMinorUnits
+                    ? `${commercialTerms.currency === 'USD' ? '$' : '£'}${(commercialTerms.minimumOrderValueMinorUnits / 100).toLocaleString()}`
+                    : 'Unknown'}
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#767A85' }}>MOQ (Units):</span>
+                <div style={{ color: commercialTerms?.minimumOrderQuantityUnits ? '#111317' : '#767A85', fontWeight: 600, marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                  {commercialTerms?.minimumOrderQuantityUnits ?? 'Unknown'}
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#767A85' }}>Verification Status:</span>
+                <div style={{ marginTop: 2 }}>
+                  <AdminStatus
+                    status={commercialTerms?.isVerified ? 'verified' : 'warning'}
+                    label={commercialTerms?.isVerified ? 'VERIFIED' : 'UNVERIFIED'}
+                  />
+                </div>
+              </div>
+            </div>
+          </AdminPanel>
 
           <AdminPanel title="Connection & Supplier Profile" padding="lg">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, fontSize: 'var(--text-xs)' }}>
@@ -273,6 +362,16 @@ export default async function AdminSupplierDetailPage({ params, searchParams }: 
               </AdminTable>
             )}
           </AdminPanel>
+        </AdminSection>
+      )}
+
+      {/* TAB: CATALOGUE IMPORT */}
+      {activeTab === 'catalogue-import' && (
+        <AdminSection>
+          <CatalogueImportTab
+            supplierId={supplier.id}
+            supplierName={supplier.name}
+          />
         </AdminSection>
       )}
 

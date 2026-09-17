@@ -271,7 +271,7 @@ export default async function SupplierDetailPage({ params }: PageProps) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, fontSize: '0.75rem' }}>
                   <div style={{ padding: '10px 12px', backgroundColor: '#FAFAF9', borderRadius: 4, border: '1px solid #E2E2DE' }}>
                     <span style={{ color: '#767A85', display: 'block', marginBottom: 2, fontSize: '0.6875rem' }}>Payment Terms</span>
-                    <span style={{ color: '#111317', fontWeight: 600 }}>{terms.paymentTerms.replace(/_/g, ' ')} ({terms.paymentTermsDays ?? 0} days)</span>
+                    <span style={{ color: '#111317', fontWeight: 600 }}>{(terms.paymentTerms ?? 'UNSPECIFIED').replace(/_/g, ' ')} ({terms.paymentTermsDays ?? 0} days)</span>
                   </div>
                   <div style={{ padding: '10px 12px', backgroundColor: '#FAFAF9', borderRadius: 4, border: '1px solid #E2E2DE' }}>
                     <span style={{ color: '#767A85', display: 'block', marginBottom: 2, fontSize: '0.6875rem' }}>Standard Margin</span>

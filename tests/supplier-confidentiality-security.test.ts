@@ -6,6 +6,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   getSupplierCommercialTerms,
   getTradeAccountApplications,
+  createTradeAccountApplication,
+  setSupplierCommercialTerms,
   getSupplierDocuments,
   getBrandSupplierRelationships,
   getProductSourcingView,
@@ -30,15 +32,42 @@ describe('Phase 11: Procurement Security, Confidentiality & Epistemological Boun
   })
 
   it('Scenario Q: Wholesale costs, credit limits, and trade margins never leak into public storefront models', async () => {
+    // Set up test commercial terms and application
+    await setSupplierCommercialTerms({
+      supplierId: 'sup-cml',
+      currency: 'GBP',
+      paymentTerms: 'NET_30',
+      paymentTermsDays: 30,
+      earlyPaymentDiscountPercent: 2,
+      minimumOrderQuantityUnits: 1,
+      minimumOrderValueMinorUnits: 15000,
+      freeFreightThresholdMinorUnits: 50000,
+      standardDiscountTierPercent: 35,
+      dropShipAvailable: false,
+      dropShipFeeMinorUnits: null,
+      orderingMethod: 'Web Portal',
+      isVerified: true,
+      verifiedAt: '2026-01-05T14:00:00Z',
+      verifiedBy: 'Test Lead',
+      notes: null,
+    })
+
+    const app = await createTradeAccountApplication({
+      supplierId: 'sup-cml',
+      notes: 'Internal evaluation application',
+      assignedTo: 'buyer@halo-rc.com',
+    })
+    app.creditLimitMinorUnits = 1000000 // £10,000 internal credit line
+
     // Fetch commercial terms (internal procurement data)
     const terms = await getSupplierCommercialTerms('sup-cml')
     expect(terms).toBeDefined()
-    expect(terms?.earlyPaymentDiscountPercent).toBeDefined()
+    expect(terms?.earlyPaymentDiscountPercent).toBe(2)
 
     // Fetch trade account application with internal credit limit
     const apps = await getTradeAccountApplications('sup-cml')
-    const app = apps[0]
-    expect(app?.creditLimitMinorUnits).toBeGreaterThan(0)
+    const activeApp = apps.find((a) => a.id === app.id)
+    expect(activeApp?.creditLimitMinorUnits).toBe(1000000)
 
     // Simulate public product view received by customer
     const publicProductResponse = {

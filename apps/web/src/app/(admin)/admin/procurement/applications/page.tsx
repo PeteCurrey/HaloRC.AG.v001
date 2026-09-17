@@ -48,7 +48,7 @@ export default async function TradeApplicationsPage() {
           title="Avorria RC Commercial Pack • Trade Application Credentials"
           badge={
             <span style={{ fontSize: '0.6875rem', color: '#767A85', fontFamily: 'var(--font-mono, monospace)' }}>
-              Co. No: {companyProfile.companyNumber} • VAT: {companyProfile.vatNumber} • EORI: {companyProfile.eoriNumber}
+              Co. No: {companyProfile.companyNumber || 'Pending'} • VAT: {companyProfile.vatNumber || 'Pending'} • EORI: {companyProfile.eoriNumber || 'Pending'}
             </span>
           }
           padding="md"
@@ -59,10 +59,12 @@ export default async function TradeApplicationsPage() {
                 REGISTERED TRADING ENTITY
               </span>
               <span style={{ color: '#111317', fontWeight: 600, display: 'block', marginBottom: 2 }}>
-                Avorria RC Ltd (Trading as Avorria RC)
+                {companyProfile.legalName || 'Halo RC Ltd'} {companyProfile.tradingName ? `(Trading as ${companyProfile.tradingName})` : ''}
               </span>
               <span style={{ color: '#494D55' }}>
-                {companyProfile.registeredAddress.line1}, {companyProfile.registeredAddress.city} {companyProfile.registeredAddress.postalCode}
+                {companyProfile.registeredAddress.line1
+                  ? `${companyProfile.registeredAddress.line1}, ${companyProfile.registeredAddress.city} ${companyProfile.registeredAddress.postalCode}`
+                  : 'Address pending verification'}
               </span>
             </div>
 
@@ -71,10 +73,12 @@ export default async function TradeApplicationsPage() {
                 COMMERCIAL SETTLEMENT BANK
               </span>
               <span style={{ color: '#111317', fontWeight: 600, display: 'block', marginBottom: 2 }}>
-                {companyProfile.bankDetails.bankName}
+                {companyProfile.bankDetails.bankName || 'Pending Verification'}
               </span>
               <span style={{ color: '#494D55' }}>
-                Sort: {companyProfile.bankDetails.sortCode} • Acc: {companyProfile.bankDetails.accountNumber} • IBAN: {companyProfile.bankDetails.iban}
+                {companyProfile.bankDetails.accountNumber
+                  ? `Sort: ${companyProfile.bankDetails.sortCode} • Acc: ${companyProfile.bankDetails.accountNumber} • IBAN: ${companyProfile.bankDetails.iban}`
+                  : 'Bank details pending manual verification'}
               </span>
             </div>
 
@@ -83,10 +87,14 @@ export default async function TradeApplicationsPage() {
                 VERIFIED TRADE REFERENCES
               </span>
               <span style={{ color: '#111317', fontWeight: 600, display: 'block', marginBottom: 2 }}>
-                {companyProfile.tradeReferences[0]?.companyName} &amp; {companyProfile.tradeReferences[1]?.companyName}
+                {companyProfile.tradeReferences.length > 0
+                  ? companyProfile.tradeReferences.map((r) => r.companyName).join(' & ')
+                  : 'Pending Verification'}
               </span>
               <span style={{ color: '#494D55' }}>
-                2 Verified positive trade credit references with 2+ years clean trading records
+                {companyProfile.tradeReferences.length > 0
+                  ? `${companyProfile.tradeReferences.length} verified trade credit reference(s)`
+                  : 'No trade references on file — manual verification required'}
               </span>
             </div>
           </div>

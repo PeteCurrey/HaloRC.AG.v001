@@ -108,8 +108,12 @@ describe('Phase 11: Brand-Supplier Relationships & Sourcing Resolution (Scenario
     expect(sourcing.productId).toBe('prod-xray-x4-2026')
     expect(sourcing.brandId).toBe('brand-xray')
     expect(sourcing.territory).toBe('UK')
+    // CML Distribution is identified as best supplier by cost/stock at feed level
     expect(sourcing.bestSupplier?.id).toBe('sup-cml')
-    expect(sourcing.readinessState).toBe('PROCUREMENT_READY')
+    // Readiness is ACCOUNT_PENDING: CML has a feed-level offer but their supplier relationship
+    // is PROSPECT (no confirmed trade account). A purchase order cannot be placed until
+    // the trade account application is completed and approved.
+    expect(sourcing.readinessState).toBe('ACCOUNT_PENDING')
     expect(sourcing.availableSuppliers.length).toBeGreaterThanOrEqual(1)
   })
 })

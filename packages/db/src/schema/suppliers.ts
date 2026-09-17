@@ -424,7 +424,7 @@ export const supplierCommercialTerms = pgTable('supplier_commercial_terms', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   supplierId: text('supplier_id').notNull().references(() => suppliers.id, { onDelete: 'cascade' }),
   currency: text('currency').notNull().default('GBP'),
-  paymentTerms: text('payment_terms').notNull().default('PREPAYMENT'),
+  paymentTerms: text('payment_terms'),
   paymentTermsDays: integer('payment_terms_days'),
   earlyPaymentDiscountPercent: integer('early_payment_discount_percent'),
   minimumOrderQuantityUnits: integer('minimum_order_quantity_units'),

@@ -510,6 +510,89 @@ export function __getRawProcurementCounts() {
   }
 }
 
+/**
+ * TEST-ONLY: Inject a supplier offer directly into the in-memory store.
+ * Use ONLY in hermetic unit tests to set up fully-qualified PROCUREMENT_READY
+ * scenarios without relying on fabricated seed data.
+ * MUST NOT be called in production paths.
+ */
+export function __addSupplierOfferForTesting(offer: SupplierOffer): void {
+  SUPPLIER_OFFERS_STORE.push(offer)
+}
+
+/**
+ * TEST-ONLY: Inject a supplier product mapping directly into the in-memory store.
+ * Use ONLY in hermetic unit tests to set up MATCHED mapping scenarios.
+ * MUST NOT be called in production paths.
+ */
+export function __addSupplierMappingForTesting(mapping: SupplierProductMapping): void {
+  SUPPLIER_MAPPINGS_STORE.push(mapping)
+}
+
+// ── CSV Import Pipeline Bridge ─────────────────────────────────────────────────
+// These functions allow the CSV import pipeline to mutate supplier_products
+// without creating circular imports between csv-imports.ts and procurement.ts.
+
+/**
+ * Direct reference to the supplier products store for import commit operations.
+ * The import pipeline reads this for match detection and passes it to commitImportJob().
+ */
+export const SUPPLIER_PRODUCTS_STORE_FOR_IMPORT = (() => {
+  // Return a live proxy that always reflects the current store contents
+  return new Proxy([] as typeof SUPPLIER_PRODUCTS_STORE, {
+    get(_target, prop) {
+      if (prop === 'length') return SUPPLIER_PRODUCTS_STORE.length
+      if (prop === Symbol.iterator) return () => SUPPLIER_PRODUCTS_STORE[Symbol.iterator]()
+      if (prop === 'find') return (fn: (p: typeof SUPPLIER_PRODUCTS_STORE[0]) => boolean) => SUPPLIER_PRODUCTS_STORE.find(fn)
+      if (prop === 'filter') return (fn: (p: typeof SUPPLIER_PRODUCTS_STORE[0]) => boolean) => SUPPLIER_PRODUCTS_STORE.filter(fn)
+      if (prop === 'map') return (fn: (p: typeof SUPPLIER_PRODUCTS_STORE[0], i: number, a: typeof SUPPLIER_PRODUCTS_STORE) => unknown) => SUPPLIER_PRODUCTS_STORE.map(fn)
+      if (typeof prop === 'string' && !isNaN(Number(prop))) return SUPPLIER_PRODUCTS_STORE[Number(prop)]
+      return undefined
+    },
+  })
+})()
+
+/**
+ * Create a new supplier product from the import pipeline.
+ */
+export function onCreateSupplierProductFromImport(product: SupplierProduct): void {
+  SUPPLIER_PRODUCTS_STORE.push(product)
+}
+
+/**
+ * Update an existing supplier product from the import pipeline.
+ */
+export function onUpdateSupplierProductFromImport(
+  id: string,
+  updates: Partial<SupplierProduct>
+): void {
+  const idx = SUPPLIER_PRODUCTS_STORE.findIndex((p) => p.id === id)
+  if (idx >= 0) {
+    SUPPLIER_PRODUCTS_STORE[idx] = { ...SUPPLIER_PRODUCTS_STORE[idx]!, ...updates }
+  }
+}
+
+/**
+ * Delete a supplier product created by an import (used during rollback).
+ */
+export function onDeleteSupplierProductFromImport(id: string): void {
+  const idx = SUPPLIER_PRODUCTS_STORE.findIndex((p) => p.id === id)
+  if (idx >= 0) SUPPLIER_PRODUCTS_STORE.splice(idx, 1)
+}
+
+/**
+ * Restore a supplier product to its pre-import state (used during rollback).
+ */
+export function onRestoreSupplierProductFromImport(
+  id: string,
+  previousState: Record<string, unknown>
+): void {
+  const idx = SUPPLIER_PRODUCTS_STORE.findIndex((p) => p.id === id)
+  if (idx >= 0) {
+    SUPPLIER_PRODUCTS_STORE[idx] = previousState as unknown as SupplierProduct
+  }
+}
+
 // ── Normalization Engine ───────────────────────────────────────────────────────
 
 /**
@@ -598,7 +681,7 @@ export function normalizeSupplierItem(raw: RawSupplierFeedItem): NormalizedSuppl
     brandName,
     costMinorUnits: parsedCost,
     rrpMinorUnits: parsedRrp,
-    currency: raw.currency === 'USD' ? 'USD' : 'GBP',
+    currency: raw.currency === 'USD' ? 'USD' : raw.currency === 'EUR' ? 'EUR' : 'GBP',
     availability,
     quantity: qty,
     leadTimeDays: leadDays,
@@ -1670,56 +1753,45 @@ export async function getProductDataLineage(canonicalProductId: string): Promise
 // ─── Phase 11: Supplier Network Activation, Trade Accounts & Relationships ───────
 
 export const HALO_BUSINESS_PROFILE: HaloCompanyProfile = {
-  legalName: 'Halo RC Ltd',
-  tradingName: 'Halo RC',
-  companyNumber: '14598721',
-  vatNumber: 'GB 432 9876 54',
-  eoriNumber: 'GB432987654000',
+  // ⚠️ DATA INTEGRITY — All fields below marked TODO require confirmation from Peter Currey
+  // before this profile is used in any real supplier communication or trade application.
+  // Do NOT send this profile to any supplier until verified.
+  legalName: 'Halo RC Ltd',          // TODO: confirm legal entity name
+  tradingName: 'Halo RC',            // TODO: confirm trading name
+  companyNumber: '',                 // TODO: populate with confirmed Companies House number
+  vatNumber: '',                     // TODO: populate with confirmed HMRC VAT number
+  eoriNumber: '',                    // TODO: populate with confirmed EORI number
   registeredAddress: {
-    line1: 'Unit 4, Speedwell Commercial Centre',
-    line2: 'Precision Way',
-    city: 'Silverstone',
-    postalCode: 'NN12 8TJ',
+    line1: '',                       // TODO: confirm registered address
+    line2: '',
+    city: '',
+    postalCode: '',
     country: 'United Kingdom',
   },
   tradingAddress: {
-    line1: 'Unit 4, Speedwell Commercial Centre',
-    line2: 'Precision Way',
-    city: 'Silverstone',
-    postalCode: 'NN12 8TJ',
+    line1: '',                       // TODO: confirm trading address
+    line2: '',
+    city: '',
+    postalCode: '',
     country: 'United Kingdom',
   },
   primaryContact: {
-    name: 'Peter Currey',
-    title: 'Managing Director & Head of Procurement',
-    email: 'procurement@avorria.com',
-    phone: '+44 1327 850123',
+    name: 'Peter Currey',            // confirmed
+    title: '',                       // TODO: confirm title
+    email: '',                       // TODO: confirm procurement email address
+    phone: '',                       // TODO: confirm phone number
   },
   bankDetails: {
-    bankName: 'Barclays Bank UK PLC',
-    accountName: 'Avorria RC Ltd Client Clearing',
-    sortCode: '20-00-00',
-    accountNumber: '83920194',
-    iban: 'GB29BARC20000083920194',
-    swiftBic: 'BARCGB22',
+    bankName: '',                    // TODO: confirm bank
+    accountName: '',                 // TODO: confirm account name
+    sortCode: '',                    // TODO: confirm sort code
+    accountNumber: '',               // TODO: confirm account number
+    iban: '',                        // TODO: confirm IBAN
+    swiftBic: '',                    // TODO: confirm SWIFT/BIC
   },
-  tradeReferences: [
-    {
-      companyName: 'Apex Racing Components UK',
-      contactName: 'David Vance',
-      email: 'accounts@apex-rc.co.uk',
-      phone: '+44 1908 554321',
-      relationship: 'Component Supplier (3+ years trading, £50k+ annual spend, always paid on terms)',
-    },
-    {
-      companyName: 'Precision Dynamics International',
-      contactName: 'Sarah Jenkins',
-      email: 'credit@precisiondynamics.com',
-      phone: '+44 116 233 4455',
-      relationship: 'Tooling & Machining Partner (2+ years trading, Net 30 account)',
-    },
-  ],
+  tradeReferences: [],              // TODO: populate with real verified trade references only
 }
+
 
 export function getHaloBusinessProfile(): HaloCompanyProfile {
   return HALO_BUSINESS_PROFILE
@@ -1965,124 +2037,22 @@ const INITIAL_BRAND_RELATIONSHIPS: BrandSupplierRelationship[] = [
   },
 ]
 
+
 const INITIAL_TRADE_APPLICATIONS: TradeAccountApplication[] = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // taa-cml REMOVED — fabricated APPROVED account with £25,000 credit limit.
+  // CML Distribution has CONTACTED status only. No account, no credit facility confirmed.
+  // Re-add this record only when an actual trade application has been submitted.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // taa-hw REMOVED — fabricated APPROVED account for Hobbywing Direct UK.
+  // Hobbywing Direct UK has CONTACTED status only. No account confirmed.
+  // ─────────────────────────────────────────────────────────────────────────
+
   {
-    id: 'taa-cml',
-    supplierId: 'sup-cml',
-    applicantEntityName: 'Halo RC Ltd',
-    status: 'APPROVED',
-    stage: 'ACTIVE_SUPPLIER',
-    submittedAt: '2026-01-02T10:00:00Z',
-    reviewedAt: '2026-01-04T15:00:00Z',
-    approvedAt: '2026-01-05T14:00:00Z',
-    rejectedAt: null,
-    assignedTo: 'Peter Currey',
-    accountReference: 'ACC-HALO-UK-01',
-    creditLimitMinorUnits: 2500000,
-    creditCurrency: 'GBP',
-    notes: 'Approved Net 30 credit facility with £25k limit and 2% 10-day settlement discount.',
-    requirements: [
-      {
-        id: 'tar-cml-comp-reg',
-        applicationId: 'taa-cml',
-        requirementType: 'COMPANY_REGISTRATION',
-        title: 'UK Companies House Certificate of Incorporation',
-        description: 'Verified registration certificate for Halo RC Ltd (14598721)',
-        status: 'VERIFIED',
-        documentId: 'sdoc-halo-comp-reg',
-        verifiedAt: '2026-01-04T10:00:00Z',
-        verifiedBy: 'Mark Edwards',
-        createdAt: '2026-01-02T10:00:00Z',
-        updatedAt: '2026-01-04T10:00:00Z',
-      },
-      {
-        id: 'tar-cml-vat',
-        applicationId: 'taa-cml',
-        requirementType: 'VAT_NUMBER',
-        title: 'HMRC VAT Registration Certificate',
-        description: 'GB 432 9876 54 confirmed on VIES',
-        status: 'VERIFIED',
-        documentId: 'sdoc-halo-vat-cert',
-        verifiedAt: '2026-01-04T10:00:00Z',
-        verifiedBy: 'Mark Edwards',
-        createdAt: '2026-01-02T10:00:00Z',
-        updatedAt: '2026-01-04T10:00:00Z',
-      },
-      {
-        id: 'tar-cml-refs',
-        applicationId: 'taa-cml',
-        requirementType: 'TRADE_REFERENCES',
-        title: 'Two Positive Trade Credit References',
-        description: 'References from Apex RC and Precision Dynamics verified.',
-        status: 'VERIFIED',
-        documentId: null,
-        verifiedAt: '2026-01-05T11:00:00Z',
-        verifiedBy: 'Brenda Phillips',
-        createdAt: '2026-01-02T10:00:00Z',
-        updatedAt: '2026-01-05T11:00:00Z',
-      },
-      {
-        id: 'tar-cml-bank',
-        applicationId: 'taa-cml',
-        requirementType: 'BANK_DETAILS',
-        title: 'Bank Verification Letter',
-        description: 'Barclays Bank business account confirmation.',
-        status: 'VERIFIED',
-        documentId: null,
-        verifiedAt: '2026-01-04T12:00:00Z',
-        verifiedBy: 'Brenda Phillips',
-        createdAt: '2026-01-02T10:00:00Z',
-        updatedAt: '2026-01-04T12:00:00Z',
-      },
-    ],
-    createdAt: '2026-01-02T10:00:00Z',
-    updatedAt: '2026-01-05T14:00:00Z',
-  },
-  {
-    id: 'taa-hw',
-    supplierId: 'sup-hobbywing-uk',
-    applicantEntityName: 'Halo RC Ltd',
-    status: 'APPROVED',
-    stage: 'ACTIVE_SUPPLIER',
-    submittedAt: '2026-01-10T12:00:00Z',
-    reviewedAt: '2026-01-11T14:00:00Z',
-    approvedAt: '2026-01-12T16:00:00Z',
-    rejectedAt: null,
-    assignedTo: 'Peter Currey',
-    accountReference: 'HW-DIR-449',
-    creditLimitMinorUnits: 1000000,
-    creditCurrency: 'GBP',
-    notes: 'Approved manufacturer direct trade account.',
-    requirements: [
-      {
-        id: 'tar-hw-reg',
-        applicationId: 'taa-hw',
-        requirementType: 'COMPANY_REGISTRATION',
-        title: 'Company Registration',
-        status: 'VERIFIED',
-        documentId: null,
-        verifiedAt: '2026-01-11T14:00:00Z',
-        verifiedBy: 'Andrew Miller',
-        createdAt: '2026-01-10T12:00:00Z',
-        updatedAt: '2026-01-11T14:00:00Z',
-      },
-      {
-        id: 'tar-hw-vat',
-        applicationId: 'taa-hw',
-        requirementType: 'VAT_NUMBER',
-        title: 'VAT Number',
-        status: 'VERIFIED',
-        documentId: null,
-        verifiedAt: '2026-01-11T14:00:00Z',
-        verifiedBy: 'Andrew Miller',
-        createdAt: '2026-01-10T12:00:00Z',
-        updatedAt: '2026-01-11T14:00:00Z',
-      },
-    ],
-    createdAt: '2026-01-10T12:00:00Z',
-    updatedAt: '2026-01-12T16:00:00Z',
-  },
-  {
+    // ⚠️ REQUIRES MANUAL VERIFICATION — confirm with Peter Currey whether this
+    // application was actually submitted before treating this record as factual.
     id: 'taa-horizon',
     supplierId: 'sup-horizon-us',
     applicantEntityName: 'Halo RC Ltd',
@@ -2096,7 +2066,7 @@ const INITIAL_TRADE_APPLICATIONS: TradeAccountApplication[] = [
     accountReference: null,
     creditLimitMinorUnits: null,
     creditCurrency: 'USD',
-    notes: 'Application submitted for US dealer pricing. Pending US bank trade reference check.',
+    notes: 'Application submitted for US dealer pricing. Pending US bank trade reference check. ⚠️ REQUIRES MANUAL VERIFICATION — confirm application was actually submitted.',
     requirements: [
       {
         id: 'tar-horizon-corp',
@@ -2107,7 +2077,7 @@ const INITIAL_TRADE_APPLICATIONS: TradeAccountApplication[] = [
         status: 'VERIFIED',
         documentId: null,
         verifiedAt: '2026-02-18T16:00:00Z',
-        verifiedBy: 'Jason Vance',
+        verifiedBy: null,  // verifier name removed — was fabricated
         createdAt: '2026-02-15T11:00:00Z',
         updatedAt: '2026-02-18T16:00:00Z',
       },
@@ -2143,107 +2113,94 @@ const INITIAL_TRADE_APPLICATIONS: TradeAccountApplication[] = [
   },
 ]
 
+
+
 const INITIAL_COMMERCIAL_TERMS: SupplierCommercialTerms[] = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // sct-cml-gbp — Commercial terms are UNVERIFIED. No credit account, payment terms,
+  // trade discount, or credit limit has been confirmed with CML Distribution.
+  // ─────────────────────────────────────────────────────────────────────────
   {
     id: 'sct-cml-gbp',
     supplierId: 'sup-cml',
     currency: 'GBP',
-    paymentTerms: 'NET_30',
-    paymentTermsDays: 30,
-    earlyPaymentDiscountPercent: 2,
-    minimumOrderQuantityUnits: 1,
-    minimumOrderValueMinorUnits: 15000,
-    freeFreightThresholdMinorUnits: 50000,
-    standardDiscountTierPercent: 35,
+    paymentTerms: 'UNKNOWN',
+    paymentTermsDays: null,
+    earlyPaymentDiscountPercent: null,
+    minimumOrderQuantityUnits: null,
+    minimumOrderValueMinorUnits: null,
+    freeFreightThresholdMinorUnits: null,
+    standardDiscountTierPercent: null,
     dropShipAvailable: false,
     dropShipFeeMinorUnits: null,
-    orderingMethod: 'B2B Web Portal & CSV Integration',
-    isVerified: true,
-    verifiedAt: '2026-01-05T14:00:00Z',
-    verifiedBy: 'Peter Currey',
-    notes: 'Standard trade dealer pricing. Carriage paid at £500. Next-day dispatch on stock orders placed by 15:00.',
-    createdAt: '2026-01-05T14:00:00Z',
-    updatedAt: '2026-01-05T14:00:00Z',
-  },
-  {
-    id: 'sct-hw-gbp',
-    supplierId: 'sup-hobbywing-uk',
-    currency: 'GBP',
-    paymentTerms: 'NET_30',
-    paymentTermsDays: 30,
-    earlyPaymentDiscountPercent: null,
-    minimumOrderQuantityUnits: 5,
-    minimumOrderValueMinorUnits: 25000,
-    freeFreightThresholdMinorUnits: 60000,
-    standardDiscountTierPercent: 30,
-    dropShipAvailable: false,
-    dropShipFeeMinorUnits: null,
-    orderingMethod: 'REST API & Direct EDI',
-    isVerified: true,
-    verifiedAt: '2026-01-12T16:00:00Z',
-    verifiedBy: 'Peter Currey',
-    notes: 'Tier 1 dealer margin. Minimum order quantity 5 units across any brushless motor / ESC combinations.',
-    createdAt: '2026-01-12T16:00:00Z',
-    updatedAt: '2026-01-12T16:00:00Z',
-  },
-  {
-    id: 'sct-horizon-usd',
-    supplierId: 'sup-horizon-us',
-    currency: 'USD',
-    paymentTerms: 'NET_30',
-    paymentTermsDays: 30,
-    earlyPaymentDiscountPercent: null,
-    minimumOrderQuantityUnits: 1,
-    minimumOrderValueMinorUnits: 50000,
-    freeFreightThresholdMinorUnits: 200000,
-    standardDiscountTierPercent: 28,
-    dropShipAvailable: true,
-    dropShipFeeMinorUnits: 500,
-    orderingMethod: 'Dealer Portal & Automated CSV',
+    orderingMethod: null,
     isVerified: false,
     verifiedAt: null,
     verifiedBy: null,
-    notes: 'Draft terms under review pending trade application approval.',
+    notes: 'UNVERIFIED — No confirmed commercial terms or credit facility. Requires formal trade application.',
+    createdAt: '2026-01-05T14:00:00Z',
+    updatedAt: '2026-01-05T14:00:00Z',
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // sct-hw-gbp REMOVED — fabricated verified commercial terms for Hobbywing.
+  // Payment terms, discount, and MOQ were invented. No confirmed account exists.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  {
+    // ⚠️ UNVERIFIED — draft terms only. Application not yet approved.
+    // All numeric values are unconfirmed and must not be presented as fact.
+    id: 'sct-horizon-usd',
+    supplierId: 'sup-horizon-us',
+    currency: 'USD',
+    paymentTerms: 'UNKNOWN',
+    paymentTermsDays: null,
+    earlyPaymentDiscountPercent: null,
+    minimumOrderQuantityUnits: null,
+    minimumOrderValueMinorUnits: null,
+    freeFreightThresholdMinorUnits: null,
+    standardDiscountTierPercent: null,
+    dropShipAvailable: false,
+    dropShipFeeMinorUnits: null,
+    orderingMethod: null,
+    isVerified: false,
+    verifiedAt: null,
+    verifiedBy: null,
+    notes: 'UNVERIFIED — draft terms. No confirmed terms until application is approved.',
     createdAt: '2026-02-15T11:00:00Z',
     updatedAt: '2026-02-15T11:00:00Z',
   },
   {
+    // ⚠️ UNVERIFIED — RC Mart is RESEARCH status. Terms are unconfirmed.
     id: 'sct-rcmart-usd',
     supplierId: 'sup-rcmart',
     currency: 'USD',
-    paymentTerms: 'PREPAYMENT',
-    paymentTermsDays: 0,
+    paymentTerms: 'UNKNOWN',
+    paymentTermsDays: null,
     earlyPaymentDiscountPercent: null,
-    minimumOrderQuantityUnits: 1,
-    minimumOrderValueMinorUnits: 10000,
+    minimumOrderQuantityUnits: null,
+    minimumOrderValueMinorUnits: null,
     freeFreightThresholdMinorUnits: null,
-    standardDiscountTierPercent: 20,
+    standardDiscountTierPercent: null,
     dropShipAvailable: false,
     dropShipFeeMinorUnits: null,
-    orderingMethod: 'Wholesale B2B Cart & JSON API',
-    isVerified: true,
-    verifiedAt: '2026-01-05T09:00:00Z',
-    verifiedBy: 'Peter Currey',
-    notes: 'Prepayment wire or company credit card. Freight charged at actual cost per consignment.',
+    orderingMethod: null,
+    isVerified: false,
+    verifiedAt: null,
+    verifiedBy: null,
+    notes: 'UNVERIFIED — no confirmed commercial terms. Requires trade enquiry.',
     createdAt: '2026-01-05T09:00:00Z',
     updatedAt: '2026-01-05T09:00:00Z',
   },
 ]
 
 const INITIAL_PRICING_POLICIES: SupplierPricingPolicy[] = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // spp-cml-xray REMOVED — fabricated RRP policy tied to a non-existent account.
+  // Re-add only when a confirmed dealer agreement with CML is in place.
+  // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'spp-cml-xray',
-    supplierId: 'sup-cml',
-    brandId: 'brand-xray',
-    policyType: 'RRP',
-    enforcementLevel: 'STRICT',
-    minimumAdvertisedPricePercent: 100,
-    policyUrl: 'https://cmldistribution.co.uk/policies/rrp',
-    notes: 'Strict compliance with factory recommended retail pricing. No advertised discounting without prior clearance.',
-    createdAt: '2026-01-05T14:00:00Z',
-    updatedAt: '2026-01-05T14:00:00Z',
-  },
-  {
+
     id: 'spp-horizon-arrma',
     supplierId: 'sup-horizon-us',
     brandId: 'brand-arrma',
@@ -2258,52 +2215,22 @@ const INITIAL_PRICING_POLICIES: SupplierPricingPolicy[] = [
 ]
 
 const INITIAL_CONTACTS: SupplierContact[] = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // ct-cml-sales REMOVED — Mark Edwards was a fabricated named contact.
+  // No confirmed named contact exists at CML Distribution.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ct-cml-credit REMOVED — Brenda Phillips was a fabricated named contact.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ct-hw-trade REMOVED — Andrew Miller was a fabricated named contact.
+  // No confirmed named contact exists at Hobbywing Direct UK.
+  // ─────────────────────────────────────────────────────────────────────────
+
   {
-    id: 'ct-cml-sales',
-    supplierId: 'sup-cml',
-    firstName: 'Mark',
-    lastName: 'Edwards',
-    name: 'Mark Edwards',
-    role: 'COMMERCIAL_SALES',
-    title: 'National Accounts Manager',
-    email: 'medwards@cmldistribution.co.uk',
-    phone: '+44 1527 575349',
-    isPrimary: true,
-    notes: 'Primary liaison for competition chassis pre-orders and stock allocations.',
-    createdAt: '2026-01-05T10:00:00Z',
-    updatedAt: '2026-01-05T10:00:00Z',
-  },
-  {
-    id: 'ct-cml-credit',
-    supplierId: 'sup-cml',
-    firstName: 'Brenda',
-    lastName: 'Phillips',
-    name: 'Brenda Phillips',
-    role: 'CREDIT',
-    title: 'Credit Control Lead',
-    email: 'accounts@cmldistribution.co.uk',
-    phone: '+44 1527 575350',
-    isPrimary: false,
-    notes: 'Trade terms, statements, and payment remittance verification.',
-    createdAt: '2026-01-05T10:00:00Z',
-    updatedAt: '2026-01-05T10:00:00Z',
-  },
-  {
-    id: 'ct-hw-trade',
-    supplierId: 'sup-hobbywing-uk',
-    firstName: 'Andrew',
-    lastName: 'Miller',
-    name: 'Andrew Miller',
-    role: 'TRADE_ACCOUNTS',
-    title: 'UK Trade Coordinator',
-    email: 'orders@hobbywing.co.uk',
-    phone: '+44 20 8123 4567',
-    isPrimary: true,
-    notes: 'Direct contact for brushless team allocations and factory warranties.',
-    createdAt: '2026-01-10T12:00:00Z',
-    updatedAt: '2026-01-10T12:00:00Z',
-  },
-  {
+    // ⚠️ REQUIRES MANUAL VERIFICATION — confirm Jason Vance is a real contact.
     id: 'ct-horizon-dealer',
     supplierId: 'sup-horizon-us',
     firstName: 'Jason',
@@ -2311,29 +2238,22 @@ const INITIAL_CONTACTS: SupplierContact[] = [
     name: 'Jason Vance',
     role: 'TRADE_ACCOUNTS',
     title: 'Dealer Onboarding Specialist',
-    email: 'dealer-services@horizonhobby.com',
-    phone: '+1 800 338 4639',
+    email: 'dealer-services@horizonhobby.com',   // publicly listed dealer services email
+    phone: '+1 800 338 4639',                     // publicly listed toll-free number
     isPrimary: true,
-    notes: 'Account manager reviewing North American dealer opening documentation.',
+    notes: 'Contact for Horizon Hobby dealer applications. ⚠️ REQUIRES VERIFICATION — confirm contact is real.',
     createdAt: '2026-02-15T11:00:00Z',
     updatedAt: '2026-02-15T11:00:00Z',
   },
 ]
 
+
 const INITIAL_COMMUNICATIONS: SupplierCommunication[] = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // scomm-cml-01 REMOVED — fabricated communication claiming Net 30 £25k approval.
+  // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'scomm-cml-01',
-    supplierId: 'sup-cml',
-    contactId: 'ct-cml-sales',
-    type: 'EMAIL',
-    subject: 'Trade Account Approval & Q1 Allocations',
-    summary: 'Confirmed approval of Net 30 trade account with £25k limit and priority allocation on XRAY X4 2026 touring kits.',
-    loggedBy: 'Peter Currey',
-    occurredAt: '2026-01-05T14:30:00Z',
-    nextFollowUpDate: null,
-    createdAt: '2026-01-05T14:30:00Z',
-  },
-  {
+    // ⚠️ REQUIRES MANUAL VERIFICATION — confirm application was actually submitted.
     id: 'scomm-horizon-01',
     supplierId: 'sup-horizon-us',
     contactId: 'ct-horizon-dealer',
@@ -2348,34 +2268,14 @@ const INITIAL_COMMUNICATIONS: SupplierCommunication[] = [
 ]
 
 const INITIAL_DOCUMENTS: SupplierDocument[] = [
-  {
-    id: 'sdoc-cml-agreement',
-    supplierId: 'sup-cml',
-    documentType: 'DEALER_APPLICATION',
-    title: 'CML Dealer Terms & Account Agreement 2026.pdf',
-    fileUrl: '/procurement/docs/cml-dealer-agreement-2026.pdf',
-    fileSize: 412000,
-    mimeType: 'application/pdf',
-    uploadedBy: 'Peter Currey',
-    expiresAt: '2026-12-31T23:59:59Z',
-    createdAt: '2026-01-05T14:00:00Z',
-  },
-  {
-    id: 'sdoc-cml-price-list',
-    supplierId: 'sup-cml',
-    documentType: 'PRICE_LIST',
-    title: 'CML XRAY Trade Price Schedule Q1 2026.xlsx',
-    fileUrl: '/procurement/docs/cml-xray-trade-q1.xlsx',
-    fileSize: 1850000,
-    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    uploadedBy: 'Peter Currey',
-    expiresAt: '2026-04-30T23:59:59Z',
-    createdAt: '2026-01-05T14:00:00Z',
-  },
+  // ─────────────────────────────────────────────────────────────────────────
+  // sdoc-cml-agreement and sdoc-cml-price-list REMOVED — non-existent mock documents.
+  // ─────────────────────────────────────────────────────────────────────────
 ]
 
 const INITIAL_TASKS: ProcurementTask[] = [
   {
+    // ⚠️ REQUIRES MANUAL VERIFICATION — only relevant if Horizon application is real.
     id: 'ptask-horizon-refs',
     supplierId: 'sup-horizon-us',
     taskType: 'PROVIDE_TRADE_REFERENCES',
@@ -2389,20 +2289,9 @@ const INITIAL_TASKS: ProcurementTask[] = [
     createdAt: '2026-02-18T16:30:00Z',
     updatedAt: '2026-02-18T16:30:00Z',
   },
-  {
-    id: 'ptask-cml-review',
-    supplierId: 'sup-cml',
-    taskType: 'REVIEW_COMMERCIALS',
-    title: 'Quarterly race team rebate & volume tier review',
-    description: 'Review Q1 purchasing volume to trigger 3% additional retrospective annual rebate tier.',
-    status: 'OPEN',
-    priority: 'MEDIUM',
-    dueDate: '2026-04-01',
-    assignedTo: 'Peter Currey',
-    completedAt: null,
-    createdAt: '2026-01-10T10:00:00Z',
-    updatedAt: '2026-01-10T10:00:00Z',
-  },
+  // ─────────────────────────────────────────────────────────────────────────
+  // ptask-cml-review REMOVED — presupposed an active trading account with rebates.
+  // ─────────────────────────────────────────────────────────────────────────
 ]
 
 // Mutable In-Memory Stores for Phase 11
@@ -2695,12 +2584,10 @@ export async function updateTradeAccountApplicationStatus(
   } else if (status === 'APPROVED') {
     app.approvedAt = now
     app.stage = 'ACCOUNT_OPENED'
-    // Also activate supplier relationship if previously prospect/applied
-    const supplier = SUPPLIERS_STORE.find((s) => s.id === app.supplierId)
-    if (supplier) {
-      supplier.relationshipStatus = 'ACTIVE'
-      if (details?.accountReference) supplier.accountReference = details.accountReference
-    }
+    // ⚠️ NO AUTOMATIC STATUS PROGRESSION (§7):
+    // Supplier status must never progress automatically. Each state change
+    // must represent a real procurement event explicitly entered by an authorised user.
+    // supplier.relationshipStatus is NOT mutated automatically here.
   } else if (status === 'REJECTED') {
     app.rejectedAt = now
   }
@@ -3488,6 +3375,13 @@ export async function getProcurementDataQualityReport(): Promise<{
     alerts.push({
       severity: 'CRITICAL',
       message: `${staleOffers.length} supplier inventory offers are stale and require synchronisation.`,
+    })
+  }
+
+  if (unverifiedTerms.length > 0) {
+    alerts.push({
+      severity: 'CRITICAL',
+      message: `${unverifiedTerms.length} supplier commercial term record(s) require verification — do not treat as confirmed.`,
     })
   }
 
