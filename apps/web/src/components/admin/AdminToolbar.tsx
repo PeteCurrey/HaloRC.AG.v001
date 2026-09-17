@@ -2,17 +2,21 @@ import React from 'react'
 
 export interface AdminToolbarProps {
   children: React.ReactNode
-  rightActions?: React.ReactNode
-  style?: React.CSSProperties
-  className?: string
+  rightActions?: React.ReactNode | undefined
+  actions?: React.ReactNode | undefined
+  style?: React.CSSProperties | undefined
+  className?: string | undefined
 }
 
 export function AdminToolbar({
   children,
   rightActions,
+  actions,
   style,
   className,
 }: AdminToolbarProps) {
+  const actualRightActions = rightActions ?? actions
+
   return (
     <div
       className={className}
@@ -43,16 +47,15 @@ export function AdminToolbar({
         {children}
       </div>
 
-      {rightActions && (
+      {actualRightActions && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            flexShrink: 0,
           }}
         >
-          {rightActions}
+          {actualRightActions}
         </div>
       )}
     </div>
