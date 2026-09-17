@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import s from './SiteFooter.module.css'
-import { HaloLogo } from '@/components/brand/HaloLogo'
+import { AvorriaMark } from '@/components/brand/AvorriaMark'
 
 export function SiteFooter() {
   return (
@@ -9,8 +9,7 @@ export function SiteFooter() {
         {/* Brand identity column */}
         <div className={s.brandColumn}>
           <Link href="/" className={s.logoRow} aria-label="Avorria RC — Home">
-            <HaloLogo style={{ width: 24, height: 24 }} />
-            <span className={s.logoText}>Avorria RC</span>
+            <AvorriaMark variant="light" className={s.footerWordmark} />
           </Link>
           <p className={s.brandDesc}>
             Remote Control. Without Compromise. Premium competition hardware and specialist racing department.

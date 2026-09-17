@@ -1,190 +1,21 @@
-.hero {
-  position: relative;
-  min-height: 100svh;
-  margin-top: calc(-1 * var(--nav-height));
-  padding-top: var(--nav-height);
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  background-color: var(--colour-void);
-  isolation: isolate;
-}
-
-/* ─── Background imagery ──────────────────────────────────────────────── */
-
-.heroBg {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.heroBg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  will-change: transform;
-}
-
-@supports (animation-timeline: scroll()) {
-  .heroBg img {
-    animation: heroParallax linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 60vh;
-  }
-}
-
-@keyframes heroParallax {
-  from { transform: translateY(0) scale(1.05); }
-  to   { transform: translateY(8%) scale(1.05); }
-}
-
-/* Gradient scrim — protects text legibility with subtle ignition warm vignette */
-.heroScrim {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse 65% 55% at 72% 45%,
-      var(--colour-ignition-10) 0%,
-      rgba(242, 84, 11, 0.03) 45%,
-      transparent 70%
-    ),
-    linear-gradient(
-      to top,
-      rgba(8, 8, 8, 0.92) 0%,
-      rgba(8, 8, 8, 0.55) 45%,
-      rgba(8, 8, 8, 0.2) 75%,
-      transparent 100%
-    );
-}
-
-/* Top scrim — nav breathing room */
-.heroScrimTop {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(8, 8, 8, 0.5) 0%,
-      transparent 30%
-    );
-}
-
-/* ─── Content ─────────────────────────────────────────────────────────── */
-
-.heroContent {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  max-width: var(--container-wide);
-  margin-inline: auto;
-  padding-inline: var(--gutter-lg);
-  padding-block: var(--space-8);
-
+.pageWrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  width: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-canvas);
 }
 
-@media (min-width: 1024px) {
-  .heroContent {
-    padding-inline: var(--gutter-xl);
-    padding-block: var(--section-space-hero);
-  }
-}
+/* ─── Discipline section ─────────────────────────────────────────────────── */
 
-.heroEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.heroEyebrow span {
-  font-family: var(--font-primary);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--colour-halo);
-}
-
-.heroEyebrowLine {
-  display: block;
-  width: 32px;
-  height: 1px;
-  background-color: var(--colour-halo);
-  opacity: 0.6;
-}
-
-.heroHeadline {
-  font-family: var(--font-primary);
-  font-size: clamp(var(--text-3xl), 7vw, var(--text-6xl));
-  font-weight: var(--weight-extralight);
-  line-height: var(--leading-none);
-  letter-spacing: var(--tracking-tight);
-  color: var(--colour-white);
-  max-width: 14ch;
-
-  /* Text balance for headline */
-  text-wrap: balance;
-}
-
-.heroSubline {
-  font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
-  font-weight: var(--weight-light);
-  color: var(--colour-ash);
-  max-width: 42ch;
-  line-height: var(--leading-relaxed);
-}
-
-.heroActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-/* ─── Scroll indicator ────────────────────────────────────────────────── */
-
-.scrollIndicator {
-  position: absolute;
-  bottom: var(--space-5);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--colour-smoke);
-  animation: breathe 3s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0%, 100% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
-  50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
-}
-
-.scrollIndicatorLine {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, var(--colour-smoke));
-}
-
-/* ─── Section: Machines (Light Canvas Rhythm) ────────────────────────── */
-
-.sectionMachines {
+.sectionDisciplines {
   background-color: var(--bg-canvas);
   padding-block: var(--section-space-standard);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .sectionInner {
-  max-width: var(--container-standard);
+  max-width: var(--container-wide);
   margin-inline: auto;
   padding-inline: var(--gutter-lg);
 }
@@ -195,367 +26,202 @@
   }
 }
 
-.sectionLabel {
+.disciplinesHeader {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-4);
   margin-bottom: var(--space-7);
 }
 
-.sectionLabel span {
-  font-family: var(--font-primary);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-
-.sectionLabelLine {
-  flex: 1;
-  height: 1px;
-  background-color: var(--border-subtle);
-}
-
-.sectionHeading {
-  font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
-  color: var(--text-primary);
-  max-width: 20ch;
-  margin-bottom: var(--space-3);
-  text-wrap: balance;
-}
-
-.sectionSubtext {
-  font-size: var(--text-base);
-  color: var(--text-secondary);
-  max-width: 52ch;
-  margin-bottom: var(--space-8);
-  line-height: var(--leading-relaxed);
-}
-
-/* Featured product — crisp editorial layout */
-.featuredProduct {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-  align-items: center;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-7);
-  box-shadow: var(--shadow-card);
-}
-
-@media (min-width: 1024px) {
-  .featuredProduct {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--space-9);
-    padding: var(--space-9);
-  }
-}
-
-.featuredImageWrap {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background-color: var(--bg-surface-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--border-subtle);
-}
-
-.featuredImageWrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition:
-    transform var(--duration-standard) var(--ease-standard),
-    filter var(--duration-standard) var(--ease-standard);
-}
-
-.featuredImageWrap:hover img {
-  transform: scale(1.02);
-  filter: brightness(1.02);
-}
-
-.featuredInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.featuredBrand {
+.disciplinesTag {
+  display: block;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-
-.featuredName {
-  font-size: clamp(var(--text-xl), 3vw, var(--text-3xl));
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
-  color: var(--text-primary);
-  line-height: var(--leading-tight);
-}
-
-.featuredMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.featuredEditorial {
-  font-size: var(--text-base);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
-  max-width: 46ch;
-}
-
-/* ─── Section: Race Department ────────────────────────────────────────── */
-
-.sectionRace {
-  background-color: var(--colour-carbon);
-  border-top: 1px solid var(--colour-steel);
-  border-bottom: 1px solid var(--colour-steel);
-  padding-block: var(--section-space-standard);
-}
-
-.raceGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-  margin-top: var(--space-8);
-}
-
-@media (min-width: 1024px) {
-  .raceGrid {
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
-}
-
-.raceDisciplines {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
-}
-
-.raceDiscipline {
-  padding: var(--space-4);
-  border: 1px solid var(--colour-steel);
-  border-radius: var(--radius-md);
-  background-color: var(--colour-graphite);
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  transition:
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard);
-}
-
-.raceDiscipline:hover {
-  border-color: var(--colour-ignition-20);
-  background-color: var(--colour-steel);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px var(--colour-ignition-10);
-}
-
-.raceDisciplineLabel {
-  font-family: var(--font-condensed);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--colour-off-white);
-}
-
-.raceDisciplineSubtext {
-  font-size: var(--text-xs);
-  color: var(--colour-smoke);
-  letter-spacing: var(--tracking-wide);
-}
-
-.raceProposition {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.raceCta {
-  font-family: var(--font-condensed);
-  font-size: clamp(var(--text-2xl), 3vw, var(--text-3xl));
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--colour-off-white);
-  line-height: var(--leading-snug);
-}
-
-.raceCtaAccent {
-  color: var(--colour-race);
-  transition: color var(--duration-fast) var(--ease-standard);
-}
-
-/* ─── Section: Halo Machine ───────────────────────────────────────────── */
-
-.sectionHalo {
-  background-color: var(--colour-void);
-  padding-block: var(--section-space-standard);
-  border-top: 1px solid var(--colour-steel);
-}
-
-.haloFeature {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-}
-
-@media (min-width: 1024px) {
-  .haloFeature {
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-}
-
-.haloImagePanel {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background-color: var(--colour-graphite);
-}
-
-@media (min-width: 1024px) {
-  .haloImagePanel {
-    aspect-ratio: auto;
-    min-height: 600px;
-  }
-}
-
-.haloImagePanel img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Halo accent border */
-.haloImagePanel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--colour-halo);
-  opacity: 0.2;
-  pointer-events: none;
-}
-
-.haloInfoPanel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-5);
-  padding: var(--space-8);
-  background-color: var(--colour-carbon);
-  border-top: 1px solid var(--colour-halo-20);
-}
-
-@media (min-width: 1024px) {
-  .haloInfoPanel {
-    padding: var(--space-10);
-  }
-}
-
-.haloClassification {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.haloMark {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--colour-halo);
-  flex-shrink: 0;
-  box-shadow: 0 0 12px 4px var(--colour-ignition-10);
-}
-
-.haloMark::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--colour-ignition-20) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.haloClassificationText {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
   color: var(--colour-halo);
+  margin-bottom: var(--space-2);
 }
 
-.haloName {
-  font-size: clamp(var(--text-2xl), 3.5vw, var(--text-4xl));
-  font-weight: var(--weight-semibold);
+.disciplinesHeading {
+  font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+  font-weight: var(--weight-extralight);
   letter-spacing: var(--tracking-tight);
-  color: var(--colour-white);
+  color: var(--text-primary);
   line-height: var(--leading-tight);
+  margin-bottom: var(--space-2);
 }
 
-.haloEditorial {
+.disciplinesSubtext {
   font-size: var(--text-base);
-  color: var(--colour-ash);
+  color: var(--text-secondary);
+  max-width: 48ch;
   line-height: var(--leading-relaxed);
-  max-width: 44ch;
+  font-weight: var(--weight-light);
 }
 
-.haloSpecRow {
+.sectionHeaderLink {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+  white-space: nowrap;
+  padding-bottom: var(--space-1);
+}
+
+.sectionHeaderLink:hover {
+  color: var(--colour-ignition);
+}
+
+/* ─── Discipline Cards Grid ──────────────────────────────────────────────── */
+
+.disciplineGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--space-4);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--colour-steel);
+  width: 100%;
 }
 
-.haloSpecItem {
+@media (min-width: 640px) {
+  .disciplineGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .disciplineGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+.disciplineCard {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  justify-content: flex-end;
+  min-height: 280px;
+  background-color: var(--colour-carbon);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 400ms var(--ease-standard),
+    border-color 400ms var(--ease-standard),
+    box-shadow 400ms var(--ease-standard);
 }
 
-.haloSpecKey {
+@media (min-width: 1024px) {
+  .disciplineCard {
+    min-height: 320px;
+  }
+}
+
+.disciplineCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 84, 11, 0.45);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.disciplineCardBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  filter: saturate(0.9);
+  transition:
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.disciplineCard:hover .disciplineCardBg {
+  opacity: 0.8;
+  transform: scale(1.03);
+}
+
+.disciplineCardScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 12, 14, 0.1) 0%,
+    rgba(11, 12, 14, 0.55) 50%,
+    rgba(11, 12, 14, 0.92) 100%
+  );
+  pointer-events: none;
+}
+
+.disciplineCardContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-6) var(--space-5);
+  width: 100%;
+}
+
+.disciplineCardBadge {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-widest);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--colour-smoke);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(242, 84, 11, 0.2);
+  color: var(--colour-ignition-bright);
+  border: 1px solid rgba(242, 84, 11, 0.4);
+  margin-bottom: var(--space-2);
 }
 
-.haloSpecValue {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
+.disciplineCardTitle {
+  font-family: var(--font-primary);
+  font-size: var(--text-xl);
   font-weight: var(--weight-medium);
-  color: var(--colour-chalk);
+  color: var(--colour-white);
+  letter-spacing: var(--tracking-snug);
+  margin-bottom: var(--space-1);
 }
 
-/* ─── Section: Brand marquee ──────────────────────────────────────────── */
+.disciplineCardSub {
+  font-size: var(--text-xs);
+  color: var(--colour-ash);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+  font-weight: var(--weight-light);
+}
+
+.disciplineCardCta {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--colour-chalk);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.disciplineCard:hover .disciplineCardCta {
+  color: var(--colour-ignition-bright);
+}
+
+/* ─── Brand marquee ──────────────────────────────────────────────────────── */
 
 .sectionBrands {
   background-color: var(--colour-carbon);
   border-top: 1px solid var(--colour-steel);
   border-bottom: 1px solid var(--colour-steel);
-  padding-block: var(--space-8);
+  padding-block: var(--space-6);
   overflow: hidden;
 }
 
@@ -563,7 +229,7 @@
   display: flex;
   gap: var(--space-8);
   width: max-content;
-  animation: marquee 40s linear infinite;
+  animation: marquee 45s linear infinite;
 }
 
 .brandMarquee:hover {
@@ -574,10 +240,6 @@
   .brandMarquee {
     animation: none;
     flex-wrap: wrap;
-    width: 100%;
-    max-width: var(--container-standard);
-    margin-inline: auto;
-    padding-inline: var(--gutter-md);
     justify-content: center;
   }
 }
@@ -590,24 +252,24 @@
 .brandMarqueeItem {
   flex-shrink: 0;
   font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--colour-mist);
+  color: var(--colour-smoke);
   white-space: nowrap;
-  padding: var(--space-2) var(--space-4);
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .brandMarqueeItem:hover {
-  color: var(--colour-ash);
+  color: var(--colour-white);
 }
 
-/* ─── Section: Find / CTA ─────────────────────────────────────────────── */
+/* ─── Find / Consultation Section ────────────────────────────────────────── */
 
 .sectionFind {
   background-color: var(--colour-void);
-  padding-block: var(--section-space-standard);
+  padding-block: var(--section-space-editorial);
+  border-top: 1px solid var(--colour-steel);
 }
 
 .findGrid {
@@ -617,30 +279,53 @@
   align-items: center;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .findGrid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: var(--space-10);
   }
 }
 
+.findTag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--colour-halo);
+  margin-bottom: var(--space-2);
+}
+
 .findHeading {
-  font-size: clamp(var(--text-2xl), 3.5vw, var(--text-4xl));
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
+  font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+  font-weight: var(--weight-extralight);
+  letter-spacing: var(--tracking-tight);
   color: var(--colour-off-white);
-  text-wrap: balance;
   line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+  text-wrap: balance;
 }
 
 .findSubtext {
   font-size: var(--text-base);
   color: var(--colour-ash);
   line-height: var(--leading-relaxed);
-  max-width: 46ch;
-  margin-top: var(--space-4);
+  max-width: 54ch;
+  font-weight: var(--weight-light);
 }
 
-/* ─── Shared: Buttons ─────────────────────────────────────────────────── */
+.findActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+@media (min-width: 640px) {
+  .findActions {
+    flex-direction: row;
+  }
+}
 
 .btnPrimary {
   display: inline-flex;
@@ -654,17 +339,13 @@
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-wide);
   text-decoration: none;
-  border: none;
-  cursor: pointer;
   transition:
     background-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
 }
 
 .btnPrimary:hover {
   background-color: var(--colour-ignition-bright);
-  box-shadow: 0 4px 16px var(--colour-ignition-40);
   transform: translateY(-1px);
 }
 
@@ -673,14 +354,13 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-6);
-  background: none;
+  background: transparent;
   color: var(--colour-ash);
   border: 1px solid var(--colour-mist);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   text-decoration: none;
-  cursor: pointer;
   transition:
     border-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard);
@@ -689,452 +369,4 @@
 .btnGhost:hover {
   border-color: var(--colour-ash);
   color: var(--colour-off-white);
-}
-
-.btnHalo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
-  background: none;
-  color: var(--colour-halo);
-  border: 1px solid var(--colour-halo-20);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
-}
-
-.btnHalo:hover {
-  border-color: var(--colour-halo);
-  background-color: var(--colour-halo-10);
-}
-
-.btnPrimary:focus-visible,
-.btnGhost:focus-visible,
-.btnHalo:focus-visible {
-  outline: 2px solid var(--colour-halo);
-  outline-offset: 2px;
-}
-
-/* ─── Shared: Chip / badge ────────────────────────────────────────────── */
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--colour-steel);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-  color: var(--colour-smoke);
-  text-transform: uppercase;
-}
-
-.chipHalo {
-  border-color: var(--colour-halo-20);
-  color: var(--colour-halo);
-  background-color: var(--colour-halo-10);
-}
-
-/* ─── Placeholder imagery ─────────────────────────────────────────────── */
-/* Used where real imagery isn't yet approved for commercial use */
-
-.imagePlaceholder {
-  width: 100%;
-  height: 100%;
-  background-color: var(--colour-graphite);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--colour-steel);
-  border: 1px dashed var(--colour-steel);
-  border-radius: var(--radius-md);
-}
-
-/* ─── Section: Shop by Discipline ─────────────────────────────────────── */
-
-.sectionDisciplines {
-  background-color: var(--bg-canvas);
-  padding-top: var(--section-space-standard);
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.disciplinesHeader,
-.brandsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-bottom: var(--space-7);
-}
-
-.sectionHeaderLink {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard);
-  white-space: nowrap;
-  padding-bottom: var(--space-1);
-}
-
-.sectionHeaderLink:hover {
-  color: var(--colour-ignition);
-}
-
-/* ─── Shared Card Grid & Design System: Disciplines & Engineering Brands ── */
-
-.disciplineGrid,
-.engineeringBrandsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-  width: 100%;
-  margin-top: var(--space-6);
-}
-
-@media (min-width: 640px) {
-  .disciplineGrid,
-  .engineeringBrandsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-}
-
-@media (min-width: 1024px) {
-  .disciplineGrid,
-  .engineeringBrandsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-5);
-  }
-}
-
-/* Card Container — unified across both sections */
-.disciplineCard,
-.engineeringBrandCard {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  text-align: left;
-  min-height: 280px;
-  background-color: var(--colour-carbon);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  transition:
-    transform 400ms var(--ease-standard),
-    border-color 400ms var(--ease-standard),
-    box-shadow 400ms var(--ease-standard);
-}
-
-@media (min-width: 1024px) {
-  .disciplineCard,
-  .engineeringBrandCard {
-    min-height: 320px;
-  }
-}
-
-.disciplineCard:hover,
-.engineeringBrandCard:hover {
-  transform: translateY(-2px);
-  border-color: rgba(242, 84, 11, 0.45);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(242, 84, 11, 0.12);
-}
-
-/* Background image layer — fills card, clearly visible at rest, reveals on hover */
-.disciplineCardBg,
-.engineeringBrandBg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.38;
-  filter: saturate(0.85);
-  transform: scale(1.0);
-  transition:
-    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    filter 600ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.disciplineCard:hover .disciplineCardBg,
-.engineeringBrandCard:hover .engineeringBrandBg {
-  opacity: 0.78;
-  transform: scale(1.04);
-  filter: saturate(1.1) brightness(1.05);
-}
-
-/* Atmospheric scrim — ensures text legibility over photography */
-.disciplineCardScrim,
-.engineeringBrandScrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 12, 14, 0.2) 0%,
-    rgba(11, 12, 14, 0.6) 55%,
-    rgba(11, 12, 14, 0.88) 100%
-  );
-  pointer-events: none;
-  transition: background 600ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.disciplineCard:hover .disciplineCardScrim,
-.engineeringBrandCard:hover .engineeringBrandScrim {
-  background: linear-gradient(
-    180deg,
-    rgba(11, 12, 14, 0.1) 0%,
-    rgba(11, 12, 14, 0.45) 55%,
-    rgba(11, 12, 14, 0.82) 100%
-  );
-}
-
-/* Content wrapper — sits above background and scrim */
-.disciplineCardContent,
-.engineeringBrandContent {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  text-align: left;
-  padding: var(--space-6) var(--space-5);
-  width: 100%;
-}
-
-/* Metadata elements */
-.disciplineCardBadge {
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background-color: rgba(242, 84, 11, 0.2);
-  color: var(--colour-ignition-bright);
-  border: 1px solid rgba(242, 84, 11, 0.4);
-  margin-bottom: var(--space-3);
-}
-
-.engineeringBrandTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: var(--space-2);
-}
-
-.engineeringBrandOrigin {
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--colour-chalk);
-  opacity: 0.75;
-}
-
-.engineeringBrandStatus {
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--colour-verified);
-}
-
-/* Card titles */
-.disciplineCardTitle,
-.engineeringBrandName {
-  font-family: var(--font-primary);
-  font-size: clamp(var(--text-xl), 2.2vw, var(--text-2xl));
-  font-weight: var(--weight-bold);
-  color: var(--colour-white);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  margin-bottom: var(--space-1);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-  transition: color var(--duration-fast) var(--ease-standard);
-}
-
-/* Card subtext */
-.disciplineCardSub,
-.engineeringBrandSpecialism {
-  font-size: var(--text-xs);
-  color: var(--colour-chalk);
-  line-height: var(--leading-relaxed);
-  letter-spacing: 0.02em;
-  margin-bottom: var(--space-4);
-  opacity: 0.9;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-}
-
-/* Call to action pills */
-.disciplineCardCta,
-.engineeringBrandArrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--colour-white);
-  padding: 6px 16px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-sm);
-  backdrop-filter: blur(8px);
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.disciplineCard:hover .disciplineCardCta,
-.engineeringBrandCard:hover .engineeringBrandArrow {
-  background-color: var(--colour-ignition);
-  border-color: var(--colour-ignition);
-  color: var(--colour-white);
-  box-shadow: 0 4px 16px rgba(242, 84, 11, 0.35);
-  transform: translateY(-1px);
-}
-
-/* ─── Section: Engineering Brands ─────────────────────────────────────── */
-
-.sectionEngineeringBrands {
-  background-color: var(--bg-canvas);
-  padding-block: var(--section-space-standard);
-}
-
-/* ─── Section: Build My Rig Banner ────────────────────────────────────── */
-
-.sectionBuildCta {
-  background-color: var(--colour-carbon);
-  border-top: 1px solid var(--colour-steel);
-  border-bottom: 1px solid var(--colour-steel);
-  padding-block: var(--section-space-standard);
-}
-
-.buildCtaBanner {
-  position: relative;
-  border: 1px solid var(--colour-steel);
-  border-radius: var(--radius-md);
-  padding: var(--space-8);
-  overflow: hidden;
-  min-height: 480px;
-  display: flex;
-  align-items: center;
-}
-
-@media (min-width: 768px) {
-  .buildCtaBanner {
-    padding: var(--space-10);
-    min-height: 520px;
-  }
-}
-
-.buildCtaBg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.buildCtaScrim {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      rgba(10, 10, 10, 0.88) 0%,
-      rgba(10, 10, 10, 0.72) 45%,
-      rgba(10, 10, 10, 0.45) 80%,
-      rgba(10, 10, 10, 0.3) 100%
-    ),
-    radial-gradient(
-      ellipse 60% 70% at 85% 45%,
-      rgba(249, 115, 22, 0.12) 0%,
-      transparent 65%
-    );
-}
-
-.buildCtaContent {
-  position: relative;
-  z-index: 1;
-  max-width: 58ch;
-  background: rgba(18, 18, 20, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  padding: var(--space-6) var(--space-7);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-}
-
-@media (min-width: 768px) {
-  .buildCtaContent {
-    padding: var(--space-8) var(--space-9);
-  }
-}
-
-.buildCtaBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--colour-ignition);
-}
-
-.buildCtaDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--colour-ignition);
-}
-
-.buildCtaHeadline {
-  font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-tight);
-  color: var(--colour-white);
-  margin-bottom: var(--space-3);
-}
-
-.buildCtaText {
-  font-size: var(--text-base);
-  color: var(--colour-ash);
-  line-height: var(--leading-relaxed);
-  margin-bottom: var(--space-6);
-}
-
-.buildCtaActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
 }

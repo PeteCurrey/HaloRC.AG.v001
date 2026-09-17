@@ -27,20 +27,22 @@
 }
 
 .logoRow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
   margin-bottom: var(--space-4);
   text-decoration: none;
 }
 
-.logoText {
-  font-family: var(--font-primary);
-  font-weight: 600;
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--colour-white);
+.footerWordmark {
+  height: 20px;
+  width: auto;
+  display: block;
+  opacity: 0.92;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.logoRow:hover .footerWordmark {
+  opacity: 1;
 }
 
 .brandDesc {

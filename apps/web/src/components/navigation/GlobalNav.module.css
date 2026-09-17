@@ -60,10 +60,6 @@
   box-shadow: var(--shadow-subtle);
 }
 
-.nav[data-scrolled="true"] .logoText {
-  color: var(--text-primary);
-}
-
 .nav[data-scrolled="true"] .navLink {
   color: var(--text-secondary);
 }
@@ -109,24 +105,26 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
   text-decoration: none;
   flex-shrink: 0;
+  height: 100%;
 }
 
-.logoMark {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
+.logoWordmark {
+  height: 22px;
+  width: auto;
+  display: block;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
-.logoText {
-  font-family: var(--font-primary);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--colour-white);
+@media (min-width: 768px) {
+  .logoWordmark {
+    height: 26px;
+  }
+}
+
+.logo:hover .logoWordmark {
+  opacity: 0.88;
 }
 
 /* ─── Primary nav links ─────────────────────────────────────────────────── */

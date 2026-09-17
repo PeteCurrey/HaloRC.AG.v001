@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { HaloLogo } from '@/components/brand/HaloLogo'
+import { AvorriaMark } from '@/components/brand/AvorriaMark'
 import { AuthEditorialPanel, type AuthEditorialPanelProps } from './AuthEditorialPanel'
 import s from './AuthSplitLayout.module.css'
 
@@ -40,8 +40,7 @@ export function AuthSplitLayout({
 
         <div className={s.contentWrapper}>
           <Link href="/" className={s.brandRow} aria-label="Avorria RC Home">
-            <HaloLogo style={{ width: 22, height: 22 }} />
-            <span className={s.brandName}>Avorria RC</span>
+            <AvorriaMark variant="dark" style={{ height: 20, width: 'auto' }} />
             <span className={s.brandBadge}>{badgeLabel}</span>
           </Link>
 

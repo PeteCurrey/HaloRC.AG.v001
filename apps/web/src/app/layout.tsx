@@ -49,6 +49,19 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Avorria RC',
     locale: 'en_GB',
+    images: [
+      {
+        url: '/images/avorria-wordmark-light.svg',
+        width: 800,
+        height: 120,
+        alt: 'AVORRIA Wordmark',
+      },
+    ],
+  },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
   robots: {
     index: true,

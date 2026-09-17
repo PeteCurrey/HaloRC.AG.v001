@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import s from './GlobalNav.module.css'
 import { MarketSelector } from './MarketSelector'
-import { HaloLogo } from '@/components/brand/HaloLogo'
+import { AvorriaMark } from '@/components/brand/AvorriaMark'
 import { MegaMenu } from './MegaMenu'
 import { MEGA_MENUS } from '@/lib/navigation-data'
 
@@ -199,8 +199,10 @@ export function GlobalNav({ cartCount = 0 }: GlobalNavProps) {
           aria-label="Avorria RC — Home"
           onClick={() => setActiveMegaMenu(null)}
         >
-          <HaloLogo className={s.logoMark} />
-          <span className={s.logoText}>Avorria RC</span>
+          <AvorriaMark
+            variant={scrolled && !activeMegaMenu && !mobileOpen ? 'dark' : 'light'}
+            className={s.logoWordmark}
+          />
         </Link>
 
         {/* Desktop navigation links */}
