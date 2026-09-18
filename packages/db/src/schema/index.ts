@@ -40,3 +40,6 @@ export * from './cms'
 // Admin: product content, SEO, relationships, audit log, AI suggestions
 export * from './admin'
 
+// Supplier ingestion and pricing engine
+export * from './supplier-ingestion'
+

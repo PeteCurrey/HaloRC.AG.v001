@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Avorria RC Commercial Pricing Configuration",
+  "description": "Authoritative margin and markup settings by product category. Fill in the values below to activate retail pricing across the storefront.",
+  "status": "AWAITING_PETE_APPROVAL",
+  "notes": [
+    "Landed cost is calculated server-side: (Supplier Net EUR + Inbound Freight EUR) * (1 + Customs Tariff) * FX Rate.",
+    "Markup percentage is added to Landed Cost to determine Ex-Tax Retail Price.",
+    "UK storefront displays VAT-inclusive price (+20%). US storefront displays pre-tax price.",
+    "Landed cost and gross margin are strictly confidential and NEVER exposed to the storefront API.",
+    "Set configured to true once you have entered your desired markup percentages."
+  ],
+  "defaults_inbound": {
+    "estimated_shipping_eur_kits": 15.0,
+    "estimated_shipping_eur_parts": 1.5,
+    "customs_duty_rate": 0.02
+  },
+  "categories": {
+    "COMPLETE_KIT": {
+      "name": "Complete Car Kits (e.g. MTC2R, MBX8R, MRX6X, MSX1)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_WHOLE",
+      "example_note": "e.g. 35% markup on ~€529 net kit lands at ~£765 - £799 inc VAT",
+      "configured": false
+    },
+    "OPTION_PART": {
+      "name": "Option & Hop-Up Parts (Carbon, Titanium, Aluminum upgrades)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 50% - 65% markup on high-value option parts",
+      "configured": false
+    },
+    "REPLACEMENT_PART": {
+      "name": "Genuine Spare & Replacement Parts (Arms, Pins, Belts, Plastics)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 55% - 75% markup on consumable/crash spares",
+      "configured": false
+    },
+    "TOOLS": {
+      "name": "Specialist Pit & Setup Tools (Wrenches, Spring Tools, Gauges)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 45% - 60% markup on pit gear",
+      "configured": false
+    },
+    "ACCESSORY": {
+      "name": "Accessories & Consumables (Silicone Shock/Diff Oils, Grease, Threadlock)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 50% - 70% markup",
+      "configured": false
+    },
+    "ENGINE": {
+      "name": "Engines & Tuned Exhaust Pipes (Ninja Nitro Engines & Manifolds)",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_WHOLE",
+      "example_note": "e.g. 30% - 40% markup on nitro engines",
+      "configured": false
+    },
+    "DOCUMENT_PRODUCT": {
+      "name": "Manuals, Setup Sheets, Decals",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 50% markup",
+      "configured": false
+    },
+    "OTHER": {
+      "name": "General Merchandising & Miscellaneous",
+      "markup_percentage": null,
+      "minimum_margin_percentage": null,
+      "rounding_rule": "ROUND_50",
+      "example_note": "e.g. 50% markup",
+      "configured": false
+    }
+  }
+}

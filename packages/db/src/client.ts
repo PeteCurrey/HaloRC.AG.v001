@@ -5,8 +5,44 @@ import * as schema from './schema'
 // Connection singleton for server-side use only.
 // Never import this in client components.
 
+import fs from 'node:fs'
+import path from 'node:path'
+
+function tryLoadEnv() {
+  if (process.env['DATABASE_URL']) return
+  const candidates = [
+    path.resolve(process.cwd(), '.env.local'),
+    path.resolve(process.cwd(), '../../.env.local'),
+    typeof __dirname !== 'undefined' ? path.resolve(__dirname, '../../../.env.local') : null,
+    typeof __dirname !== 'undefined' ? path.resolve(__dirname, '../../.env.local') : null,
+  ].filter(Boolean) as string[]
+
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      try {
+        const lines = fs.readFileSync(p, 'utf8').split('\n')
+        for (const line of lines) {
+          const trimmed = line.trim()
+          if (!trimmed || trimmed.startsWith('#')) continue
+          const idx = trimmed.indexOf('=')
+          if (idx === -1) continue
+          const key = trimmed.slice(0, idx).trim()
+          const value = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '')
+          if (!process.env[key]) process.env[key] = value
+        }
+        if (process.env['DATABASE_URL']) break
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
+tryLoadEnv()
+
 const connectionString =
   process.env['DATABASE_URL'] ||
+  process.env['DIRECT_URL'] ||
+  process.env['POSTGRES_URL'] ||
   'postgresql://postgres:postgres@127.0.0.1:5432/halo_rc_placeholder'
 
 // Disable prefetch for Supabase transaction pooler compatibility
@@ -17,7 +53,8 @@ const client = postgres(connectionString, {
 })
 
 export const isDbConfigured = Boolean(
-  process.env['DATABASE_URL'] && !process.env['DATABASE_URL'].includes('halo_rc_placeholder')
+  (process.env['DATABASE_URL'] || process.env['DIRECT_URL'] || process.env['POSTGRES_URL']) &&
+  !connectionString.includes('halo_rc_placeholder')
 )
 
 export const db = drizzle(client, { schema })
