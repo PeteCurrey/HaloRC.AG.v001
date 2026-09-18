@@ -108,7 +108,7 @@ export default async function HomePage() {
   ]
 
   return (
-    <div className={s.pageWrapper}>
+    <>
       {/* 1. Cinematic Hero */}
       <HeroImage
         eyebrow="Remote Control. Without Compromise."
@@ -122,7 +122,8 @@ export default async function HomePage() {
         secondaryCtaHref="/race"
       />
 
-      {/* 2. Chapter 01: Machines Editorial Split */}
+      <div className={s.pageWrapper}>
+        {/* 2. Chapter 01: Machines Editorial Split */}
       <ChapterIntro
         number="01"
         title="THE MACHINES"
@@ -347,5 +348,6 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+    </>
   )
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Work_Sans, JetBrains_Mono, Barlow_Condensed, Barlow } from 'next/font/google'
+import { Work_Sans, JetBrains_Mono, Barlow_Condensed, DM_Sans } from 'next/font/google'
 import '../styles/tokens.css'
 import '../styles/base.css'
 import '../styles/typography.css'
@@ -29,12 +29,12 @@ const barlowCondensed = Barlow_Condensed({
   weight: ['500', '600'],
 })
 
-// Wordmark: Barlow Black — used exclusively for the AVORRIA wordmark identity
-const barlow = Barlow({
+// Wordmark: DM Sans — exact typeface used by Cayote (Bold 700 / 800)
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-barlow',
-  display: 'block',
-  weight: ['900'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+  weight: ['400', '500', '700', '800'],
 })
 
 export const metadata: Metadata = {
@@ -83,7 +83,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable} ${barlow.variable}`}
+      className={`${workSans.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable} ${dmSans.variable}`}
     >
       <body>
         <AuthLayoutGuard>

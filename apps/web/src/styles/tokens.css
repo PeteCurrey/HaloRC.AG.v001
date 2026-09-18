@@ -103,7 +103,7 @@
   --font-primary:   var(--font-work-sans), 'Work Sans', system-ui, sans-serif;
   --font-mono:      var(--font-jetbrains-mono), 'JetBrains Mono', 'Courier New', monospace;
   --font-condensed: var(--font-barlow-condensed), 'Barlow Condensed', system-ui, sans-serif;
-  --font-wordmark:  var(--font-barlow), 'Barlow', system-ui, sans-serif;  /* AVORRIA wordmark only */
+  --font-wordmark:  var(--font-dm-sans), 'DM Sans', -apple-system, system-ui, sans-serif;  /* Cayote typeface: DM Sans */
 
   /* Scale */
   --text-xs:   0.6875rem;   /* 11px */
