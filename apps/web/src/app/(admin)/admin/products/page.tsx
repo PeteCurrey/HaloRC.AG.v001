@@ -26,7 +26,7 @@ interface PageProps {
 
 export default async function AdminProductsPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const page = parseInt(params.page || '1', 10)
+  const page = Math.max(1, parseInt(params.page || '1', 10) || 1)
   const search = params.search || ''
   const brandId = params.brandId || ''
   const status = params.status || ''
@@ -39,13 +39,22 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
     ...(tier ? { tier } : {}),
   }
 
-  const [productsData, brands] = await Promise.all([
-    getAdminProducts(filters, { page, perPage: 25 }),
-    getAdminBrands(),
-  ])
+  let productsData = { items: [] as any[], total: 0 }
+  let brands: Array<{ id: string; name: string }> = []
+
+  try {
+    const [pData, bData] = await Promise.all([
+      getAdminProducts(filters, { page, perPage: 25 }),
+      getAdminBrands(),
+    ])
+    productsData = pData || { items: [], total: 0 }
+    brands = bData || []
+  } catch (error) {
+    console.error('[AdminProductsPage] Error loading products data:', error)
+  }
 
   const { items, total } = productsData
-  const totalPages = Math.ceil(total / 25)
+  const totalPages = Math.max(1, Math.ceil((total || 0) / 25))
 
   const columns = [
     { header: 'Product / SKU', width: '32%' },

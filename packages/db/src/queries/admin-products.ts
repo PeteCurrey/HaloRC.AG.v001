@@ -42,6 +42,7 @@ import {
   count,
   sql,
   or,
+  inArray,
 } from 'drizzle-orm'
 import type { AuditAction } from '@halo-rc/types'
 
@@ -258,93 +259,98 @@ export async function getAdminProducts(
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
-  const [rows, countRows] = await Promise.all([
-    db
-      .select({
-        id: products.id,
-        slug: products.slug,
-        sku: products.sku,
-        name: products.name,
-        shortName: products.shortName,
-        brandId: products.brandId,
-        brandName: brands.name,
-        brandSlug: brands.slug,
-        tier: products.tier,
-        status: products.status,
-        lifecycle: products.lifecycle,
-        productType: products.productType,
-        published: products.published,
-        manufacturerSku: products.manufacturerSku,
-        internalCode: products.internalCode,
-        createdAt: products.createdAt,
-        updatedAt: products.updatedAt,
-      })
-      .from(products)
-      .innerJoin(brands, eq(products.brandId, brands.id))
-      .where(whereClause)
-      .orderBy(desc(products.updatedAt))
-      .limit(perPage)
-      .offset(offset),
+  try {
+    const [rows, countRows] = await Promise.all([
+      db
+        .select({
+          id: products.id,
+          slug: products.slug,
+          sku: products.sku,
+          name: products.name,
+          shortName: products.shortName,
+          brandId: products.brandId,
+          brandName: brands.name,
+          brandSlug: brands.slug,
+          tier: products.tier,
+          status: products.status,
+          lifecycle: products.lifecycle,
+          productType: products.productType,
+          published: products.published,
+          manufacturerSku: products.manufacturerSku,
+          internalCode: products.internalCode,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .leftJoin(brands, eq(products.brandId, brands.id))
+        .where(whereClause)
+        .orderBy(desc(products.updatedAt))
+        .limit(perPage)
+        .offset(offset),
 
-    db
-      .select({ total: count() })
-      .from(products)
-      .innerJoin(brands, eq(products.brandId, brands.id))
-      .where(whereClause),
-  ])
+      db
+        .select({ total: count() })
+        .from(products)
+        .leftJoin(brands, eq(products.brandId, brands.id))
+        .where(whereClause),
+    ])
 
-  const total = countRows[0]?.total ?? 0
+    const total = countRows[0]?.total ?? 0
 
-  // Fetch variant counts and offer presence for these product IDs
-  const productIds = rows.map((r) => r.id)
+    // Fetch variant counts and offer presence for these product IDs
+    const productIds = rows.map((r) => r.id)
 
-  const variantCountMap = new Map<string, number>()
-  const ukOfferMap = new Map<string, boolean>()
-  const usOfferMap = new Map<string, boolean>()
+    const variantCountMap = new Map<string, number>()
+    const ukOfferMap = new Map<string, boolean>()
+    const usOfferMap = new Map<string, boolean>()
 
-  if (productIds.length > 0) {
-    const variantRows = await db
-      .select({
-        productId: productVariants.productId,
-        cnt: count(),
-      })
-      .from(productVariants)
-      .where(sql`${productVariants.productId} = ANY(${sql`ARRAY[${sql.join(productIds.map((id) => sql`${id}`), sql`, `)}]::text[]`})`)
-      .groupBy(productVariants.productId)
+    if (productIds.length > 0) {
+      const variantRows = await db
+        .select({
+          productId: productVariants.productId,
+          cnt: count(),
+        })
+        .from(productVariants)
+        .where(inArray(productVariants.productId, productIds))
+        .groupBy(productVariants.productId)
 
-    for (const r of variantRows) {
-      variantCountMap.set(r.productId, Number(r.cnt))
+      for (const r of variantRows) {
+        variantCountMap.set(r.productId, Number(r.cnt))
+      }
+
+      const offerRows = await db
+        .select({
+          productId: productVariants.productId,
+          marketCode: marketOffers.marketCode,
+        })
+        .from(marketOffers)
+        .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
+        .where(inArray(productVariants.productId, productIds))
+
+      for (const r of offerRows) {
+        if (r.marketCode === 'UK') ukOfferMap.set(r.productId, true)
+        if (r.marketCode === 'US') usOfferMap.set(r.productId, true)
+      }
     }
 
-    const offerRows = await db
-      .select({
-        productId: productVariants.productId,
-        marketCode: marketOffers.marketCode,
-      })
-      .from(marketOffers)
-      .innerJoin(productVariants, eq(marketOffers.productVariantId, productVariants.id))
-      .where(sql`${productVariants.productId} = ANY(${sql`ARRAY[${sql.join(productIds.map((id) => sql`${id}`), sql`, `)}]::text[]`})`)
+    const items: AdminProductListItem[] = rows.map((r) => ({
+      ...r,
+      brandName: r.brandName ?? '',
+      brandSlug: r.brandSlug ?? '',
+      discipline: null,
+      manufacturerSku: r.manufacturerSku ?? null,
+      internalCode: r.internalCode ?? null,
+      shortName: r.shortName ?? null,
+      variantCount: variantCountMap.get(r.id) ?? 0,
+      hasUkOffer: ukOfferMap.get(r.id) ?? false,
+      hasUsOffer: usOfferMap.get(r.id) ?? false,
+    }))
 
-    for (const r of offerRows) {
-      if (r.marketCode === 'UK') ukOfferMap.set(r.productId, true)
-      if (r.marketCode === 'US') usOfferMap.set(r.productId, true)
-    }
+    return { items, total: Number(total) }
+  } catch (err) {
+    console.error('[getAdminProducts] Error loading products:', err)
+    return { items: [], total: 0 }
   }
-
-  const items: AdminProductListItem[] = rows.map((r) => ({
-    ...r,
-    brandName: r.brandName ?? '',
-    brandSlug: r.brandSlug ?? '',
-    discipline: null,
-    manufacturerSku: r.manufacturerSku ?? null,
-    internalCode: r.internalCode ?? null,
-    shortName: r.shortName ?? null,
-    variantCount: variantCountMap.get(r.id) ?? 0,
-    hasUkOffer: ukOfferMap.get(r.id) ?? false,
-    hasUsOffer: usOfferMap.get(r.id) ?? false,
-  }))
-
-  return { items, total: Number(total) }
 }
 
 // ─── Single Product Detail ────────────────────────────────────────────────────
@@ -382,30 +388,35 @@ export async function getAdminProduct(id: string): Promise<AdminProductDetail | 
     }
   }
 
-  const [row] = await db
-    .select()
-    .from(products)
-    .where(eq(products.id, id))
-    .limit(1)
+  try {
+    const [row] = await db
+      .select()
+      .from(products)
+      .where(or(eq(products.id, id), eq(products.slug, id)))
+      .limit(1)
 
-  if (!row) return null
+    if (!row) return null
 
-  return {
-    ...row,
-    sku: row.sku ?? null,
-    manufacturerSku: row.manufacturerSku ?? null,
-    internalCode: row.internalCode ?? null,
-    shortName: row.shortName ?? null,
-    platformId: row.platformId ?? null,
-    categoryId: row.categoryId ?? null,
-    subcategoryId: row.subcategoryId ?? null,
-    scale: row.scale ?? null,
-    powerType: row.powerType ?? null,
-    replacementProductId: row.replacementProductId ?? null,
-    haloClassification: row.haloClassification ?? null,
-    editorialSummary: row.editorialSummary ?? null,
-    discipline: null,
-    tags: row.tags ?? [],
+    return {
+      ...row,
+      sku: row.sku ?? null,
+      manufacturerSku: row.manufacturerSku ?? null,
+      internalCode: row.internalCode ?? null,
+      shortName: row.shortName ?? null,
+      platformId: row.platformId ?? null,
+      categoryId: row.categoryId ?? null,
+      subcategoryId: row.subcategoryId ?? null,
+      scale: row.scale ?? null,
+      powerType: row.powerType ?? null,
+      replacementProductId: row.replacementProductId ?? null,
+      haloClassification: row.haloClassification ?? null,
+      editorialSummary: row.editorialSummary ?? null,
+      discipline: null,
+      tags: row.tags ?? [],
+    }
+  } catch (err) {
+    console.error('[getAdminProduct] Database error:', err)
+    return null
   }
 }
 
@@ -550,12 +561,18 @@ export async function unpublishProduct(
 // ─── Product Content ──────────────────────────────────────────────────────────
 
 export async function getProductContent(productId: string) {
-  const [row] = await db
-    .select()
-    .from(productContent)
-    .where(eq(productContent.productId, productId))
-    .limit(1)
-  return row ?? null
+  if (!isDbConfigured) return null
+  try {
+    const [row] = await db
+      .select()
+      .from(productContent)
+      .where(eq(productContent.productId, productId))
+      .limit(1)
+    return row ?? null
+  } catch (err) {
+    console.error('[getProductContent] Database error:', err)
+    return null
+  }
 }
 
 export async function upsertProductContent(
@@ -564,13 +581,19 @@ export async function upsertProductContent(
 ): Promise<void> {
   const { productId, ...rest } = data
 
-  await db
-    .insert(productContent)
-    .values({ productId, ...rest })
-    .onConflictDoUpdate({
-      target: productContent.productId,
-      set: { ...rest, updatedAt: new Date() },
-    })
+  if (isDbConfigured) {
+    try {
+      await db
+        .insert(productContent)
+        .values({ productId, ...rest })
+        .onConflictDoUpdate({
+          target: productContent.productId,
+          set: { ...rest, updatedAt: new Date() },
+        })
+    } catch (err) {
+      console.error('[upsertProductContent] Database error:', err)
+    }
+  }
 
   await writeAuditLog({
     userId: actor.userId ?? null,
@@ -655,73 +678,126 @@ export async function upsertProductSeo(
 // ─── SEO Audit Stats ──────────────────────────────────────────────────────────
 
 export async function getAdminSeoStats() {
-  const [
-    totalProductsRows,
-    missingTitleRows,
-    missingDescriptionRows,
-    noIndexRows,
-    noSeoRows,
-  ] = await Promise.all([
-    db.select({ totalProducts: count() }).from(products).where(eq(products.published, true)),
-    db
-      .select({ missingTitle: count() })
-      .from(products)
-      .leftJoin(productSeo, eq(productSeo.productId, products.id))
-      .where(and(eq(products.published, true), or(isNull(productSeo.seoTitle), sql`${productSeo.seoTitle} = ''`))),
-    db
-      .select({ missingDescription: count() })
-      .from(products)
-      .leftJoin(productSeo, eq(productSeo.productId, products.id))
-      .where(and(eq(products.published, true), or(isNull(productSeo.metaDescription), sql`${productSeo.metaDescription} = ''`))),
-    db
-      .select({ noIndexCount: count() })
-      .from(productSeo)
-      .where(eq(productSeo.indexPage, false)),
-    db
-      .select({ noSeoRecord: count() })
-      .from(products)
-      .leftJoin(productSeo, eq(productSeo.productId, products.id))
-      .where(and(eq(products.published, true), isNull(productSeo.id))),
-  ])
+  if (!isDbConfigured) {
+    return {
+      totalPublishedProducts: 0,
+      missingTitleCount: 0,
+      missingDescriptionCount: 0,
+      noIndexCount: 0,
+      noSeoRecordCount: 0,
+    }
+  }
 
-  return {
-    totalPublishedProducts: Number(totalProductsRows[0]?.totalProducts ?? 0),
-    missingTitleCount: Number(missingTitleRows[0]?.missingTitle ?? 0),
-    missingDescriptionCount: Number(missingDescriptionRows[0]?.missingDescription ?? 0),
-    noIndexCount: Number(noIndexRows[0]?.noIndexCount ?? 0),
-    noSeoRecordCount: Number(noSeoRows[0]?.noSeoRecord ?? 0),
+  try {
+    const [
+      totalProductsRows,
+      missingTitleRows,
+      missingDescriptionRows,
+      noIndexRows,
+      noSeoRows,
+    ] = await Promise.all([
+      db.select({ totalProducts: count() }).from(products).where(eq(products.published, true)),
+      db
+        .select({ missingTitle: count() })
+        .from(products)
+        .leftJoin(productSeo, eq(productSeo.productId, products.id))
+        .where(and(eq(products.published, true), or(isNull(productSeo.seoTitle), sql`${productSeo.seoTitle} = ''`))),
+      db
+        .select({ missingDescription: count() })
+        .from(products)
+        .leftJoin(productSeo, eq(productSeo.productId, products.id))
+        .where(and(eq(products.published, true), or(isNull(productSeo.metaDescription), sql`${productSeo.metaDescription} = ''`))),
+      db
+        .select({ noIndexCount: count() })
+        .from(productSeo)
+        .where(eq(productSeo.indexPage, false)),
+      db
+        .select({ noSeoRecord: count() })
+        .from(products)
+        .leftJoin(productSeo, eq(productSeo.productId, products.id))
+        .where(and(eq(products.published, true), isNull(productSeo.id))),
+    ])
+
+    return {
+      totalPublishedProducts: Number(totalProductsRows[0]?.totalProducts ?? 0),
+      missingTitleCount: Number(missingTitleRows[0]?.missingTitle ?? 0),
+      missingDescriptionCount: Number(missingDescriptionRows[0]?.missingDescription ?? 0),
+      noIndexCount: Number(noIndexRows[0]?.noIndexCount ?? 0),
+      noSeoRecordCount: Number(noSeoRows[0]?.noSeoRecord ?? 0),
+    }
+  } catch (err) {
+    console.error('[getAdminSeoStats] Database error:', err)
+    return {
+      totalPublishedProducts: 0,
+      missingTitleCount: 0,
+      missingDescriptionCount: 0,
+      noIndexCount: 0,
+      noSeoRecordCount: 0,
+    }
   }
 }
 
 // ─── Brand List (for dropdowns) ───────────────────────────────────────────────
 
 export async function getAdminBrands() {
-  return db
-    .select({
-      id: brands.id,
-      slug: brands.slug,
-      name: brands.name,
-      tier: brands.tier,
-      status: brands.status,
-      countryOfOrigin: brands.countryOfOrigin,
-    })
-    .from(brands)
-    .orderBy(asc(brands.name))
+  if (!isDbConfigured) {
+    return STORE_BRANDS.map((b) => ({
+      id: b.id,
+      slug: b.slug,
+      name: b.name,
+      tier: b.tier,
+      status: b.status,
+      countryOfOrigin: b.countryOfOrigin ?? null,
+    }))
+  }
+
+  try {
+    return await db
+      .select({
+        id: brands.id,
+        slug: brands.slug,
+        name: brands.name,
+        tier: brands.tier,
+        status: brands.status,
+        countryOfOrigin: brands.countryOfOrigin,
+      })
+      .from(brands)
+      .orderBy(asc(brands.name))
+  } catch (err) {
+    console.error('[getAdminBrands] Database error:', err)
+    return STORE_BRANDS.map((b) => ({
+      id: b.id,
+      slug: b.slug,
+      name: b.name,
+      tier: b.tier,
+      status: b.status,
+      countryOfOrigin: b.countryOfOrigin ?? null,
+    }))
+  }
 }
 
 // ─── Category List (for dropdowns) ───────────────────────────────────────────
 
 export async function getAdminCategories() {
-  return db
-    .select({
-      id: categories.id,
-      slug: categories.slug,
-      name: categories.name,
-      parentId: categories.parentId,
-      sortOrder: categories.sortOrder,
-    })
-    .from(categories)
-    .orderBy(asc(categories.sortOrder), asc(categories.name))
+  if (!isDbConfigured) {
+    return []
+  }
+
+  try {
+    return await db
+      .select({
+        id: categories.id,
+        slug: categories.slug,
+        name: categories.name,
+        parentId: categories.parentId,
+        sortOrder: categories.sortOrder,
+      })
+      .from(categories)
+      .orderBy(asc(categories.sortOrder), asc(categories.name))
+  } catch (err) {
+    console.error('[getAdminCategories] Database error:', err)
+    return []
+  }
 }
 
 // ─── AI Suggestions Workflow ──────────────────────────────────────────────────
