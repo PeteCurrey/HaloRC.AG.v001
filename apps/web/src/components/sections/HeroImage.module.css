@@ -76,6 +76,31 @@
   );
 }
 
+/* ─── Faint Emblem Watermark ────────────────────────────────────────────── */
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  transform: translateY(-50%);
+  width: min(560px, 44vw);
+  aspect-ratio: 1;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.045; /* Faint watermark */
+  mix-blend-mode: screen;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .watermark {
+    right: 50%;
+    transform: translate(50%, -50%);
+    width: 72vw;
+    opacity: 0.035;
+  }
+}
+
 /* ─── Content ───────────────────────────────────────────────────────────── */
 
 .content {

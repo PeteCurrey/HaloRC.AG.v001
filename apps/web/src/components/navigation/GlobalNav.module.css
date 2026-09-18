@@ -114,15 +114,16 @@
 }
 
 .logoWordmark {
-  height: 22px;
+  height: 38px;
   width: auto;
   display: block;
+  object-fit: contain;
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 @media (min-width: 768px) {
   .logoWordmark {
-    height: 26px;
+    height: 44px;
   }
 }
 

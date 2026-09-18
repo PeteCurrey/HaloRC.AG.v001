@@ -34,10 +34,11 @@
 }
 
 .footerWordmark {
-  height: 20px;
+  height: 52px;
   width: auto;
   display: block;
-  opacity: 0.92;
+  object-fit: contain;
+  opacity: 0.95;
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 

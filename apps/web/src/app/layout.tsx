@@ -51,17 +51,20 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     images: [
       {
-        url: '/images/avorria-wordmark-light.svg',
-        width: 800,
-        height: 120,
-        alt: 'AVORRIA Wordmark',
+        url: '/images/logo/avorria-logo-light.png',
+        width: 1224,
+        height: 1090,
+        alt: 'Avorria RC Logo',
       },
     ],
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
     shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
   },
   robots: {
     index: true,

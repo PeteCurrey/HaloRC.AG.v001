@@ -50,6 +50,18 @@ export function HeroImage({
       <div className={s.scrim} aria-hidden="true" />
       <div className={s.scrimTop} aria-hidden="true" />
 
+      {/* Faint watermark of Avorria emblem without lettering */}
+      <div className={s.watermark} aria-hidden="true">
+        <Image
+          src="/images/logo/avorria-emblem-light.png"
+          alt=""
+          fill
+          priority={false}
+          sizes="(max-width: 768px) 70vw, 42vw"
+          style={{ objectFit: 'contain' }}
+        />
+      </div>
+
       <div className={s.content}>
         {eyebrow && (
           <div className={s.eyebrow}>
