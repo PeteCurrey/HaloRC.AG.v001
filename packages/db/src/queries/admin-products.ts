@@ -165,7 +165,7 @@ export async function writeAuditLog({
 export async function getAdminProducts(
   filters: AdminProductFilters = {},
   pagination: PaginationParams = { page: 1, perPage: 50 }
-): Promise<{ items: AdminProductListItem[]; total: number }> {
+): Promise<{ items: AdminProductListItem[]; total: number; error?: string | null }> {
   const { page, perPage } = pagination
   const offset = (page - 1) * perPage
 
@@ -215,7 +215,7 @@ export async function getAdminProducts(
         hasUsOffer: true,
       }
     })
-    return { items, total }
+    return { items, total, error: null }
   }
 
   const conditions = []
@@ -228,7 +228,8 @@ export async function getAdminProducts(
         ilike(products.sku, q),
         ilike(products.manufacturerSku, q),
         ilike(products.internalCode, q),
-        ilike(products.slug, q)
+        ilike(products.slug, q),
+        ilike(brands.name, q)
       )
     )
   }
@@ -346,10 +347,10 @@ export async function getAdminProducts(
       hasUsOffer: usOfferMap.get(r.id) ?? false,
     }))
 
-    return { items, total: Number(total) }
-  } catch (err) {
+    return { items, total: Number(total), error: null }
+  } catch (err: any) {
     console.error('[getAdminProducts] Error loading products:', err)
-    return { items: [], total: 0 }
+    return { items: [], total: 0, error: err?.message || 'DATABASE ERROR' }
   }
 }
 
@@ -523,6 +524,11 @@ export async function publishProduct(
       .update(products)
       .set({ status: 'PUBLISHED', published: true, updatedAt: new Date() })
       .where(eq(products.id, id))
+
+    await db
+      .update(productVariants)
+      .set({ status: 'PUBLISHED', published: true, updatedAt: new Date() })
+      .where(eq(productVariants.productId, id))
   }
 
   __updateCatalogueProductForTesting(id, { status: 'PUBLISHED', published: true })
@@ -545,6 +551,11 @@ export async function unpublishProduct(
       .update(products)
       .set({ status: 'DRAFT', published: false, updatedAt: new Date() })
       .where(eq(products.id, id))
+
+    await db
+      .update(productVariants)
+      .set({ status: 'DRAFT', published: false, updatedAt: new Date() })
+      .where(eq(productVariants.productId, id))
   }
 
   __updateCatalogueProductForTesting(id, { status: 'DRAFT', published: false })

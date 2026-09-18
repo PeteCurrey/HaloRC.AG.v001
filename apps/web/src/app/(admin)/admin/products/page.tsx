@@ -39,18 +39,23 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
     ...(tier ? { tier } : {}),
   }
 
-  let productsData = { items: [] as any[], total: 0 }
+  let productsData: { items: any[]; total: number; error?: string | null } = { items: [], total: 0, error: null }
   let brands: Array<{ id: string; name: string }> = []
+  let dbError: string | null = null
 
   try {
     const [pData, bData] = await Promise.all([
       getAdminProducts(filters, { page, perPage: 25 }),
       getAdminBrands(),
     ])
-    productsData = pData || { items: [], total: 0 }
+    productsData = pData || { items: [], total: 0, error: null }
+    if (pData?.error) {
+      dbError = pData.error
+    }
     brands = bData || []
-  } catch (error) {
+  } catch (error: any) {
     console.error('[AdminProductsPage] Error loading products data:', error)
+    dbError = error?.message || 'DATABASE ERROR'
   }
 
   const { items, total } = productsData
@@ -72,13 +77,37 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
       <AdminPageHeader
         category="Authoritative Catalogue"
         title="Product Inventory & SKUs"
-        description={`Showing ${items.length} of ${total} products in authoritative registry.`}
+        description={
+          dbError
+            ? `DATABASE ERROR: ${dbError}`
+            : `Showing ${items.length} of ${total} products in authoritative registry.`
+        }
         actions={
           <AdminAction variant="primary" href="/admin/products/new">
             + Create Product
           </AdminAction>
         }
       />
+
+      {dbError && (
+        <div
+          style={{
+            margin: '16px 0',
+            padding: '12px 16px',
+            backgroundColor: '#FDF2F2',
+            border: '1px solid #F87171',
+            borderRadius: '4px',
+            color: '#B91C1C',
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <strong style={{ fontWeight: 700 }}>DATABASE ERROR:</strong>
+          <span>Failed to connect to authoritative PostgreSQL registry. Details: {dbError}</span>
+        </div>
+      )}
 
       {/* Filter Toolbar */}
       <form method="get">

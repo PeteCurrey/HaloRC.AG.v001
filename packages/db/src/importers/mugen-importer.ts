@@ -28,6 +28,8 @@ import {
   STORE_BRANDS,
 } from '../queries/catalogue-store'
 import { resolveMugenProductMedia } from './mugen-media-cache'
+import { MugenCanonicalPromoter } from './mugen-canonical-promoter'
+import { isDbConfigured } from '../client'
 
 export interface ParsedMugenRow {
   sourceFile: string
@@ -636,62 +638,10 @@ export class MugenCatalogueImporter {
       syncRunIds.push(syncRun.runId)
     }
 
-    // Populate Canonical Products into STORE_PRODUCTS / STORE_VARIANTS if not present
-    let newCanonicals = 0
-    let updatedCanonicals = 0
-
-    for (const cp of canonicalProducts) {
-      const existingProduct = STORE_PRODUCTS.find((p) => p.sku === cp.sku)
-
-      if (!existingProduct) {
-        newCanonicals++
-        const prodId = `prod-mugen-${cp.sku.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
-        STORE_PRODUCTS.push({
-          id: prodId,
-          slug: `mugen-${cp.sku.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-          sku: cp.sku,
-          brandId: 'brand-mugen-seiki',
-          platformId: null,
-          name: cp.title,
-          shortName: cp.sku,
-          categoryId: cp.categoryId,
-          productType: cp.productType,
-          tier: cp.productType === 'KIT' ? 'PREMIUM' : 'STANDARD',
-          status: 'REVIEW', // Preserved in admin review per spec §18
-          lifecycle: 'ACTIVE',
-          editorialSummary: cp.description,
-          discipline: cp.discipline,
-          published: false,
-        })
-
-        const variantId = `var-mugen-${cp.sku.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
-        STORE_VARIANTS.push({
-          id: variantId,
-          productId: prodId,
-          sku: cp.sku,
-          name: cp.title,
-          status: 'REVIEW',
-          lifecycle: 'ACTIVE',
-          published: false,
-        })
-
-        // Add commercial supplier offer (EUR net cost preserved without invented retail margin)
-        STORE_OFFERS.push({
-          id: `off-mugen-${cp.sku.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-          productVariantId: variantId,
-          marketCode: 'UK',
-          retailPrice: cp.netCostMinorUnits, // Wholesale baseline
-          currency: 'EUR',
-          taxMode: 'EXCLUSIVE', // Wholesale net ex-VAT
-          availability: 'IN_STOCK',
-          supplierId: 'sup-mugen-europe',
-          supplyRoute: 'DIRECT_MANUFACTURER',
-          leadTimeDays: 5,
-          notes: `Authoritative MUGEN import from ${cp.sourceFiles.join(', ')}`,
-        })
-      } else {
-        updatedCanonicals++
-      }
+    // In production, promote directly into authoritative PostgreSQL tables
+    if (isDbConfigured) {
+      const promoter = new MugenCanonicalPromoter()
+      await promoter.promoteAll()
     }
 
     // Calculate Quality Report statistics
