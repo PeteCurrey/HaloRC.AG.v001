@@ -8,7 +8,6 @@ import {
   FullBleedImage,
   ChapterIntro,
   ProductFeature,
-  BrandFeature,
   Quote,
   ImageStrip,
 } from '@/components/sections'
@@ -146,7 +145,41 @@ export default async function HomePage() {
         secondaryCtaHref="/machines?view=catalogue"
       />
 
-      {/* 3. Product Feature (Real authoritative DB product) */}
+      {/* 3. Five-discipline card strip – fulfils the "Five disciplines" chapter intro */}
+      <section className={s.sectionDisciplineStrip} aria-labelledby="five-disciplines-heading">
+        <div className={s.disciplineStripInner}>
+          <div className={s.disciplineStripGrid}>
+            {[
+              { id: 'race',        label: 'Competition Race',    sub: 'Championship touring, buggy & GT from IFMAR/BRCA homologated platforms',     badge: 'HALO TIER', image: '/images/disciplines/race.jpg',         href: '/machines?discipline=race' },
+              { id: 'drift',       label: 'Precision Drift',     sub: 'RWD countersteer dynamics, carbon graphite chassis & zero-slip differentials', badge: undefined,   image: '/images/disciplines/drift.jpg',        href: '/machines?discipline=drift' },
+              { id: 'crawl',       label: 'Scale Trail & Crawl', sub: 'Portal-axle terrain engineering, live-axle rigs & technical obstacle courses', badge: undefined,   image: '/images/disciplines/crawl.jpg',        href: '/machines?discipline=crawl' },
+              { id: 'scale',       label: 'Engineering Realism', sub: 'Authentic mechanical fidelity — scale detailing with working suspension',      badge: undefined,   image: '/images/disciplines/scale.jpg',        href: '/machines?discipline=scale' },
+              { id: 'large_scale', label: 'Large Scale 1:5',     sub: 'Petrol-powered & 8S electric motorsport with hydraulic disc brakes',           badge: '1:5 SCALE', image: '/images/disciplines/large-scale.jpg', href: '/machines?discipline=large_scale' },
+            ].map((item) => (
+              <Link key={item.id} href={item.href} className={s.disciplineCard}>
+                {item.image && (
+                  <div
+                    className={s.disciplineCardBg}
+                    style={{ backgroundImage: `url(${item.image})` }}
+                    aria-hidden="true"
+                  />
+                )}
+                <div className={s.disciplineCardScrim} aria-hidden="true" />
+                <div className={s.disciplineCardContent}>
+                  {item.badge && (
+                    <span className={s.disciplineCardBadge}>{item.badge}</span>
+                  )}
+                  <h3 className={s.disciplineCardTitle}>{item.label}</h3>
+                  <p className={s.disciplineCardSub}>{item.sub}</p>
+                  <span className={s.disciplineCardCta}>Explore →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Product Feature (Real authoritative DB product) */}
       {topHeroProduct && (
         <ProductFeature
           isHalo={topHeroProduct.tier === 'HALO'}
@@ -214,16 +247,85 @@ export default async function HomePage() {
         surface="dark"
       />
 
-      <BrandFeature
-        name="XRAY"
-        country="Slovakia"
-        specialism="World Championship Touring & Buggy"
-        status="Authorised Dealer"
-        description="Every component designed, machined, and assembled in-house at the high-tech XRAY facility in Trenčín, Slovakia. Unmatched European metallurgy, zero-slop tolerances, and world-record trophy credentials."
-        imageSrc="/images/brands/xray.jpg"
-        imageAlt="XRAY high-precision factory competition machine"
-        href="/brands/xray"
-      />
+      {/* 5b. 5-brand specialist marques grid */}
+      <section className={s.sectionBrandGrid} aria-label="Specialist engineering marques">
+        <div className={s.brandGridInner}>
+          <div className={s.brandGrid}>
+            {[
+              {
+                id: 'xray',
+                name: 'XRAY',
+                country: 'Slovakia',
+                specialism: 'World Championship Touring & Buggy',
+                status: 'Authorised Dealer',
+                image: '/images/brands/xray.jpg',
+                href: '/brands/xray',
+              },
+              {
+                id: 'awesomatix',
+                name: 'Awesomatix',
+                country: 'Germany',
+                specialism: 'Rotary Damper Precision Chassis',
+                status: 'Authorised Dealer',
+                image: '/images/brands/awesomatix.jpg',
+                href: '/brands/awesomatix',
+              },
+              {
+                id: 'traxxas',
+                name: 'Traxxas',
+                country: 'USA',
+                specialism: 'Flagship Bash & Large Scale Trail',
+                status: 'Authorised Dealer',
+                image: '/images/brands/traxxas.jpg',
+                href: '/brands/traxxas',
+              },
+              {
+                id: 'schumacher',
+                name: 'Schumacher',
+                country: 'UK',
+                specialism: 'British Championship Competition',
+                status: 'Authorised Dealer',
+                image: '/images/brands/schumacher.jpg',
+                href: '/brands/schumacher',
+              },
+              {
+                id: 'hobbywing',
+                name: 'Hobbywing',
+                country: 'China',
+                specialism: 'XeRun Brushless ESCs & Motors',
+                status: 'Distributor Sourced',
+                image: '/images/brands/hobbywing.jpg',
+                href: '/brands/hobbywing',
+              },
+            ].map((brand) => (
+              <Link key={brand.id} href={brand.href} className={s.brandCard}>
+                <div
+                  className={s.brandCardBg}
+                  style={{ backgroundImage: `url(${brand.image})` }}
+                  aria-hidden="true"
+                />
+                <div className={s.brandCardScrim} aria-hidden="true" />
+                <div className={s.brandCardContent}>
+                  <div className={s.brandCardStatus}>
+                    <span className={s.brandCardStatusDot} />
+                    <span>{brand.status}</span>
+                  </div>
+                  <h3 className={s.brandCardName}>{brand.name}</h3>
+                  <p className={s.brandCardCountry}>{brand.country}</p>
+                  <p className={s.brandCardSpecialism}>{brand.specialism}</p>
+                  <span className={s.brandCardCta}>Explore →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className={s.brandGridFooter}>
+            <Link href="/brands" className={s.brandGridFooterLink}>
+              View Full Brand Universe →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* 6. Quote / Restrained Statement */}
       <Quote
