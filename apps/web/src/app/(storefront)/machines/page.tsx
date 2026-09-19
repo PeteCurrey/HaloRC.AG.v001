@@ -23,56 +23,33 @@ export const metadata: Metadata = {
   },
 }
 
-const BRAND_IMAGES: Record<string, string> = {
-  awesomatix: '/images/brands/awesomatix.jpg',
-  hobbywing: '/images/brands/hobbywing.jpg',
-  sanwa: '/images/brands/sanwa.jpg',
-  schumacher: '/images/brands/schumacher.jpg',
-  traxxas: '/images/brands/traxxas.jpg',
-  xray: '/images/brands/xray.jpg',
-  'mugen-seiki': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
-}
-
-const DISCIPLINE_IMAGES: Record<string, string> = {
-  BASH: '/images/disciplines/bash.jpg',
-  RACE: '/images/disciplines/race.jpg',
-  DRIFT: '/images/disciplines/drift.jpg',
-  CRAWL: '/images/disciplines/crawl.jpg',
-  SCALE: '/images/disciplines/scale.jpg',
-  LARGE_SCALE: '/images/disciplines/large-scale.jpg',
-}
-
-const MACHINE_IMAGES: Record<string, string> = {
-  'xray-x4-2026-1-10-touring-car-kit': '/images/brands/xray.jpg',
-  'awesomatix-a800mx-1-10-touring-car-kit': '/images/brands/awesomatix.jpg',
-  'traxxas-x-maxx-8s-brushless-monster-truck': '/images/disciplines/bash.jpg',
-  'arrma-kraton-6s-blx-extreme-bash-speed-monster': '/images/disciplines/bash.jpg',
-  'yokomo-master-drift-md-2-0-chassis-kit': '/images/disciplines/drift.jpg',
-  'reve-d-rdx-1-10-rwd-drift-chassis-kit': '/images/disciplines/drift.jpg',
-  'traxxas-trx-4-1979-ford-bronco-crawler': '/images/disciplines/crawl.jpg',
-  'axial-scx10-iii-jeep-jlu-wrangler-4wd-rtr': '/images/disciplines/crawl.jpg',
-  'tamiya-cc-02-mercedes-benz-g-500-scale-kit': '/images/disciplines/scale.jpg',
-  'fg-sportsline-4wd-porsche-911-gt3-1-5-rtr': '/images/disciplines/large-scale.jpg',
-  'mecatech-fw01-1-5-competition-supercar-chassis': '/images/disciplines/large-scale.jpg',
-  'team-associated-rc8b4-1-nitro-buggy-kit': '/images/disciplines/race.jpg',
+const VERIFIED_MACHINE_IMAGES: Record<string, string> = {
   'mugen-mtc3-1-10-4wd-ep-touring-kit': 'https://www.mugenshop.eu/media/image/product/10125/lg/a2006_mugen-seiki-mtc-3-touring-car-kit-alu.jpg',
   'mugen-msb1-1-10-2wd-ep-buggy-kit': 'https://www.mugenshop.eu/media/image/product/9490/lg/b2001_mugen-seiki-msb1-1-10-2wd-elektro-buggy-bausatz.jpg',
   'mugen-mbx-8r-nitro-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7732/lg/e2027_mugen-seiki-mbx-8r-1-8-nitro-buggy-kit.jpg',
+  'mugen-mbx-8r-nitro-premium-edition-kit': 'https://www.mugenshop.eu/media/image/product/7732/lg/e2027_mugen-seiki-mbx-8r-1-8-nitro-buggy-kit.jpg',
   'mugen-mbx-8r-eco-1-8-4wd-buggy-kit': 'https://www.mugenshop.eu/media/image/product/7734/lg/e2028_mugen-seiki-mbx-8r-eco-1-8-electric-buggy-kit.jpg',
+  'mugen-mbx-8r-eco-premium-edition-kit': 'https://www.mugenshop.eu/media/image/product/7734/lg/e2028_mugen-seiki-mbx-8r-eco-1-8-electric-buggy-kit.jpg',
   'mugen-mbx-8tr-nitro-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8499/lg/e2029_mugen-seiki-mbx8t-r-1-8-nitro-truggy-kit.jpg',
   'mugen-mbx-8tr-eco-1-8-4wd-truggy-kit': 'https://www.mugenshop.eu/media/image/product/8500/lg/e2030_mugen-seiki-mbx8t-r-eco-1-8-elektro-truggy-kit.jpg',
   'mugen-mrx7-1-8-touring-kit': 'https://www.mugenshop.eu/media/image/product/10126/lg/h2009_mugen-seiki-mrx7-1-8-on-road-chassis-kit.jpg',
   'mugen-mtx-7r-1-10-touring-kit': 'https://www.mugenshop.eu/media/image/product/9103/lg/t2006_mugen-seiki-mtx-7r-1-10-nitro-touring-car-kit.jpg',
 }
 
-function getMachineImage(slug: string, brandSlug: string, discipline: string): string {
-  return (
-    MACHINE_IMAGES[slug] ||
-    BRAND_IMAGES[brandSlug] ||
-    DISCIPLINE_IMAGES[discipline.toUpperCase()] ||
-    '/images/hero/hero-1-5-scale-rc.jpg'
-  )
+function getVerifiedMachineImage(slug: string): string | null {
+  return VERIFIED_MACHINE_IMAGES[slug] || null
 }
+
+const BRANDS_FILTER = [
+  { label: 'All Marques', slug: 'all' },
+  { label: 'Mugen Seiki', slug: 'mugen-seiki' },
+  { label: 'XRAY', slug: 'xray' },
+  { label: 'Awesomatix', slug: 'awesomatix' },
+  { label: 'Traxxas', slug: 'traxxas' },
+  { label: 'ARRMA', slug: 'arrma' },
+  { label: 'Yokomo', slug: 'yokomo' },
+  { label: 'Team Associated', slug: 'team-associated' },
+]
 
 const DISCIPLINES = [
   { label: 'All Disciplines', slug: 'all' },
@@ -134,21 +111,24 @@ interface MachinesPageProps {
   searchParams: Promise<{
     discipline?: string
     scale?: string
+    brand?: string
     sort?: string
     view?: string
   }>
 }
 
 export default async function MachinesPage({ searchParams }: MachinesPageProps) {
-  const { discipline, scale, sort, view } = await searchParams
+  const { discipline, scale, brand, sort, view } = await searchParams
   const activeDiscipline = discipline ?? 'all'
   const activeScale = scale ?? 'all'
+  const activeBrand = brand ?? 'all'
   const activeSort = sort ?? 'featured'
   const activeMarket = await getMarketPreference()
 
   const hasActiveFilters =
     (discipline && discipline !== 'all') ||
     (scale && scale !== 'all') ||
+    (brand && brand !== 'all') ||
     (sort && sort !== 'featured')
   const isCatalogueMode = view === 'catalogue' || hasActiveFilters
 
@@ -157,6 +137,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
     ? await getMachinesList({
         discipline: activeDiscipline,
         ...(activeScale !== 'all' ? { scale: activeScale } : {}),
+        ...(activeBrand !== 'all' ? { brand: activeBrand } : {}),
         sort: activeSort,
         marketCode: activeMarket,
       })
@@ -168,19 +149,21 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
     : []
 
   const bashMachines = allShowroomMachines.filter((m) => m.discipline === 'BASH').slice(0, 2)
-  const raceMachines = allShowroomMachines.filter((m) => m.discipline === 'RACE').slice(0, 2)
+  const raceMachines = allShowroomMachines.filter((m) => m.discipline === 'RACE' || m.brand.slug.includes('mugen')).slice(0, 4)
   const driftMachines = allShowroomMachines.filter((m) => m.discipline === 'DRIFT').slice(0, 2)
   const crawlMachines = allShowroomMachines.filter((m) => m.discipline === 'CRAWL').slice(0, 2)
   const haloMachines = allShowroomMachines.filter((m) => m.tier === 'HALO').slice(0, 3)
 
-  function buildFilterHref(newParams: { discipline?: string; scale?: string; sort?: string }) {
+  function buildFilterHref(newParams: { discipline?: string; scale?: string; brand?: string; sort?: string }) {
     const d = newParams.discipline !== undefined ? newParams.discipline : activeDiscipline
     const sc = newParams.scale !== undefined ? newParams.scale : activeScale
+    const b = newParams.brand !== undefined ? newParams.brand : activeBrand
     const so = newParams.sort !== undefined ? newParams.sort : activeSort
 
     const queryParts: string[] = ['view=catalogue']
     if (d && d !== 'all') queryParts.push(`discipline=${encodeURIComponent(d)}`)
     if (sc && sc !== 'all') queryParts.push(`scale=${encodeURIComponent(sc)}`)
+    if (b && b !== 'all') queryParts.push(`brand=${encodeURIComponent(b)}`)
     if (so && so !== 'featured') queryParts.push(`sort=${encodeURIComponent(so)}`)
 
     return `/machines?${queryParts.join('&')}`
@@ -226,6 +209,25 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
               </nav>
 
               <div className={s.secondaryFilters}>
+                <div className={s.filterGroup}>
+                  <span className={s.filterLabel}>Marque:</span>
+                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                    {BRANDS_FILTER.map((br) => {
+                      const isSelected = activeBrand.toLowerCase() === br.slug.toLowerCase()
+                      return (
+                        <Link
+                          key={br.slug}
+                          href={buildFilterHref({ brand: br.slug })}
+                          className={`${s.tabLink} ${isSelected ? s.tabLinkActive : ''}`}
+                          style={{ padding: '3px 8px', fontSize: '11px' }}
+                        >
+                          {br.label}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+
                 <div className={s.filterGroup}>
                   <span className={s.filterLabel}>Scale:</span>
                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -289,28 +291,53 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                 <div className={s.productGrid}>
                   {machines.map((m) => {
                     const isHalo = m.tier === 'HALO'
-                    const imageSrc = getMachineImage(m.slug, m.brand.slug, m.discipline)
+                    const imageSrc = getVerifiedMachineImage(m.slug)
                     return (
                       <article
                         key={m.id}
                         className={`${s.card} ${isHalo ? s.cardHalo : ''}`}
                       >
                         <div>
-                          <div className={s.cardImageSlot}>
-                            <Image
-                              src={imageSrc}
-                              alt={`${m.brand.name} ${m.name}`}
-                              fill
-                              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              style={{ objectFit: 'cover' }}
-                            />
-                            <div className={s.cardImageOverlay} />
-                            {isHalo && (
-                              <span className={s.haloTag}>
-                                ★ Halo / {m.haloClassification ?? 'Competition'}
-                              </span>
-                            )}
-                          </div>
+                          {imageSrc ? (
+                            <div className={s.cardImageSlot}>
+                              <Image
+                                src={imageSrc}
+                                alt={`${m.brand.name} ${m.name}`}
+                                fill
+                                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                                style={{ objectFit: 'cover' }}
+                              />
+                              <div className={s.cardImageOverlay} />
+                              {isHalo && (
+                                <span className={s.haloTag}>
+                                  ★ Halo / {m.haloClassification ?? 'Competition'}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className={s.editorialCardSlot}>
+                              <div className={s.editorialCardMarque}>
+                                <span className={s.editorialCardBrand}>{m.brand.name}</span>
+                                <span className={s.editorialCardBadge}>
+                                  {[m.scale, m.powerType].filter(Boolean).join(' · ') || m.discipline}
+                                </span>
+                              </div>
+                              <div className={s.editorialCardCenter}>
+                                <div className={s.editorialCardTitle}>
+                                  {m.shortName ?? m.name}
+                                </div>
+                              </div>
+                              <div className={s.editorialCardFooter}>
+                                <span>{m.sku ? `PLATFORM // ${m.sku}` : 'COMPETITION CHASSIS'}</span>
+                                <span>{m.discipline}</span>
+                              </div>
+                              {isHalo && (
+                                <span className={s.haloTag}>
+                                  ★ Halo / {m.haloClassification ?? 'Competition'}
+                                </span>
+                              )}
+                            </div>
+                          )}
 
                           <div className={s.cardHeader}>
                             <span className={s.brandName}>{m.brand.name}</span>
@@ -493,17 +520,39 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
 
           {haloMachines.length > 0 ? (
             <div className={s.haloCardsGrid}>
-              {haloMachines.map((m) => (
-                <Link key={m.id} href={`/machines/${m.slug}`} className={s.haloCard}>
-                  <div className={s.haloCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
-                    <Image
-                      src={getMachineImage(m.slug, m.brand.slug, m.discipline)}
-                      alt={m.name}
-                      fill
-                      sizes="(min-width: 1024px) 33vw, 100vw"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
+              {haloMachines.map((m) => {
+                const img = getVerifiedMachineImage(m.slug)
+                return (
+                  <Link key={m.id} href={`/machines/${m.slug}`} className={s.haloCard}>
+                    {img ? (
+                      <div className={s.haloCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                        <Image
+                          src={img}
+                          alt={m.name}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, 100vw"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    ) : (
+                      <div className={s.editorialCardSlot} style={{ marginBottom: 0, borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0' }}>
+                        <div className={s.editorialCardMarque}>
+                          <span className={s.editorialCardBrand}>{m.brand.name}</span>
+                          <span className={s.editorialCardBadge}>
+                            {[m.scale, m.powerType].filter(Boolean).join(' · ') || m.discipline}
+                          </span>
+                        </div>
+                        <div className={s.editorialCardCenter}>
+                          <div className={s.editorialCardTitle}>
+                            {m.shortName ?? m.name}
+                          </div>
+                        </div>
+                        <div className={s.editorialCardFooter}>
+                          <span>{m.sku ? `HALO // ${m.sku}` : 'HALO PLATFORM'}</span>
+                          <span>{m.discipline}</span>
+                        </div>
+                      </div>
+                    )}
                   <div className={s.haloCardContent}>
                     <span className={s.haloCardEyebrow}>
                       ★ Halo / {m.haloClassification ?? 'Competition'}
@@ -519,7 +568,8 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
                     </div>
                   </div>
                 </Link>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className={s.emptyGrid} style={{ maxWidth: '640px', margin: '0 auto' }}>

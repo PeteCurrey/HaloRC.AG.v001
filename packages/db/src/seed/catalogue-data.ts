@@ -67,6 +67,7 @@ export interface SeedProduct {
   haloClassification?: string
   editorialSummary: string
   discipline: Discipline
+  tags?: string[]
   published: boolean
 }
 

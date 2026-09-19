@@ -173,12 +173,15 @@ export async function getAdminProducts(
     let filtered = [...STORE_PRODUCTS]
     if (filters.search) {
       const q = filters.search.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
+      filtered = filtered.filter((p) => {
+        const b = STORE_BRANDS.find((br) => br.id === p.brandId)
+        return (
           p.name.toLowerCase().includes(q) ||
           (p.sku && p.sku.toLowerCase().includes(q)) ||
-          p.slug.toLowerCase().includes(q)
-      )
+          p.slug.toLowerCase().includes(q) ||
+          (b && b.name.toLowerCase().includes(q))
+        )
+      })
     }
     if (filters.brandId) filtered = filtered.filter((p) => p.brandId === filters.brandId)
     if (filters.status) filtered = filtered.filter((p) => p.status === filters.status)

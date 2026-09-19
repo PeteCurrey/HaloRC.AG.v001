@@ -446,21 +446,30 @@ export async function getMachinesList(params?: {
 
     if (params?.discipline && params.discipline !== 'all') {
       const disc = params.discipline.toUpperCase()
-      conditions.push(
-        or(
-          sql`${disc} = ANY(${products.tags})`,
-          ilike(categories.slug, `%${params.discipline}%`),
-          ilike(products.categoryId, `%${params.discipline}%`)
-        )!
-      )
+      const disciplineConditions = [
+        sql`${disc} = ANY(${products.tags})`,
+        ilike(categories.slug, `%${params.discipline}%`),
+        ilike(products.categoryId, `%${params.discipline}%`),
+      ]
+
+      if (disc === 'RACE') {
+        disciplineConditions.push(
+          eq(categories.parentId, 'cat-race'),
+          eq(categories.parentId, 'cat-race-machines'),
+          sql`${products.categoryId} IN ('cat-race', 'cat-race-machines', 'cat-110-touring', 'cat-18-buggy', 'cat-18-gt', 'cat-f1', 'cat-112', 'cat-15-onroad')`
+        )
+      }
+
+      conditions.push(or(...disciplineConditions)!)
     }
 
-    if (params?.brand) {
+    if (params?.brand && params.brand !== 'all') {
       const brandSlug = params.brand.toLowerCase()
       conditions.push(
         or(
           eq(brands.slug, brandSlug),
-          eq(brands.id, params.brand)
+          eq(brands.id, params.brand),
+          ilike(brands.name, `%${params.brand}%`)
         )!
       )
     }
@@ -485,6 +494,7 @@ export async function getMachinesList(params?: {
       .select({
         product: products,
         brand: brands,
+        category: categories,
       })
       .from(products)
       .innerJoin(brands, eq(products.brandId, brands.id))
@@ -530,25 +540,41 @@ export async function getMachinesList(params?: {
       }
     }
 
-    const list: MachineListItem[] = rows.map((r) => ({
-      id: r.product.id,
-      slug: r.product.slug,
-      sku: r.product.sku ?? '',
-      name: r.product.name,
-      shortName: r.product.shortName ?? r.product.name,
-      brand: {
-        id: r.brand.id,
-        slug: r.brand.slug,
-        name: r.brand.name,
-      },
-      tier: r.product.tier as ProductTier,
-      haloClassification: r.product.haloClassification ?? null,
-      scale: r.product.scale ?? null,
-      powerType: r.product.powerType ?? null,
-      discipline: ((r.product.tags?.[0] as Discipline) || 'RACE'),
-      editorialSummary: r.product.editorialSummary ?? '',
-      offer: offerMap.get(r.product.id) ?? null,
-    }))
+    const list: MachineListItem[] = rows.map((r) => {
+      let resolvedDiscipline: Discipline = 'RACE'
+      const tagDisc = r.product.tags?.[0] as Discipline | undefined
+      if (tagDisc) {
+        resolvedDiscipline = tagDisc
+      } else {
+        const catSlug = (r.category?.slug || r.product.categoryId || '').toLowerCase()
+        if (catSlug.includes('bash')) resolvedDiscipline = 'BASH'
+        else if (catSlug.includes('drift')) resolvedDiscipline = 'DRIFT'
+        else if (catSlug.includes('crawl')) resolvedDiscipline = 'CRAWL'
+        else if (catSlug.includes('scale') && !catSlug.includes('large')) resolvedDiscipline = 'SCALE'
+        else if (catSlug.includes('large-scale') || catSlug.includes('large_scale')) resolvedDiscipline = 'LARGE_SCALE'
+        else resolvedDiscipline = 'RACE'
+      }
+
+      return {
+        id: r.product.id,
+        slug: r.product.slug,
+        sku: r.product.sku ?? '',
+        name: r.product.name,
+        shortName: r.product.shortName ?? r.product.name,
+        brand: {
+          id: r.brand.id,
+          slug: r.brand.slug,
+          name: r.brand.name,
+        },
+        tier: r.product.tier as ProductTier,
+        haloClassification: r.product.haloClassification ?? null,
+        scale: r.product.scale ?? null,
+        powerType: r.product.powerType ?? null,
+        discipline: resolvedDiscipline,
+        editorialSummary: r.product.editorialSummary ?? '',
+        offer: offerMap.get(r.product.id) ?? null,
+      }
+    })
 
     // Sorting
     if (params?.sort === 'price_asc') {
@@ -1158,7 +1184,8 @@ export async function getPartsList(params?: {
         or(
           sql`UPPER(${products.productType}) = ${typeUpper}`,
           ilike(categories.slug, `%${params.type}%`),
-          ilike(products.categoryId, `%${params.type}%`)
+          ilike(products.categoryId, `%${params.type}%`),
+          sql`${typeUpper} = ANY(${products.tags})`
         )!
       )
     }
@@ -1168,7 +1195,8 @@ export async function getPartsList(params?: {
       conditions.push(
         or(
           eq(brands.slug, brandSlug),
-          eq(brands.id, params.brand)
+          eq(brands.id, params.brand),
+          ilike(brands.name, `%${params.brand}%`)
         )!
       )
     }
@@ -1295,7 +1323,8 @@ export async function getPartsList(params?: {
     filtered = filtered.filter(
       (p) =>
         p.productType.toUpperCase() === typeUpper ||
-        p.categoryId.toLowerCase().includes(params.type!.toLowerCase())
+        p.categoryId.toLowerCase().includes(params.type!.toLowerCase()) ||
+        p.tags?.includes(typeUpper)
     )
   }
 

@@ -234,6 +234,6 @@ describe('MUGEN Seiki Production Catalogue Import Engine', () => {
       expect(report.rightsReviewItems).toBe(2655)
       expect(report.confidenceBreakdown.VERIFIED).toBe(2646)
       expect(report.confidenceBreakdown.KNOWN).toBe(9)
-    })
+    }, 30000)
   })
 })

@@ -12,6 +12,7 @@ function tryLoadEnv() {
   if (process.env['DATABASE_URL']) return
   const candidates = [
     path.resolve(process.cwd(), '.env.local'),
+    path.resolve(process.cwd(), '../.env.local'),
     path.resolve(process.cwd(), '../../.env.local'),
     typeof __dirname !== 'undefined' ? path.resolve(__dirname, '../../../.env.local') : null,
     typeof __dirname !== 'undefined' ? path.resolve(__dirname, '../../.env.local') : null,
@@ -45,12 +46,30 @@ const connectionString =
   process.env['POSTGRES_URL'] ||
   'postgresql://postgres:postgres@127.0.0.1:5432/halo_rc_placeholder'
 
-// Disable prefetch for Supabase transaction pooler compatibility
-const client = postgres(connectionString, {
+declare global {
+  // eslint-disable-next-line no-var
+  var __postgres_client__: ReturnType<typeof postgres> | undefined
+}
+
+const clientOptions: Record<string, unknown> = {
   prepare: false,
   max: 10,
   idle_timeout: 20,
-})
+  connect_timeout: 10,
+}
+
+if (connectionString.includes('supabase.com')) {
+  clientOptions['ssl'] = 'require'
+}
+
+// Disable prefetch for Supabase transaction pooler compatibility
+const client =
+  globalThis.__postgres_client__ ??
+  postgres(connectionString, clientOptions as any)
+
+if (process.env['NODE_ENV'] !== 'production') {
+  globalThis.__postgres_client__ = client
+}
 
 export const isDbConfigured = Boolean(
   (process.env['DATABASE_URL'] || process.env['DIRECT_URL'] || process.env['POSTGRES_URL']) &&

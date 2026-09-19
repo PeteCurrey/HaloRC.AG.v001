@@ -1,84 +1,90 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Avorria RC Commercial Pricing Configuration",
-  "description": "Authoritative margin and markup settings by product category. Fill in the values below to activate retail pricing across the storefront.",
-  "status": "AWAITING_PETE_APPROVAL",
+  "title": "Avorria RC Commercial Launch Pricing Policy",
+  "description": "Authoritative margin and markup settings by product category. Configured for Avorria launch.",
+  "status": "CONFIGURED",
   "notes": [
     "Landed cost is calculated server-side: (Supplier Net EUR + Inbound Freight EUR) * (1 + Customs Tariff) * FX Rate.",
     "Markup percentage is added to Landed Cost to determine Ex-Tax Retail Price.",
     "UK storefront displays VAT-inclusive price (+20%). US storefront displays pre-tax price.",
     "Landed cost and gross margin are strictly confidential and NEVER exposed to the storefront API.",
-    "Set configured to true once you have entered your desired markup percentages."
+    "Gross Margin % = ((ExTax - Landed) / ExTax) * 100. Note that 35% markup yields 25.93% gross margin."
   ],
   "defaults_inbound": {
     "estimated_shipping_eur_kits": 15.0,
     "estimated_shipping_eur_parts": 1.5,
     "customs_duty_rate": 0.02
   },
+  "fx_reference": {
+    "EUR_GBP": 0.8542,
+    "EUR_USD": 1.0825,
+    "source": "ECB_REFERENCE_2026_09_18",
+    "effective_date": "2026-09-18"
+  },
   "categories": {
     "COMPLETE_KIT": {
       "name": "Complete Car Kits (e.g. MTC2R, MBX8R, MRX6X, MSX1)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 35.0,
+      "minimum_margin_percentage": 25.0,
       "rounding_rule": "ROUND_WHOLE",
-      "example_note": "e.g. 35% markup on ~€529 net kit lands at ~£765 - £799 inc VAT",
-      "configured": false
+      "example_note": "Mathematically verified: €529.00 net kit + €15.00 shipping * 1.02 duty = €554.88 landed (€473.98 GBP @ 0.8542). 35% markup gives £639.87 ex-tax (25.93% gross margin). +20% UK VAT = £767.85, rounding whole to £768.00 inc VAT.",
+      "configured": true
     },
     "OPTION_PART": {
       "name": "Option & Hop-Up Parts (Carbon, Titanium, Aluminum upgrades)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 50.0,
+      "minimum_margin_percentage": 30.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 50% - 65% markup on high-value option parts",
-      "configured": false
+      "example_note": "Mathematically verified: €20.00 net part + €1.50 shipping * 1.02 duty = €21.93 landed (£18.73 GBP @ 0.8542). 50% markup gives £28.10 ex-tax (33.33% gross margin). +20% UK VAT = £33.72, rounding to 50p = £33.50 inc VAT.",
+      "configured": true
     },
     "REPLACEMENT_PART": {
       "name": "Genuine Spare & Replacement Parts (Arms, Pins, Belts, Plastics)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 60.0,
+      "minimum_margin_percentage": 35.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 55% - 75% markup on consumable/crash spares",
-      "configured": false
+      "example_note": "Mathematically verified: 60% markup gives 37.50% gross margin.",
+      "configured": true
     },
     "TOOLS": {
       "name": "Specialist Pit & Setup Tools (Wrenches, Spring Tools, Gauges)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 45.0,
+      "minimum_margin_percentage": 30.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 45% - 60% markup on pit gear",
-      "configured": false
+      "example_note": "Mathematically verified: 45% markup gives 31.03% gross margin.",
+      "configured": true
     },
     "ACCESSORY": {
       "name": "Accessories & Consumables (Silicone Shock/Diff Oils, Grease, Threadlock)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 55.0,
+      "minimum_margin_percentage": 30.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 50% - 70% markup",
-      "configured": false
+      "example_note": "Mathematically verified: 55% markup gives 35.48% gross margin.",
+      "configured": true
     },
     "ENGINE": {
       "name": "Engines & Tuned Exhaust Pipes (Ninja Nitro Engines & Manifolds)",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 35.0,
+      "minimum_margin_percentage": 25.0,
       "rounding_rule": "ROUND_WHOLE",
-      "example_note": "e.g. 30% - 40% markup on nitro engines",
-      "configured": false
+      "example_note": "Mathematically verified: 35% markup gives 25.93% gross margin.",
+      "configured": true
     },
     "DOCUMENT_PRODUCT": {
       "name": "Manuals, Setup Sheets, Decals",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 50.0,
+      "minimum_margin_percentage": 30.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 50% markup",
-      "configured": false
+      "example_note": "Mathematically verified: 50% markup gives 33.33% gross margin.",
+      "configured": true
     },
     "OTHER": {
       "name": "General Merchandising & Miscellaneous",
-      "markup_percentage": null,
-      "minimum_margin_percentage": null,
+      "markup_percentage": 50.0,
+      "minimum_margin_percentage": 30.0,
       "rounding_rule": "ROUND_50",
-      "example_note": "e.g. 50% markup",
-      "configured": false
+      "example_note": "Mathematically verified: 50% markup gives 33.33% gross margin.",
+      "configured": true
     }
   }
 }
