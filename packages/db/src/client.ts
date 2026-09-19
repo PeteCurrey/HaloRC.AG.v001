@@ -40,11 +40,14 @@ function tryLoadEnv() {
 }
 tryLoadEnv()
 
+const DEFAULT_SUPABASE_POOLER_URL =
+  'postgresql://postgres.crvammuvoryoldclrnoj:Vivaro2104!!@aws-0-eu-west-2.pooler.supabase.com:6543/postgres'
+
 const connectionString =
   process.env['DATABASE_URL'] ||
   process.env['DIRECT_URL'] ||
   process.env['POSTGRES_URL'] ||
-  'postgresql://postgres:postgres@127.0.0.1:5432/halo_rc_placeholder'
+  DEFAULT_SUPABASE_POOLER_URL
 
 declare global {
   // eslint-disable-next-line no-var
@@ -72,8 +75,7 @@ if (process.env['NODE_ENV'] !== 'production') {
 }
 
 export const isDbConfigured = Boolean(
-  (process.env['DATABASE_URL'] || process.env['DIRECT_URL'] || process.env['POSTGRES_URL']) &&
-  !connectionString.includes('halo_rc_placeholder')
+  connectionString && !connectionString.includes('halo_rc_placeholder')
 )
 
 export const db = drizzle(client, { schema })

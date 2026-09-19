@@ -152,7 +152,7 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
   const raceMachines = allShowroomMachines.filter((m) => m.discipline === 'RACE' || m.brand.slug.includes('mugen')).slice(0, 4)
   const driftMachines = allShowroomMachines.filter((m) => m.discipline === 'DRIFT').slice(0, 2)
   const crawlMachines = allShowroomMachines.filter((m) => m.discipline === 'CRAWL').slice(0, 2)
-  const haloMachines = allShowroomMachines.filter((m) => m.tier === 'HALO').slice(0, 3)
+  const haloMachines = allShowroomMachines.filter((m) => m.tier === 'HALO' || (m.brand.slug.includes('mugen') && (m.name.includes('Premium') || m.slug.includes('mrx7') || m.slug.includes('mtc3')))).slice(0, 3)
 
   function buildFilterHref(newParams: { discipline?: string; scale?: string; brand?: string; sort?: string }) {
     const d = newParams.discipline !== undefined ? newParams.discipline : activeDiscipline
@@ -502,6 +502,79 @@ export default async function MachinesPage({ searchParams }: MachinesPageProps) 
         secondaryCtaText="Race Department"
         secondaryCtaHref="/race"
       />
+
+      {/* ── 4b. Featured Competition Machines Grid ── */}
+      {raceMachines.length > 0 && (
+        <section style={{ padding: '0 var(--page-gutter) var(--space-16)', maxWidth: 'var(--max-width-content)', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--space-6)', borderBottom: '1px solid var(--colour-hairline)', paddingBottom: 'var(--space-3)' }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-smoke)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Marque In Focus // Mugen Seiki Competition Platforms</p>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--text-2xl)', fontWeight: 400, marginTop: 'var(--space-1)' }}>Championship Chassis Kits</h3>
+            </div>
+            <Link href="/machines?view=catalogue&discipline=race" style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--colour-signal)', textDecoration: 'none', letterSpacing: '0.05em' }}>
+              View All Race Kits →
+            </Link>
+          </div>
+          <div className={s.haloCardsGrid}>
+            {raceMachines.map((m) => {
+              const img = getVerifiedMachineImage(m.slug)
+              return (
+                <Link key={m.id} href={`/machines/${m.slug}`} className={s.haloCard} style={{ background: 'var(--colour-oil)', border: '1px solid var(--colour-charcoal)' }}>
+                  {img ? (
+                    <div className={s.haloCardImage} style={{ position: 'relative', overflow: 'hidden' }}>
+                      <Image
+                        src={img}
+                        alt={m.name}
+                        fill
+                        sizes="(min-width: 1024px) 25vw, 100vw"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={s.editorialCardSlot} style={{ marginBottom: 0, borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0' }}>
+                      <div className={s.editorialCardMarque}>
+                        <span className={s.editorialCardBrand}>{m.brand.name}</span>
+                        <span className={s.editorialCardBadge}>
+                          {[m.scale, m.powerType].filter(Boolean).join(' · ') || m.discipline}
+                        </span>
+                      </div>
+                      <div className={s.editorialCardCenter}>
+                        <div className={s.editorialCardTitle}>
+                          {m.shortName ?? m.name}
+                        </div>
+                      </div>
+                      <div className={s.editorialCardFooter}>
+                        <span>{m.sku ? `RACE // ${m.sku}` : 'COMPETITION KIT'}</span>
+                        <span>{m.discipline}</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className={s.haloCardContent}>
+                    <span className={s.haloCardEyebrow}>
+                      {m.brand.name} // {m.scale ?? '1:8'} {m.powerType ?? 'Competition'}
+                    </span>
+                    <h3 className={s.haloCardName}>{m.shortName ?? m.name}</h3>
+                    <p className={s.haloCardDetail}>{m.editorialSummary}</p>
+                    <div className={s.haloSpecRow}>
+                      {m.offer && (
+                        <MarketAwarePrice
+                          amountMinorUnits={m.offer.retailPriceMinorUnits}
+                          currency={m.offer.currency as Currency}
+                          taxMode={m.offer.taxMode}
+                          size="base"
+                        />
+                      )}
+                      <span className={s.haloSpecPill} style={{ marginLeft: 'auto', color: 'var(--colour-signal)', borderColor: 'rgba(235, 94, 40, 0.4)' }}>
+                        VIEW PLATFORM →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── 5. Dark Halo Chapter ── */}
       <section className={s.darkHaloChapter}>
