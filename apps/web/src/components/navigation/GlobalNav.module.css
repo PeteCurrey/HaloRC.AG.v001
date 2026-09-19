@@ -111,10 +111,13 @@
   text-decoration: none;
   flex-shrink: 0;
   height: 100%;
+  padding-block: var(--space-3);
+  box-sizing: border-box;
 }
 
 .logoWordmark {
-  height: 38px;
+  height: 40px;
+  max-height: 100%;
   width: auto;
   display: block;
   object-fit: contain;
@@ -122,8 +125,12 @@
 }
 
 @media (min-width: 768px) {
+  .logo {
+    padding-block: 12px;
+  }
+
   .logoWordmark {
-    height: 44px;
+    height: 40px;
   }
 }
 

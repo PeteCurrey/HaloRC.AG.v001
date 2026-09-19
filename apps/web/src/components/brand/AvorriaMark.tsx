@@ -44,7 +44,7 @@ export function AvorriaMark({
         alt="Avorria"
         className={className}
         style={{
-          height: '100%',
+          maxHeight: '100%',
           width: 'auto',
           objectFit: 'contain',
           display: 'block',
@@ -64,7 +64,7 @@ export function AvorriaMark({
       alt="Avorria RC"
       className={className}
       style={{
-        height: '100%',
+        maxHeight: '100%',
         width: 'auto',
         objectFit: 'contain',
         display: 'block',
