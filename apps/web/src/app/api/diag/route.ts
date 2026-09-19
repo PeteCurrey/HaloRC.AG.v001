@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db, isDbConfigured } from '@halo-rc/db'
-import { products } from '@halo-rc/db/schema'
-import { count } from 'drizzle-orm'
+import { isDbConfigured, getMachinesList, getPartsList } from '@halo-rc/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,25 +18,23 @@ export async function GET() {
     nodeEnv: process.env['NODE_ENV'],
   }
 
-  let dbStatus = 'NOT_ATTEMPTED'
-  let productCount = -1
+  let machinesCount = 0
+  let partsCount = 0
   let errorMessage: string | null = null
 
-  if (isDbConfigured) {
-    try {
-      const [res] = await db.select({ val: count() }).from(products)
-      productCount = Number(res?.val ?? 0)
-      dbStatus = 'CONNECTED'
-    } catch (err: any) {
-      dbStatus = 'ERROR'
-      errorMessage = err?.message || String(err)
-    }
+  try {
+    const machines = await getMachinesList()
+    machinesCount = machines.length
+    const parts = await getPartsList({ limit: 10 })
+    partsCount = parts.length
+  } catch (err: any) {
+    errorMessage = err?.message || String(err)
   }
 
   return NextResponse.json({
     envInfo,
-    dbStatus,
-    productCount,
+    machinesCount,
+    partsCount,
     errorMessage,
     timestamp: new Date().toISOString(),
   })
